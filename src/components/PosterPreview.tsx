@@ -180,7 +180,7 @@ const PosterPreview = ({ data }: PosterPreviewProps) => {
           )}
 
           {/* Prayer */}
-          <div className="mb-6 max-w-2xl space-y-2">
+          <div className="mb-auto max-w-2xl space-y-2">
             <p
               className={`text-base ${accentColor} font-arabic`}
               style={{ fontFamily: "Scheherazade New, serif" }}
@@ -198,18 +198,18 @@ const PosterPreview = ({ data }: PosterPreviewProps) => {
             <p className={`text-sm ${accentColor} italic`}>Aamiin Ya Rabbal 'Alamin.</p>
           </div>
 
-          {/* From */}
-          <div className="border-t border-poster-white/20 pt-4">
-            <p className="text-sm text-poster-white/70">
-              <span className={accentColor}>Daripada:</span> {data.from}
-            </p>
-          </div>
-
           {/* Decorative Corner Elements */}
           <div className="absolute top-4 left-4 w-8 h-8 border-t-2 border-l-2 border-poster-gold/30"></div>
           <div className="absolute top-4 right-4 w-8 h-8 border-t-2 border-r-2 border-poster-gold/30"></div>
           <div className="absolute bottom-4 left-4 w-8 h-8 border-b-2 border-l-2 border-poster-gold/30"></div>
           <div className="absolute bottom-4 right-4 w-8 h-8 border-b-2 border-r-2 border-poster-gold/30"></div>
+
+          {/* From - At the bottom */}
+          <div className="absolute bottom-8 left-0 right-0 text-center border-t border-poster-white/20 pt-3 mx-16">
+            <p className="text-sm text-poster-white/80">
+              <span className={`${accentColor} font-medium`}>Daripada:</span> {data.from}
+            </p>
+          </div>
         </div>
 
         {/* Download Button */}
