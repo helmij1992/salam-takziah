@@ -94,8 +94,19 @@ const PosterPreview = ({ data }: PosterPreviewProps) => {
           <CardTitle>Pratonton Poster</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-center h-96 bg-muted rounded-lg">
-            <p className="text-muted-foreground">Poster akan dipaparkan di sini</p>
+          <div className="flex flex-col items-center justify-center h-96 bg-poster-bg rounded-lg p-8 space-y-4">
+            <p
+              className="text-3xl md:text-4xl text-poster-gold font-arabic leading-relaxed text-center"
+              style={{ fontFamily: "Scheherazade New, serif", fontWeight: 700 }}
+            >
+              إِنَّا لِلّٰهِ وَإِنَّا إِلَيْهِ رَاجِعُونَ
+            </p>
+            <p className="text-base text-poster-white/90 italic font-medium text-center">
+              Innā lillāhi wa innā ilayhi rāji'ūn
+            </p>
+            <p className="text-sm text-muted-foreground mt-4">
+              Isi borang untuk menjana poster
+            </p>
           </div>
         </CardContent>
       </Card>
