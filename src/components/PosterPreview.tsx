@@ -133,7 +133,7 @@ const PosterPreview = ({ data }: PosterPreviewProps) => {
           {/* Arabic Phrase */}
           <div className="mb-6 w-full">
             <p
-              className={`text-3xl ${accentColor} font-arabic mb-2 leading-loose`}
+              className={`text-xl ${accentColor} font-arabic mb-2 leading-relaxed`}
               style={{ 
                 fontFamily: "Scheherazade New, serif", 
                 fontWeight: 700,
@@ -142,7 +142,7 @@ const PosterPreview = ({ data }: PosterPreviewProps) => {
             >
               إِنَّا لِلّٰهِ وَإِنَّا إِلَيْهِ رَاجِعُونَ
             </p>
-            <p className="text-sm text-poster-white/90 italic font-medium">
+            <p className="text-xs text-poster-white/90 italic font-medium">
               Innā lillāhi wa innā ilayhi rāji'ūn
             </p>
           </div>
