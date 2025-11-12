@@ -159,10 +159,10 @@ const PosterPreview = ({ data }: PosterPreviewProps) => {
           )}
 
           {/* Title */}
-          <p className={`text-lg ${accentColor} mb-2`}>{genderTitle}</p>
+          <p className={`text-base ${accentColor} mb-2`}>{genderTitle}</p>
 
           {/* Name */}
-          <h2 className="text-2xl font-bold text-poster-white mb-2">{data.fullName}</h2>
+          <h2 className="text-xl font-bold text-poster-white mb-2">{data.fullName}</h2>
 
           {/* Dates */}
           <p className="text-sm text-poster-white/70 mb-4">
@@ -205,8 +205,8 @@ const PosterPreview = ({ data }: PosterPreviewProps) => {
           <div className="absolute bottom-4 right-4 w-8 h-8 border-b-2 border-r-2 border-poster-gold/30"></div>
 
           {/* From - At the bottom */}
-          <div className="absolute bottom-6 left-0 right-0 text-center border-t border-poster-white/20 pt-2 mx-16">
-            <p className="text-xs text-poster-white/90">
+          <div className="absolute bottom-5 left-0 right-0 text-center border-t border-poster-white/30 pt-2 mx-20">
+            <p className="text-xs text-poster-white/95">
               <span className={`${accentColor} font-semibold`}>Daripada:</span> {data.from}
             </p>
           </div>
