@@ -164,15 +164,15 @@ const PosterPreview = ({ data }: PosterPreviewProps) => {
           {/* Name */}
           <h2 className="text-xl font-bold text-poster-white mb-2">{data.fullName}</h2>
 
+          {/* Organization */}
+          {data.organization && (
+            <p className="text-sm italic text-poster-white/60 mb-2">{data.organization}</p>
+          )}
+
           {/* Dates */}
           <p className="text-sm text-poster-white/70 mb-4">
             ({formatDate(data.birthDate)} – {formatDate(data.deathDate)})
           </p>
-
-          {/* Organization */}
-          {data.organization && (
-            <p className="text-sm italic text-poster-white/60 mb-4">{data.organization}</p>
-          )}
 
           {/* Additional Message */}
           {data.message && (
@@ -195,7 +195,6 @@ const PosterPreview = ({ data }: PosterPreviewProps) => {
               Semoga roh {genderTitle} dicucuri rahmat dan ditempatkan di sisi-Mu bersama para
               solihin.
             </p>
-            <p className={`text-sm ${accentColor} italic`}>Aamiin Ya Rabbal 'Alamin.</p>
           </div>
 
           {/* Decorative Corner Elements */}
@@ -203,6 +202,11 @@ const PosterPreview = ({ data }: PosterPreviewProps) => {
           <div className="absolute top-4 right-4 w-8 h-8 border-t-2 border-r-2 border-poster-gold/30"></div>
           <div className="absolute bottom-4 left-4 w-8 h-8 border-b-2 border-l-2 border-poster-gold/30"></div>
           <div className="absolute bottom-4 right-4 w-8 h-8 border-b-2 border-r-2 border-poster-gold/30"></div>
+
+          {/* Aamiin - Before Daripada */}
+          <div className="absolute bottom-14 left-0 right-0 text-center">
+            <p className={`text-sm ${accentColor} italic`}>Aamiin Ya Rabbal 'Alamin.</p>
+          </div>
 
           {/* From - At the bottom */}
           <div className="absolute bottom-5 left-0 right-0 text-center border-t border-poster-white/30 pt-2 mx-20">
