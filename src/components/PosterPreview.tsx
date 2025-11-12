@@ -125,9 +125,10 @@ const PosterPreview = ({ data }: PosterPreviewProps) => {
         {/* Poster */}
         <div
           ref={posterRef}
-          className="relative bg-poster-bg p-16 aspect-[16/9] flex flex-col items-center justify-center text-center overflow-hidden rounded-lg"
+          className="relative bg-poster-bg p-12 aspect-[4/3] flex flex-col items-center justify-center text-center overflow-hidden rounded-lg"
           style={{
             fontFamily: "Inter, sans-serif",
+            minHeight: "800px",
           }}
         >
           {/* Arabic Phrase */}
@@ -180,7 +181,7 @@ const PosterPreview = ({ data }: PosterPreviewProps) => {
           )}
 
           {/* Prayer */}
-          <div className="mb-auto max-w-2xl space-y-1.5">
+          <div className="mb-16 max-w-2xl space-y-2">
             <p
               className={`text-base ${accentColor} font-arabic`}
               style={{ fontFamily: "Scheherazade New, serif" }}
@@ -204,12 +205,12 @@ const PosterPreview = ({ data }: PosterPreviewProps) => {
           <div className="absolute bottom-4 right-4 w-8 h-8 border-b-2 border-r-2 border-poster-gold/30"></div>
 
           {/* Aamiin - Before Daripada */}
-          <div className="absolute bottom-16 left-0 right-0 text-center">
+          <div className="absolute bottom-20 left-0 right-0 text-center">
             <p className={`text-sm ${accentColor} italic`}>Aamiin Ya Rabbal 'Alamin.</p>
           </div>
 
           {/* From - At the bottom */}
-          <div className="absolute bottom-6 left-0 right-0 text-center border-t border-poster-white/30 pt-2 mx-20">
+          <div className="absolute bottom-8 left-0 right-0 text-center border-t border-poster-white/30 pt-3 mx-20">
             <p className="text-xs text-poster-white/90">
               <span className={`${accentColor} font-semibold`}>Daripada:</span> {data.from}
             </p>
