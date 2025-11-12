@@ -132,9 +132,9 @@ const PosterPreview = ({ data }: PosterPreviewProps) => {
           }}
         >
           {/* Arabic Phrase */}
-          <div className="mb-6 w-full">
+          <div className="mb-8 w-full">
             <p
-              className={`text-xl ${accentColor} font-arabic mb-2 leading-relaxed`}
+              className={`text-2xl ${accentColor} font-arabic mb-2 leading-relaxed`}
               style={{ 
                 fontFamily: "Scheherazade New, serif", 
                 fontWeight: 700,
@@ -143,56 +143,56 @@ const PosterPreview = ({ data }: PosterPreviewProps) => {
             >
               إِنَّا لِلّٰهِ وَإِنَّا إِلَيْهِ رَاجِعُونَ
             </p>
-            <p className="text-xs text-poster-white/90 italic font-medium">
+            <p className="text-sm text-poster-white/90 italic font-medium">
               Innā lillāhi wa innā ilayhi rāji'ūn
             </p>
           </div>
 
           {/* Photo */}
           {grayscalePhoto && (
-            <div className="mb-6">
+            <div className="mb-8">
               <img
                 src={grayscalePhoto}
                 alt={data.fullName}
-                className="w-32 h-32 object-cover rounded-full border-4 border-poster-white/20 shadow-2xl"
+                className="w-40 h-40 object-cover rounded-full border-4 border-poster-white/20 shadow-2xl"
               />
             </div>
           )}
 
           {/* Title */}
-          <p className={`text-base ${accentColor} mb-2`}>{genderTitle}</p>
+          <p className={`text-lg ${accentColor} mb-3 font-medium`}>{genderTitle}</p>
 
           {/* Name */}
-          <h2 className="text-lg font-bold text-poster-white mb-2">{data.fullName}</h2>
+          <h2 className="text-2xl font-bold text-poster-white mb-3">{data.fullName}</h2>
 
           {/* Organization */}
           {data.organization && (
-            <p className="text-sm italic text-poster-white/60 mb-2">{data.organization}</p>
+            <p className="text-base italic text-poster-white/70 mb-3">{data.organization}</p>
           )}
 
           {/* Dates */}
-          <p className="text-sm text-poster-white/70 mb-4">
+          <p className="text-sm text-poster-white/60 mb-6">
             ({formatDate(data.birthDate)} – {formatDate(data.deathDate)})
           </p>
 
           {/* Additional Message */}
           {data.message && (
-            <p className="text-sm text-poster-white/80 mb-6 max-w-2xl">{data.message}</p>
+            <p className="text-base text-poster-white/80 mb-8 max-w-2xl leading-relaxed">{data.message}</p>
           )}
 
           {/* Prayer */}
           <div className="mb-16 max-w-2xl space-y-2">
             <p
-              className={`text-base ${accentColor} font-arabic`}
+              className={`text-lg ${accentColor} font-arabic mb-3`}
               style={{ fontFamily: "Scheherazade New, serif" }}
             >
               بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ
             </p>
-            <p className="text-sm text-poster-white/90 leading-relaxed">
+            <p className="text-base text-poster-white/90 leading-relaxed">
               Ya Allah, ampunilah dia, rahmatilah dia, maafkanlah dia, muliakanlah kematiannya,
               lapangkanlah kuburnya, dan jadikanlah syurga sebagai ganti tempat tinggalnya.
             </p>
-            <p className="text-sm text-poster-white/90 leading-relaxed">
+            <p className="text-base text-poster-white/90 leading-relaxed">
               Semoga roh {genderTitle} dicucuri rahmat dan ditempatkan di sisi-Mu bersama para
               solihin.
             </p>
@@ -206,12 +206,12 @@ const PosterPreview = ({ data }: PosterPreviewProps) => {
 
           {/* Aamiin - Before Daripada */}
           <div className="absolute bottom-20 left-0 right-0 text-center">
-            <p className={`text-sm ${accentColor} italic`}>Aamiin Ya Rabbal 'Alamin.</p>
+            <p className={`text-base ${accentColor} italic font-medium`}>Aamiin Ya Rabbal 'Alamin.</p>
           </div>
 
           {/* From - At the bottom */}
           <div className="absolute bottom-8 left-0 right-0 text-center border-t border-poster-white/30 pt-3 mx-20">
-            <p className="text-xs text-poster-white/90">
+            <p className="text-sm text-poster-white/90">
               <span className={`${accentColor} font-semibold`}>Daripada:</span> {data.from}
             </p>
           </div>
