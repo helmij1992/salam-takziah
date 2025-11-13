@@ -170,7 +170,7 @@ const PosterForm = ({ onGenerate }: PosterFormProps) => {
             <Label htmlFor="organization">🏢 Nama Organisasi (Opsyenal)</Label>
             <Input
               id="organization"
-              placeholder="Contoh: MRANTI / Keluarga Besar Abdul Rahman"
+              placeholder="Contoh: Syarikat ABC / Keluarga Besar Abdul Rahman"
               value={organization}
               onChange={(e) => setOrganization(e.target.value)}
             />
@@ -195,7 +195,7 @@ const PosterForm = ({ onGenerate }: PosterFormProps) => {
             </Label>
             <Input
               id="from"
-              placeholder="Contoh: Rakan-rakan Pejabat / Keluarga Besar MRANTI"
+              placeholder="Contoh: Rakan-rakan Pejabat / Keluarga Besar Syarikat ABC"
               value={from}
               onChange={(e) => setFrom(e.target.value)}
               required
