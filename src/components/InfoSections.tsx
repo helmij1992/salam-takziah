@@ -14,7 +14,7 @@ const InfoSections = () => {
             si mati.
           </p>
           <Link
-            to="/panduan"
+            to="/mesej-takziah"
             className="text-sm text-accent hover:underline font-medium"
           >
             Baca Panduan →
@@ -32,7 +32,7 @@ const InfoSections = () => {
             multicultural settings.
           </p>
           <Link
-            to="/panduan"
+            to="/english-condolences"
             className="text-sm text-accent hover:underline font-medium"
           >
             Baca Panduan →
@@ -49,7 +49,7 @@ const InfoSections = () => {
             Mesej takziah ringkas dan padat untuk dihantar melalui WhatsApp, SMS, dan Telegram.
           </p>
           <Link
-            to="/panduan"
+            to="/ucapan-whatsapp"
             className="text-sm text-accent hover:underline font-medium"
           >
             Baca Panduan →
@@ -66,7 +66,7 @@ const InfoSections = () => {
             Panduan lengkap mengenai saiz, format, dan piawaian poster takziah yang sesuai.
           </p>
           <Link
-            to="/panduan"
+            to="/template-format"
             className="text-sm text-accent hover:underline font-medium"
           >
             Baca Panduan →
