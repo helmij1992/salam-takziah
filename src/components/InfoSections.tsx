@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Link } from "react-router-dom";
 
 const InfoSections = () => {
   return (
@@ -12,12 +13,12 @@ const InfoSections = () => {
             Doa dan ucapan takziah mengikut sunnah yang sesuai untuk disampaikan kepada keluarga
             si mati.
           </p>
-          <a
-            href="#"
+          <Link
+            to="/panduan"
             className="text-sm text-accent hover:underline font-medium"
           >
             Baca Panduan →
-          </a>
+          </Link>
         </CardContent>
       </Card>
 
@@ -30,12 +31,12 @@ const InfoSections = () => {
             Professional and respectful condolence messages in English for workplace or
             multicultural settings.
           </p>
-          <a
-            href="#"
+          <Link
+            to="/panduan"
             className="text-sm text-accent hover:underline font-medium"
           >
             Baca Panduan →
-          </a>
+          </Link>
         </CardContent>
       </Card>
 
@@ -47,12 +48,12 @@ const InfoSections = () => {
           <p className="text-sm text-muted-foreground mb-4">
             Mesej takziah ringkas dan padat untuk dihantar melalui WhatsApp, SMS, dan Telegram.
           </p>
-          <a
-            href="#"
+          <Link
+            to="/panduan"
             className="text-sm text-accent hover:underline font-medium"
           >
             Baca Panduan →
-          </a>
+          </Link>
         </CardContent>
       </Card>
 
@@ -64,12 +65,12 @@ const InfoSections = () => {
           <p className="text-sm text-muted-foreground mb-4">
             Panduan lengkap mengenai saiz, format, dan piawaian poster takziah yang sesuai.
           </p>
-          <a
-            href="#"
+          <Link
+            to="/panduan"
             className="text-sm text-accent hover:underline font-medium"
           >
             Baca Panduan →
-          </a>
+          </Link>
         </CardContent>
       </Card>
     </div>
