@@ -13,10 +13,10 @@ const Index = () => {
       <header className="border-b border-border bg-card">
         <div className="container mx-auto px-4 py-6">
           <h1 className="text-3xl md:text-4xl font-bold text-center text-foreground">
-            Penjana Poster Takziah Islam
+            Ucapan Takziah dengan Doa & Ingatan
           </h1>
           <p className="text-center text-muted-foreground mt-2">
-            Cipta poster takziah yang elegan dan penuh hormat
+            Abadikan kasih dan kenangan dalam helaian doa serta penghormatan terakhir.
           </p>
         </div>
       </header>
