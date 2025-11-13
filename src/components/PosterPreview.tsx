@@ -175,11 +175,6 @@ const PosterPreview = ({ data }: PosterPreviewProps) => {
             ({formatDate(data.birthDate)} – {formatDate(data.deathDate)})
           </p>
 
-          {/* Additional Message */}
-          {data.message && (
-            <p className="text-base text-poster-white/80 mb-8 max-w-2xl leading-relaxed">{data.message}</p>
-          )}
-
           {/* Prayer */}
           <div className="mb-16 max-w-2xl space-y-2">
             <p

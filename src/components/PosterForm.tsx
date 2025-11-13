@@ -167,24 +167,12 @@ const PosterForm = ({ onGenerate }: PosterFormProps) => {
 
           {/* Organization (Optional) */}
           <div className="space-y-2">
-            <Label htmlFor="organization">🏢 Nama Organisasi (Opsyenal)</Label>
+            <Label htmlFor="organization">🏢 Jawatan/Gelaran (Optional)</Label>
             <Input
               id="organization"
-              placeholder="Contoh: Syarikat ABC / Keluarga Besar Abdul Rahman"
+              placeholder="Contoh: Pengarah Syarikat ABC / Ketua Keluarga"
               value={organization}
               onChange={(e) => setOrganization(e.target.value)}
-            />
-          </div>
-
-          {/* Additional Message (Optional) */}
-          <div className="space-y-2">
-            <Label htmlFor="message">💬 Mesej Tambahan (Opsyenal)</Label>
-            <Textarea
-              id="message"
-              placeholder="Contoh: Takziah kepada keluarga tersayang. Semoga tabah menghadapi ujian ini."
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              rows={3}
             />
           </div>
 
