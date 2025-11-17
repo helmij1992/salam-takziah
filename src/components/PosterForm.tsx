@@ -8,12 +8,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PosterData } from "@/types/poster";
 import { toast } from "sonner";
 import { Upload } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface PosterFormProps {
   onGenerate: (data: PosterData) => void;
 }
 
 const PosterForm = ({ onGenerate }: PosterFormProps) => {
+  const { t } = useLanguage();
   const [photo, setPhoto] = useState<string | null>(null);
   const [fullName, setFullName] = useState("");
   const [gender, setGender] = useState<"allahyarham" | "almarhumah">("allahyarham");
@@ -28,7 +30,7 @@ const PosterForm = ({ onGenerate }: PosterFormProps) => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        toast.error("Saiz gambar terlalu besar. Maksimum 5MB.");
+        toast.error(t.toastSizeError);
         return;
       }
       const reader = new FileReader();
@@ -43,7 +45,7 @@ const PosterForm = ({ onGenerate }: PosterFormProps) => {
     e.preventDefault();
     
     if (!photo || !fullName || !birthDate || !deathDate || !from) {
-      toast.error("Sila isi semua ruangan yang diwajibkan.");
+      toast.error(t.toastRequiredError);
       return;
     }
 
@@ -59,20 +61,20 @@ const PosterForm = ({ onGenerate }: PosterFormProps) => {
       theme,
     });
 
-    toast.success("Poster berjaya dijana!");
+    toast.success(t.toastSuccess);
   };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Maklumat Takziah</CardTitle>
+        <CardTitle>{t.formTitle}</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Photo Upload */}
           <div className="space-y-2">
             <Label htmlFor="photo">
-              📸 Upload Gambar Allahyarham / Almarhumah <span className="text-destructive">*</span>
+              {t.photoLabel} <span className="text-destructive">{t.required}</span>
             </Label>
             <div className="flex items-center justify-center w-full">
               <label
@@ -84,8 +86,8 @@ const PosterForm = ({ onGenerate }: PosterFormProps) => {
                 ) : (
                   <div className="flex flex-col items-center justify-center py-6">
                     <Upload className="w-10 h-10 mb-2 text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground">Klik untuk pilih gambar</p>
-                    <p className="text-xs text-muted-foreground mt-1">Maksimum 5MB</p>
+                    <p className="text-sm text-muted-foreground">{t.clickToSelect}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{t.maxSize}</p>
                   </div>
                 )}
                 <Input
@@ -98,18 +100,18 @@ const PosterForm = ({ onGenerate }: PosterFormProps) => {
               </label>
             </div>
             <p className="text-xs text-muted-foreground">
-              Gambar akan ditukar kepada hitam putih secara automatik.
+              {t.autoGrayscale}
             </p>
           </div>
 
           {/* Full Name */}
           <div className="space-y-2">
             <Label htmlFor="fullName">
-              🧍‍♂️ Nama Penuh <span className="text-destructive">*</span>
+              {t.fullNameLabel} <span className="text-destructive">{t.required}</span>
             </Label>
             <Input
               id="fullName"
-              placeholder="Contoh: En Ahmad Bin Abdul"
+              placeholder={t.fullNamePlaceholder}
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               required
@@ -119,19 +121,19 @@ const PosterForm = ({ onGenerate }: PosterFormProps) => {
           {/* Gender */}
           <div className="space-y-2">
             <Label>
-              🚻 Pilih Jantina <span className="text-destructive">*</span>
+              {t.genderLabel} <span className="text-destructive">{t.required}</span>
             </Label>
             <RadioGroup value={gender} onValueChange={(value) => setGender(value as "allahyarham" | "almarhumah")}>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="allahyarham" id="allahyarham" />
                 <Label htmlFor="allahyarham" className="font-normal cursor-pointer">
-                  Allahyarham (Lelaki)
+                  {t.genderMale}
                 </Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="almarhumah" id="almarhumah" />
                 <Label htmlFor="almarhumah" className="font-normal cursor-pointer">
-                  Almarhumah (Perempuan)
+                  {t.genderFemale}
                 </Label>
               </div>
             </RadioGroup>
@@ -140,7 +142,7 @@ const PosterForm = ({ onGenerate }: PosterFormProps) => {
           {/* Birth Date */}
           <div className="space-y-2">
             <Label htmlFor="birthDate">
-              🎂 Tarikh Lahir <span className="text-destructive">*</span>
+              {t.birthDateLabel} <span className="text-destructive">{t.required}</span>
             </Label>
             <Input
               id="birthDate"
@@ -154,7 +156,7 @@ const PosterForm = ({ onGenerate }: PosterFormProps) => {
           {/* Death Date */}
           <div className="space-y-2">
             <Label htmlFor="deathDate">
-              ⚰️ Tarikh Meninggal <span className="text-destructive">*</span>
+              {t.deathDateLabel} <span className="text-destructive">{t.required}</span>
             </Label>
             <Input
               id="deathDate"
@@ -167,10 +169,10 @@ const PosterForm = ({ onGenerate }: PosterFormProps) => {
 
           {/* Organization (Optional) */}
           <div className="space-y-2">
-            <Label htmlFor="organization">🏢 Jawatan/Gelaran (Optional)</Label>
+            <Label htmlFor="organization">{t.organizationLabel}</Label>
             <Input
               id="organization"
-              placeholder="Contoh: Pengarah Syarikat ABC / Ketua Keluarga"
+              placeholder={t.organizationPlaceholder}
               value={organization}
               onChange={(e) => setOrganization(e.target.value)}
             />
@@ -179,11 +181,11 @@ const PosterForm = ({ onGenerate }: PosterFormProps) => {
           {/* From */}
           <div className="space-y-2">
             <Label htmlFor="from">
-              🙏 Daripada <span className="text-destructive">*</span>
+              {t.fromLabel} <span className="text-destructive">{t.required}</span>
             </Label>
             <Input
               id="from"
-              placeholder="Contoh: Rakan-rakan Pejabat / Keluarga Besar Syarikat ABC"
+              placeholder={t.fromPlaceholder}
               value={from}
               onChange={(e) => setFrom(e.target.value)}
               required
@@ -192,18 +194,18 @@ const PosterForm = ({ onGenerate }: PosterFormProps) => {
 
           {/* Theme Selection */}
           <div className="space-y-2">
-            <Label>🎨 Pilih Tema Poster</Label>
+            <Label>{t.themeLabel}</Label>
             <RadioGroup value={theme} onValueChange={(value) => setTheme(value as "classic" | "retro")}>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="classic" id="classic" />
                 <Label htmlFor="classic" className="font-normal cursor-pointer">
-                  Classic Black (Hitam + Emas)
+                  {t.themeClassic}
                 </Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="retro" id="retro" />
                 <Label htmlFor="retro" className="font-normal cursor-pointer">
-                  Retro Black (Hitam + Putih)
+                  {t.themeRetro}
                 </Label>
               </div>
             </RadioGroup>
@@ -211,7 +213,7 @@ const PosterForm = ({ onGenerate }: PosterFormProps) => {
 
           {/* Submit Button */}
           <Button type="submit" className="w-full" size="lg">
-            Jana Poster Takziah
+            {t.generateButton}
           </Button>
         </form>
       </CardContent>

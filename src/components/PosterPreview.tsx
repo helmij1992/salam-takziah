@@ -5,12 +5,14 @@ import { PosterData } from "@/types/poster";
 import { Download } from "lucide-react";
 import html2canvas from "html2canvas";
 import { toast } from "sonner";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface PosterPreviewProps {
   data: PosterData | null;
 }
 
 const PosterPreview = ({ data }: PosterPreviewProps) => {
+  const { t } = useLanguage();
   const posterRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [grayscalePhoto, setGrayscalePhoto] = useState<string | null>(null);
@@ -91,7 +93,7 @@ const PosterPreview = ({ data }: PosterPreviewProps) => {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Pratonton Poster</CardTitle>
+          <CardTitle>{t.previewTitle}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center justify-center h-96 bg-poster-bg rounded-lg p-8 space-y-4">
@@ -105,7 +107,7 @@ const PosterPreview = ({ data }: PosterPreviewProps) => {
               Innā lillāhi wa innā ilayhi rāji'ūn
             </p>
             <p className="text-sm text-muted-foreground mt-4">
-              Isi borang untuk menjana poster
+              {t.previewDescription}
             </p>
           </div>
         </CardContent>
@@ -119,7 +121,7 @@ const PosterPreview = ({ data }: PosterPreviewProps) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Pratonton Poster</CardTitle>
+        <CardTitle>{t.previewTitle}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Poster */}
@@ -215,7 +217,7 @@ const PosterPreview = ({ data }: PosterPreviewProps) => {
         {/* Download Button */}
         <Button onClick={handleDownload} disabled={isDownloading} className="w-full" size="lg">
           <Download className="mr-2 h-4 w-4" />
-          {isDownloading ? "Memuat turun..." : "Muat Turun sebagai JPEG"}
+          {isDownloading ? t.downloadingButton : t.downloadButton}
         </Button>
       </CardContent>
     </Card>
