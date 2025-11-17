@@ -2,21 +2,27 @@ import { useState } from "react";
 import PosterForm from "@/components/PosterForm";
 import PosterPreview from "@/components/PosterPreview";
 import InfoSections from "@/components/InfoSections";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { PosterData } from "@/types/poster";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Index = () => {
   const [posterData, setPosterData] = useState<PosterData | null>(null);
+  const { t } = useLanguage();
 
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border bg-card">
         <div className="container mx-auto px-4 py-6">
+          <div className="flex justify-end mb-4">
+            <LanguageSwitcher />
+          </div>
           <h1 className="text-3xl md:text-4xl font-bold text-center text-foreground">
-            Ucapan Takziah dengan Doa & Ingatan
+            {t.mainTitle}
           </h1>
           <p className="text-center text-muted-foreground mt-2">
-            Abadikan kasih dan kenangan dalam helaian doa serta penghormatan terakhir.
+            {t.mainSubtitle}
           </p>
         </div>
       </header>
@@ -44,7 +50,7 @@ const Index = () => {
       {/* Footer */}
       <footer className="border-t border-border mt-16 py-8">
         <div className="container mx-auto px-4 text-center text-muted-foreground">
-          <p>© 2025 Penjana Poster Takziah Islam. Semoga Allah merahmati arwah yang telah pergi.</p>
+          <p>{t.footerText}</p>
         </div>
       </footer>
     </div>

@@ -1,75 +1,76 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const InfoSections = () => {
+  const { t } = useLanguage();
+  
   return (
     <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
       <Card className="hover:shadow-lg transition-shadow">
         <CardHeader>
-          <CardTitle className="text-lg">🤲 Mesej Takziah Islam</CardTitle>
+          <CardTitle className="text-lg">{t.infoMesejTitle}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground mb-4">
-            Doa dan ucapan takziah mengikut sunnah yang sesuai untuk disampaikan kepada keluarga
-            si mati.
+            {t.infoMesejDesc}
           </p>
           <Link
             to="/mesej-takziah"
             className="text-sm text-accent hover:underline font-medium"
           >
-            Baca Panduan →
+            {t.readGuide}
           </Link>
         </CardContent>
       </Card>
 
       <Card className="hover:shadow-lg transition-shadow">
         <CardHeader>
-          <CardTitle className="text-lg">🌍 English Condolences</CardTitle>
+          <CardTitle className="text-lg">{t.infoEnglishTitle}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground mb-4">
-            Professional and respectful condolence messages in English for workplace or
-            multicultural settings.
+            {t.infoEnglishDesc}
           </p>
           <Link
             to="/english-condolences"
             className="text-sm text-accent hover:underline font-medium"
           >
-            Baca Panduan →
+            {t.readGuide}
           </Link>
         </CardContent>
       </Card>
 
       <Card className="hover:shadow-lg transition-shadow">
         <CardHeader>
-          <CardTitle className="text-lg">📱 Ucapan WhatsApp</CardTitle>
+          <CardTitle className="text-lg">{t.infoWhatsappTitle}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground mb-4">
-            Mesej takziah ringkas dan padat untuk dihantar melalui WhatsApp, SMS, dan Telegram.
+            {t.infoWhatsappDesc}
           </p>
           <Link
             to="/ucapan-whatsapp"
             className="text-sm text-accent hover:underline font-medium"
           >
-            Baca Panduan →
+            {t.readGuide}
           </Link>
         </CardContent>
       </Card>
 
       <Card className="hover:shadow-lg transition-shadow">
         <CardHeader>
-          <CardTitle className="text-lg">🎨 Template & Format</CardTitle>
+          <CardTitle className="text-lg">{t.infoTemplateTitle}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground mb-4">
-            Panduan lengkap mengenai saiz, format, dan piawaian poster takziah yang sesuai.
+            {t.infoTemplateDesc}
           </p>
           <Link
             to="/template-format"
             className="text-sm text-accent hover:underline font-medium"
           >
-            Baca Panduan →
+            {t.readGuide}
           </Link>
         </CardContent>
       </Card>
