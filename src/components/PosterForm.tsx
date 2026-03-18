@@ -44,7 +44,7 @@ const PosterForm = ({ onGenerate }: PosterFormProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!photo || !fullName || !birthDate || !deathDate || !from) {
+    if (!photo || !fullName) {
       toast.error(t.toastRequiredError);
       return;
     }
