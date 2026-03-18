@@ -173,9 +173,11 @@ const PosterPreview = ({ data }: PosterPreviewProps) => {
           )}
 
           {/* Dates */}
-          <p className="text-sm text-poster-white/60 mb-6">
-            ({formatDate(data.birthDate)} – {formatDate(data.deathDate)})
-          </p>
+          {(data.birthDate && data.deathDate) && (
+            <p className="text-sm text-poster-white/60 mb-6">
+              ({formatDate(data.birthDate)} – {formatDate(data.deathDate)})
+            </p>
+          )}
 
           {/* Prayer */}
           <div className="mb-16 max-w-2xl space-y-2">
@@ -207,11 +209,13 @@ const PosterPreview = ({ data }: PosterPreviewProps) => {
           </div>
 
           {/* From - At the bottom */}
-          <div className="absolute bottom-8 left-0 right-0 text-center border-t border-poster-white/30 pt-3 mx-20">
-            <p className="text-sm text-poster-white/90">
-              <span className={`${accentColor} font-semibold`}>Daripada:</span> {data.from}
-            </p>
-          </div>
+          {data.from && (
+            <div className="absolute bottom-8 left-0 right-0 text-center border-t border-poster-white/30 pt-3 mx-20">
+              <p className="text-sm text-poster-white/90">
+                <span className={`${accentColor} font-semibold`}>Daripada:</span> {data.from}
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Download Button */}
