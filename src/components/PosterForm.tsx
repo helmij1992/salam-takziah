@@ -44,7 +44,7 @@ const PosterForm = ({ onGenerate }: PosterFormProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!photo || !fullName || !birthDate || !deathDate || !from) {
+    if (!photo || !fullName) {
       toast.error(t.toastRequiredError);
       return;
     }
@@ -142,28 +142,26 @@ const PosterForm = ({ onGenerate }: PosterFormProps) => {
           {/* Birth Date */}
           <div className="space-y-2">
             <Label htmlFor="birthDate">
-              {t.birthDateLabel} <span className="text-destructive">{t.required}</span>
+              {t.birthDateLabel}
             </Label>
             <Input
               id="birthDate"
               type="date"
               value={birthDate}
               onChange={(e) => setBirthDate(e.target.value)}
-              required
             />
           </div>
 
           {/* Death Date */}
           <div className="space-y-2">
             <Label htmlFor="deathDate">
-              {t.deathDateLabel} <span className="text-destructive">{t.required}</span>
+              {t.deathDateLabel}
             </Label>
             <Input
               id="deathDate"
               type="date"
               value={deathDate}
               onChange={(e) => setDeathDate(e.target.value)}
-              required
             />
           </div>
 
@@ -181,14 +179,13 @@ const PosterForm = ({ onGenerate }: PosterFormProps) => {
           {/* From */}
           <div className="space-y-2">
             <Label htmlFor="from">
-              {t.fromLabel} <span className="text-destructive">{t.required}</span>
+              {t.fromLabel}
             </Label>
             <Input
               id="from"
               placeholder={t.fromPlaceholder}
               value={from}
               onChange={(e) => setFrom(e.target.value)}
-              required
             />
           </div>
 
