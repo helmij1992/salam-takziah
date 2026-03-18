@@ -63,15 +63,20 @@ const PosterPreview = ({ data }: PosterPreviewProps) => {
       });
 
       canvas.toBlob((blob) => {
-        if (!blob) return;
+        if (!blob) {
+          toast.error("Gagal menjana poster.");
+          return;
+        }
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
         link.download = `Takziah-${data.fullName.replace(/\s+/g, "-")}.jpg`;
+        document.body.appendChild(link);
         link.click();
-        URL.revokeObjectURL(url);
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
         toast.success("Poster berjaya dimuat turun!");
-      }, "image/jpeg");
+      }, "image/jpeg", 0.95);
     } catch (error) {
       console.error("Error downloading poster:", error);
       toast.error("Gagal memuat turun poster. Sila cuba lagi.");
