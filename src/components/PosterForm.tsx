@@ -155,14 +155,13 @@ const PosterForm = ({ onGenerate }: PosterFormProps) => {
           {/* Death Date */}
           <div className="space-y-2">
             <Label htmlFor="deathDate">
-              {t.deathDateLabel} <span className="text-destructive">{t.required}</span>
+              {t.deathDateLabel}
             </Label>
             <Input
               id="deathDate"
               type="date"
               value={deathDate}
               onChange={(e) => setDeathDate(e.target.value)}
-              required
             />
           </div>
 
