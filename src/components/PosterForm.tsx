@@ -179,14 +179,13 @@ const PosterForm = ({ onGenerate }: PosterFormProps) => {
           {/* From */}
           <div className="space-y-2">
             <Label htmlFor="from">
-              {t.fromLabel} <span className="text-destructive">{t.required}</span>
+              {t.fromLabel}
             </Label>
             <Input
               id="from"
               placeholder={t.fromPlaceholder}
               value={from}
               onChange={(e) => setFrom(e.target.value)}
-              required
             />
           </div>
 
