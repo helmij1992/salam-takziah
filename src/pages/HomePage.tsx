@@ -9,7 +9,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 
 const HomePage = () => {
-  const { t, language, setLanguage } = useLanguage();
+  const { t } = useLanguage();
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
   useEffect(() => {
@@ -30,94 +30,23 @@ const HomePage = () => {
     return () => authListener?.subscription.unsubscribe();
   }, []);
 
-  const plans = [
-    {
-      name: t.homePlanBasicName,
-      tier: t.homePlanBasicTier,
-      price: t.homePlanBasicPrice,
-      period: t.homePlanBasicPeriod,
-      description: t.homePlanBasicDescription,
-      icon: Sparkles,
-      features: t.homePlanBasicFeatures,
-      buttonText: t.homePlanBasicButton,
-      buttonVariant: "outline" as const,
-      popular: false,
-    },
-    {
-      name: t.homePlanProName,
-      tier: t.homePlanProTier,
-      price: t.homePlanProPrice,
-      period: t.homePlanProPeriod,
-      description: t.homePlanProDescription,
-      icon: Star,
-      features: t.homePlanProFeatures,
-      buttonText: t.homePlanProButton,
-      buttonVariant: "default" as const,
-      popular: true,
-    },
-    {
-      name: t.homePlanEnterpriseName,
-      tier: t.homePlanEnterpriseTier,
-      price: t.homePlanEnterprisePrice,
-      period: t.homePlanEnterprisePeriod,
-      description: t.homePlanEnterpriseDescription,
-      icon: Crown,
-      features: t.homePlanEnterpriseFeatures,
-      buttonText: t.homePlanEnterpriseButton,
-      buttonVariant: "secondary" as const,
-      popular: false,
-    },
-    {
-      name: "Professional Memorial",
-      tier: "Premium",
-      price: "RM 39.90",
-      period: "sebulan",
-      description: "Untuk pengguna biasa, keluarga, dan organisasi kecil",
-      icon: Star,
-      features: [
-        "Semua dalam Percuma +",
-        "Poster tanpa had",
-        "Semua format media sosial",
-        "Tema premium & corak",
-        "Resolusi tinggi (4K)",
-        "Ucapan takziah tersuai",
-        "Pengubahsuaian lanjutan",
-        "Ciptaan berkumpulan (sehingga 10)",
-        "Simpanan awan & draf",
-        "Sokongan e-mel keutamaan",
-        "Buang tanda air",
-        "Pelbagai format eksport"
-      ],
-      buttonText: "Mula Percubaan Premium",
-      buttonVariant: "default" as const,
-      popular: true
-    },
-    {
-      name: "Enterprise Memorial",
-      tier: "Diamond",
-      price: "RM 99.90",
-      period: "sebulan",
-      description: "Untuk rumah pengebumian dan organisasi besar",
-      icon: Crown,
-      features: [
-        "Semua dalam Premium +",
-        "Penjenamaan tanpa logo",
-        "Templat organisasi tersuai",
-        "Akses API & integrasi",
-        "Analitik lanjutan",
-        "Pemprosesan berkumpulan tanpa had",
-        "Sokongan telefon 24/7",
-        "Khat Arab tersuai",
-        "Penciptaan memorial video",
-        "Sokongan pelbagai bahasa",
-        "Kerjasama pasukan",
-        "Ciri perkongsian lanjutan"
-      ],
-      buttonText: "Hubungi Jualan",
-      buttonVariant: "secondary" as const,
-      popular: false
-    }
-  ];
+  const planIconMap = {
+    basic: Sparkles,
+    pro: Star,
+    enterprise: Crown,
+  } as const;
+
+  const planButtonVariantMap = {
+    basic: "outline",
+    pro: "default",
+    enterprise: "secondary",
+  } as const;
+
+  const plans = t.homePlans.map((plan) => ({
+    ...plan,
+    icon: planIconMap[plan.id],
+    buttonVariant: planButtonVariantMap[plan.id],
+  }));
 
   const features = [
     {
@@ -236,20 +165,7 @@ const HomePage = () => {
       <section className="py-20 px-4">
         <div className="container mx-auto max-w-7xl">
           <div className="flex justify-end gap-2 mb-6">
-            <Button
-              size="sm"
-              variant={language === "ms" ? "default" : "outline"}
-              onClick={() => setLanguage("ms")}
-            >
-              MS
-            </Button>
-            <Button
-              size="sm"
-              variant={language === "en" ? "default" : "outline"}
-              onClick={() => setLanguage("en")}
-            >
-              EN
-            </Button>
+            <LanguageSwitcher />
           </div>
 
           <div className="text-center mb-16">
@@ -268,7 +184,7 @@ const HomePage = () => {
                 {plan.popular && (
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                     <Badge className="bg-primary text-primary-foreground px-4 py-1">
-                      Most Popular
+                      {t.homePlanPopularBadge}
                     </Badge>
                   </div>
                 )}

@@ -1,6 +1,19 @@
 import { createContext, useContext, useState, ReactNode } from "react";
 
 export type Language = "ms" | "en";
+type HomePlanId = "basic" | "pro" | "enterprise";
+
+interface HomePlanTranslation {
+  id: HomePlanId;
+  name: string;
+  tier: string;
+  price: string;
+  period: string;
+  description: string;
+  features: string[];
+  buttonText: string;
+  popular: boolean;
+}
 
 interface Translations {
   // Header
@@ -97,30 +110,8 @@ interface Translations {
   homeNavProduct: string;
   homeNavSupport: string;
   homeNavCompany: string;
-
-  homePlanBasicName: string;
-  homePlanBasicTier: string;
-  homePlanBasicPrice: string;
-  homePlanBasicPeriod: string;
-  homePlanBasicDescription: string;
-  homePlanBasicFeatures: string[];
-  homePlanBasicButton: string;
-
-  homePlanProName: string;
-  homePlanProTier: string;
-  homePlanProPrice: string;
-  homePlanProPeriod: string;
-  homePlanProDescription: string;
-  homePlanProFeatures: string[];
-  homePlanProButton: string;
-
-  homePlanEnterpriseName: string;
-  homePlanEnterpriseTier: string;
-  homePlanEnterprisePrice: string;
-  homePlanEnterprisePeriod: string;
-  homePlanEnterpriseDescription: string;
-  homePlanEnterpriseFeatures: string[];
-  homePlanEnterpriseButton: string;
+  homePlanPopularBadge: string;
+  homePlans: HomePlanTranslation[];
 }
 
 const translations: Record<Language, Translations> = {
@@ -209,65 +200,78 @@ const translations: Record<Language, Translations> = {
     homeNavSupport: "Sokongan",
     homeNavCompany: "Syarikat",
 
-    homePlanBasicName: "Basic Memorial",
-    homePlanBasicTier: "Percuma",
-    homePlanBasicPrice: "RM 0",
-    homePlanBasicPeriod: "selamanya",
-    homePlanBasicDescription: "Sesuai untuk pengguna kasual dan pencipta kali pertama",
-    homePlanBasicFeatures: [
-      "5 poster sebulan",
-      "Format klasik (4:3)",
-      "Tema asas (Klasik & Retro)",
-      "Resolusi standard (1080p)",
-      "Muat naik gambar & skala kelabu",
-      "Medan borang asas",
-      "Doa Islamik standard",
-      "Muat turun dengan tanda air",
-      "Sokongan asas (FAQ)",
+    homePlanPopularBadge: "Paling Popular",
+    homePlans: [
+      {
+        id: "basic",
+        name: "Basic Memorial",
+        tier: "Percuma",
+        price: "RM 0",
+        period: "selamanya",
+        description: "Sesuai untuk pengguna kasual dan pencipta kali pertama",
+        features: [
+          "5 poster sebulan",
+          "Format klasik (4:3)",
+          "Tema asas (Klasik & Retro)",
+          "Resolusi standard (1080p)",
+          "Muat naik gambar & skala kelabu",
+          "Medan borang asas",
+          "Doa Islamik standard",
+          "Muat turun dengan tanda air",
+          "Sokongan asas (FAQ)",
+        ],
+        buttonText: "Mula Percuma",
+        popular: false,
+      },
+      {
+        id: "pro",
+        name: "Professional Memorial",
+        tier: "Premium",
+        price: "RM 39.90",
+        period: "sebulan",
+        description: "Untuk pengguna biasa, keluarga, dan organisasi kecil",
+        features: [
+          "Semua dalam Percuma +",
+          "Poster tanpa had",
+          "Semua format media sosial",
+          "Tema premium & corak",
+          "Resolusi tinggi (4K)",
+          "Ucapan takziah tersuai",
+          "Pengubahsuaian lanjutan",
+          "Ciptaan berkumpulan (sehingga 10)",
+          "Simpanan awan & draf",
+          "Sokongan e-mel keutamaan",
+          "Buang tanda air",
+          "Pelbagai format eksport",
+        ],
+        buttonText: "Mula Percubaan Premium",
+        popular: true,
+      },
+      {
+        id: "enterprise",
+        name: "Enterprise Memorial",
+        tier: "Diamond",
+        price: "RM 99.90",
+        period: "sebulan",
+        description: "Untuk rumah pengebumian dan organisasi besar",
+        features: [
+          "Semua dalam Premium +",
+          "Penjenamaan tanpa logo",
+          "Templat organisasi tersuai",
+          "Akses API & integrasi",
+          "Analitik lanjutan",
+          "Pemprosesan berkumpulan tanpa had",
+          "Sokongan telefon 24/7",
+          "Khat Arab tersuai",
+          "Penciptaan memorial video",
+          "Sokongan pelbagai bahasa",
+          "Kerjasama pasukan",
+          "Ciri perkongsian lanjutan",
+        ],
+        buttonText: "Hubungi Jualan",
+        popular: false,
+      },
     ],
-    homePlanBasicButton: "Mula Percuma",
-
-    homePlanProName: "Professional Memorial",
-    homePlanProTier: "Premium",
-    homePlanProPrice: "RM 39.90",
-    homePlanProPeriod: "sebulan",
-    homePlanProDescription: "Untuk pengguna biasa, keluarga, dan organisasi kecil",
-    homePlanProFeatures: [
-      "Semua dalam Percuma +",
-      "Poster tanpa had",
-      "Semua format media sosial",
-      "Tema premium & corak",
-      "Resolusi tinggi (4K)",
-      "Ucapan takziah tersuai",
-      "Pengubahsuaian lanjutan",
-      "Ciptaan berkumpulan (sehingga 10)",
-      "Simpanan awan & draf",
-      "Sokongan e-mel keutamaan",
-      "Buang tanda air",
-      "Pelbagai format eksport",
-    ],
-    homePlanProButton: "Mula Percubaan Premium",
-
-    homePlanEnterpriseName: "Enterprise Memorial",
-    homePlanEnterpriseTier: "Diamond",
-    homePlanEnterprisePrice: "RM 99.90",
-    homePlanEnterprisePeriod: "sebulan",
-    homePlanEnterpriseDescription: "Untuk rumah pengebumian dan organisasi besar",
-    homePlanEnterpriseFeatures: [
-      "Semua dalam Premium +",
-      "Penjenamaan tanpa logo",
-      "Templat organisasi tersuai",
-      "Akses API & integrasi",
-      "Analitik lanjutan",
-      "Pemprosesan berkumpulan tanpa had",
-      "Sokongan telefon 24/7",
-      "Khat Arab tersuai",
-      "Penciptaan memorial video",
-      "Sokongan pelbagai bahasa",
-      "Kerjasama pasukan",
-      "Ciri perkongsian lanjutan",
-    ],
-    homePlanEnterpriseButton: "Hubungi Jualan",
   },
   en: {
     mainTitle: "Islamic Condolence Messages with Prayers & Remembrance",
@@ -354,65 +358,78 @@ const translations: Record<Language, Translations> = {
     homeNavSupport: "Support",
     homeNavCompany: "Company",
 
-    homePlanBasicName: "Basic Memorial",
-    homePlanBasicTier: "Free",
-    homePlanBasicPrice: "RM 0",
-    homePlanBasicPeriod: "selamanya",
-    homePlanBasicDescription: "Sesuai untuk pengguna kasual dan pencipta kali pertama",
-    homePlanBasicFeatures: [
-      "5 posters per month",
-      "Classic format (4:3)",
-      "Basic themes (Classic & Retro)",
-      "Standard resolution (1080p)",
-      "Photo upload & grayscale",
-      "Basic form fields",
-      "Standard Islamic prayers",
-      "Watermarked downloads",
-      "Basic support (FAQ)",
+    homePlanPopularBadge: "Most Popular",
+    homePlans: [
+      {
+        id: "basic",
+        name: "Basic Memorial",
+        tier: "Free",
+        price: "RM 0",
+        period: "forever",
+        description: "Best for casual users and first-time creators",
+        features: [
+          "5 posters per month",
+          "Classic format (4:3)",
+          "Basic themes (Classic & Retro)",
+          "Standard resolution (1080p)",
+          "Photo upload & grayscale",
+          "Basic form fields",
+          "Standard Islamic prayers",
+          "Watermarked downloads",
+          "Basic support (FAQ)",
+        ],
+        buttonText: "Get Started Free",
+        popular: false,
+      },
+      {
+        id: "pro",
+        name: "Professional Memorial",
+        tier: "Premium",
+        price: "RM 39.90",
+        period: "month",
+        description: "For regular users, families, and small organizations",
+        features: [
+          "Everything in Free +",
+          "Unlimited posters",
+          "All social media formats",
+          "Premium themes & patterns",
+          "High-resolution (4K)",
+          "Custom condolence messages",
+          "Advanced customization",
+          "Batch creation (up to 10)",
+          "Cloud storage & drafts",
+          "Priority email support",
+          "Remove watermarks",
+          "Multiple export formats",
+        ],
+        buttonText: "Start Premium Trial",
+        popular: true,
+      },
+      {
+        id: "enterprise",
+        name: "Enterprise Memorial",
+        tier: "Diamond",
+        price: "RM 99.90",
+        period: "month",
+        description: "For funeral homes and larger organizations",
+        features: [
+          "Everything in Premium +",
+          "White-label branding",
+          "Custom organization templates",
+          "API access & integrations",
+          "Advanced analytics",
+          "Unlimited batch processing",
+          "24/7 phone support",
+          "Custom Arabic calligraphy",
+          "Video memorial creation",
+          "Multi-language support",
+          "Team collaboration",
+          "Advanced sharing features",
+        ],
+        buttonText: "Contact Sales",
+        popular: false,
+      },
     ],
-    homePlanBasicButton: "Get Started Free",
-
-    homePlanProName: "Professional Memorial",
-    homePlanProTier: "Premium",
-    homePlanProPrice: "RM 39.90",
-    homePlanProPeriod: "sebulan",
-    homePlanProDescription: "Untuk pengguna biasa, keluarga, dan organisasi kecil",
-    homePlanProFeatures: [
-      "Everything in Free +",
-      "Unlimited posters",
-      "All social media formats",
-      "Premium themes & patterns",
-      "High-resolution (4K)",
-      "Custom condolence messages",
-      "Advanced customization",
-      "Batch creation (up to 10)",
-      "Cloud storage & drafts",
-      "Priority email support",
-      "Remove watermarks",
-      "Multiple export formats",
-    ],
-    homePlanProButton: "Start Premium Trial",
-
-    homePlanEnterpriseName: "Enterprise Memorial",
-    homePlanEnterpriseTier: "Diamond",
-    homePlanEnterprisePrice: "RM 99.90",
-    homePlanEnterprisePeriod: "sebulan",
-    homePlanEnterpriseDescription: "Untuk rumah pengebumian dan organisasi besar",
-    homePlanEnterpriseFeatures: [
-      "Everything in Premium +",
-      "White-label branding",
-      "Custom organization templates",
-      "API access & integrations",
-      "Advanced analytics",
-      "Unlimited batch processing",
-      "24/7 phone support",
-      "Custom Arabic calligraphy",
-      "Video memorial creation",
-      "Multi-language support",
-      "Team collaboration",
-      "Advanced sharing features",
-    ],
-    homePlanEnterpriseButton: "Contact Sales",
   },
 };
 
