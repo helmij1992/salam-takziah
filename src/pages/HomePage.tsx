@@ -181,14 +181,14 @@ const HomePage = () => {
             </Button>
           </div>
 
-          <div className="mt-8 flex flex-wrap justify-center gap-3 text-sm text-muted-foreground">
-            <span className="inline-flex items-center gap-2 px-3 py-1 rounded bg-primary/10 text-primary border border-primary/20">
+          <div className="mt-8 flex flex-wrap justify-center gap-3 text-sm">
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded bg-primary text-primary-foreground border border-primary">
               🇲🇾 Reka Bentuk Malaysia
             </span>
-            <span className="inline-flex items-center gap-2 px-3 py-1 rounded bg-secondary/10 text-secondary border border-secondary/20">
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded bg-secondary text-secondary-foreground border border-secondary">
               🕋 Khat & Motif Islamik Sedia
             </span>
-            <span className="inline-flex items-center gap-2 px-3 py-1 rounded bg-accent/10 text-accent border border-accent/20">
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded bg-accent text-accent-foreground border border-accent">
               📱 Media Sosial Teroptimum
             </span>
           </div>
