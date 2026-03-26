@@ -55,11 +55,6 @@ const PosterForm = ({ onGenerate }: PosterFormProps) => {
       toast.error("Sila isi nama penuh.");
       return;
     }
-    
-    if (!from.trim()) {
-      toast.error("Sila isi 'Daripada' (siapa yang menghantar takziah).");
-      return;
-    }
 
     // Date validation
     if (birthDate && deathDate) {
@@ -88,7 +83,7 @@ const PosterForm = ({ onGenerate }: PosterFormProps) => {
       return;
     }
     
-    if (from.length > 100) {
+    if (from && from.length > 100) {
       toast.error("'Daripada' tidak boleh melebihi 100 aksara.");
       return;
     }
@@ -239,14 +234,13 @@ const PosterForm = ({ onGenerate }: PosterFormProps) => {
           {/* From */}
           <div className="space-y-2">
             <Label htmlFor="from">
-              {t.fromLabel} <span className="text-destructive">{t.required}</span>
+              {t.fromLabel}
             </Label>
             <Input
               id="from"
               placeholder={t.fromPlaceholder}
               value={from}
               onChange={(e) => setFrom(e.target.value)}
-              required
             />
           </div>
 
