@@ -13,9 +13,9 @@ const HomePage = () => {
     {
       name: "Basic Memorial",
       tier: "Free",
-      price: "$0",
-      period: "forever",
-      description: "Perfect for casual users and first-time creators",
+      price: "RM 0",
+      period: "selamanya",
+      description: "Sesuai untuk pengguna kasual dan pencipta kali pertama",
       icon: Heart,
       features: [
         "5 posters per month",
@@ -35,9 +35,9 @@ const HomePage = () => {
     {
       name: "Professional Memorial",
       tier: "Premium",
-      price: "$9.99",
-      period: "per month",
-      description: "For regular users, families, and small organizations",
+      price: "RM 39.90",
+      period: "sebulan",
+      description: "Untuk pengguna biasa, keluarga, dan organisasi kecil",
       icon: Star,
       features: [
         "Everything in Free +",
@@ -60,9 +60,9 @@ const HomePage = () => {
     {
       name: "Enterprise Memorial",
       tier: "Diamond",
-      price: "$29.99",
-      period: "per month",
-      description: "For funeral homes and large organizations",
+      price: "RM 99.90",
+      period: "sebulan",
+      description: "Untuk rumah pengebumian dan organisasi besar",
       icon: Crown,
       features: [
         "Everything in Premium +",
