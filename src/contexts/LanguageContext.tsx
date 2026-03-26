@@ -152,8 +152,8 @@ const translations: Record<Language, Translations> = {
     footerText: "© 2025 Penjana Poster Takziah Islam. Semoga Allah merahmati arwah yang telah pergi.",
 
     // Homepage translations
-    homeHeroTitle: "Cipta Poster Takziah yang Cantik",
-    homeHeroSubtitle: "Hormati orang tersayang dengan poster takziah Islam yang direka secara profesional. Sempurna untuk perkongsian media sosial dan perkhidmatan pengebumian.",
+    homeHeroTitle: "Cipta Poster Takziah sebagai Tanda Penghormatan",
+    homeHeroSubtitle: "Pemergian insan tersayang meninggalkan kenangan dan kerinduan yang mendalam. Iringi pemergiannya dengan doa yang tulus, semoga Allah mencucuri rahmat ke atas rohnya dan menempatkannya dalam kalangan orang beriman. Sebagai tanda kasih, ingatan dan penghormatan terakhir.",
     homeHeroCreateButton: "Cipta Poster Anda",
     homeHeroExamplesButton: "Lihat Contoh",
     homeFeaturesTitle: "Mengapa Pilih Salam Takziah?",
