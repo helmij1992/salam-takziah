@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PosterData } from "@/types/poster";
+import { PosterData, PosterFormat } from "@/types/poster";
 import { toast } from "sonner";
 import { Upload } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -25,6 +25,7 @@ const PosterForm = ({ onGenerate }: PosterFormProps) => {
   const [message, setMessage] = useState("");
   const [from, setFrom] = useState("");
   const [theme, setTheme] = useState<"classic" | "retro">("classic");
+  const [format, setFormat] = useState<PosterFormat>("classic");
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -44,21 +45,65 @@ const PosterForm = ({ onGenerate }: PosterFormProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!photo || !fullName) {
-      toast.error(t.toastRequiredError);
+    // Required field validation
+    if (!photo) {
+      toast.error("Sila upload gambar terlebih dahulu.");
+      return;
+    }
+    
+    if (!fullName.trim()) {
+      toast.error("Sila isi nama penuh.");
+      return;
+    }
+    
+    if (!from.trim()) {
+      toast.error("Sila isi 'Daripada' (siapa yang menghantar takziah).");
+      return;
+    }
+
+    // Date validation
+    if (birthDate && deathDate) {
+      const birth = new Date(birthDate);
+      const death = new Date(deathDate);
+      
+      if (death <= birth) {
+        toast.error("Tarikh meninggal harus selepas tarikh lahir.");
+        return;
+      }
+    }
+
+    // Character limit validation
+    if (fullName.length > 100) {
+      toast.error("Nama penuh tidak boleh melebihi 100 aksara.");
+      return;
+    }
+    
+    if (organization && organization.length > 150) {
+      toast.error("Organisasi/jawatan tidak boleh melebihi 150 aksara.");
+      return;
+    }
+    
+    if (message && message.length > 500) {
+      toast.error("Ucapan takziah tidak boleh melebihi 500 aksara.");
+      return;
+    }
+    
+    if (from.length > 100) {
+      toast.error("'Daripada' tidak boleh melebihi 100 aksara.");
       return;
     }
 
     onGenerate({
       photo,
-      fullName,
+      fullName: fullName.trim(),
       gender,
       birthDate,
       deathDate,
-      organization,
-      message,
-      from,
+      organization: organization.trim(),
+      message: message.trim(),
+      from: from.trim(),
       theme,
+      format,
     });
 
     toast.success(t.toastSuccess);
@@ -176,16 +221,32 @@ const PosterForm = ({ onGenerate }: PosterFormProps) => {
             />
           </div>
 
+          {/* Message (Optional) */}
+          <div className="space-y-2">
+            <Label htmlFor="message">{t.messageLabel}</Label>
+            <Textarea
+              id="message"
+              placeholder={t.messagePlaceholder}
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              rows={3}
+            />
+            <p className="text-xs text-muted-foreground">
+              {message.length}/500 aksara
+            </p>
+          </div>
+
           {/* From */}
           <div className="space-y-2">
             <Label htmlFor="from">
-              {t.fromLabel}
+              {t.fromLabel} <span className="text-destructive">{t.required}</span>
             </Label>
             <Input
               id="from"
               placeholder={t.fromPlaceholder}
               value={from}
               onChange={(e) => setFrom(e.target.value)}
+              required
             />
           </div>
 
@@ -203,6 +264,49 @@ const PosterForm = ({ onGenerate }: PosterFormProps) => {
                 <RadioGroupItem value="retro" id="retro" />
                 <Label htmlFor="retro" className="font-normal cursor-pointer">
                   {t.themeRetro}
+                </Label>
+              </div>
+            </RadioGroup>
+          </div>
+
+          {/* Format Selection */}
+          <div className="space-y-2">
+            <Label>{t.formatLabel}</Label>
+            <RadioGroup value={format} onValueChange={(value) => setFormat(value as PosterFormat)}>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="classic" id="format-classic" />
+                <Label htmlFor="format-classic" className="font-normal cursor-pointer text-sm">
+                  {t.formatClassic}
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="instagram-square" id="format-ig-square" />
+                <Label htmlFor="format-ig-square" className="font-normal cursor-pointer text-sm">
+                  {t.formatInstagramSquare}
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="instagram-landscape" id="format-ig-landscape" />
+                <Label htmlFor="format-ig-landscape" className="font-normal cursor-pointer text-sm">
+                  {t.formatInstagramLandscape}
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="instagram-portrait" id="format-ig-portrait" />
+                <Label htmlFor="format-ig-portrait" className="font-normal cursor-pointer text-sm">
+                  {t.formatInstagramPortrait}
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="facebook" id="format-facebook" />
+                <Label htmlFor="format-facebook" className="font-normal cursor-pointer text-sm">
+                  {t.formatFacebook}
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="instagram-story" id="format-ig-story" />
+                <Label htmlFor="format-ig-story" className="font-normal cursor-pointer text-sm">
+                  {t.formatInstagramStory}
                 </Label>
               </div>
             </RadioGroup>

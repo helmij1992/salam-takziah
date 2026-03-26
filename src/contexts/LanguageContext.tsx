@@ -30,6 +30,13 @@ interface Translations {
   themeLabel: string;
   themeClassic: string;
   themeRetro: string;
+  formatLabel: string;
+  formatClassic: string;
+  formatInstagramSquare: string;
+  formatInstagramLandscape: string;
+  formatInstagramPortrait: string;
+  formatFacebook: string;
+  formatInstagramStory: string;
   generateButton: string;
   
   // Toast messages
@@ -84,6 +91,13 @@ const translations: Record<Language, Translations> = {
     themeLabel: "🎨 Tema Poster",
     themeClassic: "Klasik",
     themeRetro: "Retro",
+    formatLabel: "📱 Format Poster",
+    formatClassic: "Klasik (4:3)",
+    formatInstagramSquare: "Instagram - Kuasa (1:1)",
+    formatInstagramLandscape: "Instagram - Mendatar (1.91:1)",
+    formatInstagramPortrait: "Instagram - Tegak (4:5)",
+    formatFacebook: "Facebook (1.91:1)",
+    formatInstagramStory: "Instagram Story (9:16)",
     generateButton: "🎨 Jana Poster",
     toastSizeError: "Saiz gambar terlalu besar. Maksimum 5MB.",
     toastRequiredError: "Sila isi semua ruangan yang diwajibkan.",
@@ -128,6 +142,13 @@ const translations: Record<Language, Translations> = {
     themeLabel: "🎨 Poster Theme",
     themeClassic: "Classic",
     themeRetro: "Retro",
+    formatLabel: "📱 Poster Format",
+    formatClassic: "Classic (4:3)",
+    formatInstagramSquare: "Instagram - Square (1:1)",
+    formatInstagramLandscape: "Instagram - Landscape (1.91:1)",
+    formatInstagramPortrait: "Instagram - Portrait (4:5)",
+    formatFacebook: "Facebook (1.91:1)",
+    formatInstagramStory: "Instagram Story (9:16)",
     generateButton: "🎨 Generate Poster",
     toastSizeError: "Image size too large. Maximum 5MB.",
     toastRequiredError: "Please fill in all required fields.",

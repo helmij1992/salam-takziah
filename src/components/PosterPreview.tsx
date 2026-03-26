@@ -17,6 +17,19 @@ const PosterPreview = ({ data }: PosterPreviewProps) => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [grayscalePhoto, setGrayscalePhoto] = useState<string | null>(null);
 
+  // Define aspect ratios and dimensions for each format
+  const formatConfig = {
+    classic: { aspectRatio: "4/3", minHeight: "600px", maxHeight: "800px", photoSize: "w-32 h-32 md:w-40 md:h-40" },
+    "instagram-square": { aspectRatio: "1/1", minHeight: "500px", maxHeight: "600px", photoSize: "w-24 h-24 md:w-32 md:h-32" },
+    "instagram-landscape": { aspectRatio: "1.91/1", minHeight: "400px", maxHeight: "500px", photoSize: "w-20 h-20 md:w-28 md:h-28" },
+    "instagram-portrait": { aspectRatio: "4/5", minHeight: "600px", maxHeight: "750px", photoSize: "w-28 h-28 md:w-36 md:h-36" },
+    facebook: { aspectRatio: "1.91/1", minHeight: "400px", maxHeight: "500px", photoSize: "w-20 h-20 md:w-28 md:h-28" },
+    "instagram-story": { aspectRatio: "9/16", minHeight: "600px", maxHeight: "800px", photoSize: "w-24 h-24 md:w-32 md:h-32" },
+  };
+
+  const currentFormat = data?.format || "classic";
+  const config = formatConfig[currentFormat as keyof typeof formatConfig] || formatConfig.classic;
+
   useEffect(() => {
     if (data?.photo) {
       convertToGrayscale(data.photo);
@@ -70,7 +83,7 @@ const PosterPreview = ({ data }: PosterPreviewProps) => {
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
-        link.download = `Takziah-${data.fullName.replace(/\s+/g, "-")}.jpg`;
+        link.download = `Takziah-${data.fullName.replace(/\s+/g, "-")}-${data.format}.jpg`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -132,95 +145,116 @@ const PosterPreview = ({ data }: PosterPreviewProps) => {
         {/* Poster */}
         <div
           ref={posterRef}
-          className="relative bg-poster-bg p-12 aspect-[4/3] flex flex-col items-center justify-center text-center overflow-hidden rounded-lg"
+          className="relative bg-poster-bg flex flex-col text-center overflow-hidden rounded-lg shadow-lg"
           style={{
             fontFamily: "Inter, sans-serif",
-            minHeight: "800px",
+            aspectRatio: config.aspectRatio,
+            minHeight: config.minHeight,
+            maxHeight: config.maxHeight,
           }}
         >
-          {/* Arabic Phrase */}
-          <div className="mb-8 w-full">
+          {/* Header Section with Arabic Text */}
+          <div className="flex-shrink-0 pt-6 px-4 pb-3">
             <p
-              className={`text-2xl ${accentColor} font-arabic mb-2 leading-relaxed`}
-              style={{ 
-                fontFamily: "Scheherazade New, serif", 
+              className={`text-lg md:text-xl ${accentColor} font-arabic mb-1 leading-relaxed`}
+              style={{
+                fontFamily: "Scheherazade New, serif",
                 fontWeight: 700,
                 direction: "rtl"
               }}
             >
               إِنَّا لِلّٰهِ وَإِنَّا إِلَيْهِ رَاجِعُونَ
             </p>
-            <p className="text-sm text-poster-white/90 italic font-medium">
+            <p className="text-xs md:text-sm text-poster-white/90 italic font-medium">
               Innā lillāhi wa innā ilayhi rāji'ūn
             </p>
           </div>
 
-          {/* Photo */}
-          {grayscalePhoto && (
-            <div className="mb-8">
-              <img
-                src={grayscalePhoto}
-                alt={data.fullName}
-                className="w-40 h-40 object-cover rounded-full border-4 border-poster-white/20 shadow-2xl"
-              />
+          {/* Main Content Area - Flexible */}
+          <div className="flex-1 flex flex-col items-center justify-center px-4 py-2 min-h-0">
+            {/* Photo */}
+            {grayscalePhoto && (
+              <div className="mb-2 md:mb-3 flex-shrink-0">
+                <img
+                  src={grayscalePhoto}
+                  alt={data.fullName}
+                  className={`${config.photoSize} object-cover rounded-full border-4 border-poster-white/20 shadow-2xl`}
+                />
+              </div>
+            )}
+
+            {/* Name and Title */}
+            <div className="mb-2 md:mb-3 flex-shrink-0">
+              <p className={`text-sm md:text-base ${accentColor} mb-1 font-medium`}>
+                {genderTitle}
+              </p>
+              <h2 className="text-lg md:text-xl font-bold text-poster-white mb-1">
+                {data.fullName}
+              </h2>
+              {data.organization && (
+                <p className="text-xs md:text-sm italic text-poster-white/70">
+                  {data.organization}
+                </p>
+              )}
             </div>
-          )}
 
-          {/* Title */}
-          <p className={`text-lg ${accentColor} mb-3 font-medium`}>{genderTitle}</p>
+            {/* Dates */}
+            {(data.birthDate && data.deathDate) && (
+              <p className="text-xs md:text-sm text-poster-white/60 mb-2 md:mb-3 flex-shrink-0">
+                ({formatDate(data.birthDate)} – {formatDate(data.deathDate)})
+              </p>
+            )}
 
-          {/* Name */}
-          <h2 className="text-2xl font-bold text-poster-white mb-3">{data.fullName}</h2>
+            {/* Prayer or Custom Message - Flexible */}
+            <div className="flex-1 flex flex-col justify-center max-w-2xl mb-2 overflow-hidden">
+              {data.message ? (
+                <p className="text-xs md:text-sm text-poster-white/90 leading-relaxed px-2">
+                  {data.message}
+                </p>
+              ) : (
+                <div className="space-y-1">
+                  <p
+                    className={`text-xs md:text-sm ${accentColor} font-arabic`}
+                    style={{ fontFamily: "Scheherazade New, serif" }}
+                  >
+                    بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ
+                  </p>
+                  <p className="text-xs md:text-sm text-poster-white/90 leading-relaxed">
+                    Ya Allah, ampunilah dia, rahmatilah dia, maafkanlah dia, muliakanlah kematiannya,
+                    lapangkanlah kuburnya, dan jadikanlah syurga sebagai ganti tempat tinggalnya.
+                  </p>
+                  <p className="text-xs md:text-sm text-poster-white/90 leading-relaxed">
+                    Semoga roh {genderTitle} dicucuri rahmat dan ditempatkan di sisi-Mu bersama para solihin.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
 
-          {/* Organization */}
-          {data.organization && (
-            <p className="text-base italic text-poster-white/70 mb-3">{data.organization}</p>
-          )}
+          {/* Footer Section - Fixed at bottom */}
+          <div className="flex-shrink-0 px-4 pb-4">
+            {/* Aamiin */}
+            <div className="mb-2">
+              <p className={`text-xs md:text-sm ${accentColor} italic font-medium`}>
+                Aamiin Ya Rabbal 'Alamin.
+              </p>
+            </div>
 
-          {/* Dates */}
-          {(data.birthDate && data.deathDate) && (
-            <p className="text-sm text-poster-white/60 mb-6">
-              ({formatDate(data.birthDate)} – {formatDate(data.deathDate)})
-            </p>
-          )}
-
-          {/* Prayer */}
-          <div className="mb-16 max-w-2xl space-y-2">
-            <p
-              className={`text-lg ${accentColor} font-arabic mb-3`}
-              style={{ fontFamily: "Scheherazade New, serif" }}
-            >
-              بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ
-            </p>
-            <p className="text-base text-poster-white/90 leading-relaxed">
-              Ya Allah, ampunilah dia, rahmatilah dia, maafkanlah dia, muliakanlah kematiannya,
-              lapangkanlah kuburnya, dan jadikanlah syurga sebagai ganti tempat tinggalnya.
-            </p>
-            <p className="text-base text-poster-white/90 leading-relaxed">
-              Semoga roh {genderTitle} dicucuri rahmat dan ditempatkan di sisi-Mu bersama para
-              solihin.
-            </p>
+            {/* From */}
+            {data.from && (
+              <div className="border-t border-poster-white/30 pt-2">
+                <p className="text-xs md:text-sm text-poster-white/90">
+                  <span className={`${accentColor} font-semibold`}>Daripada:</span> {data.from}
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Decorative Corner Elements */}
-          <div className="absolute top-4 left-4 w-8 h-8 border-t-2 border-l-2 border-poster-gold/30"></div>
-          <div className="absolute top-4 right-4 w-8 h-8 border-t-2 border-r-2 border-poster-gold/30"></div>
-          <div className="absolute bottom-4 left-4 w-8 h-8 border-b-2 border-l-2 border-poster-gold/30"></div>
-          <div className="absolute bottom-4 right-4 w-8 h-8 border-b-2 border-r-2 border-poster-gold/30"></div>
-
-          {/* Aamiin - Before Daripada */}
-          <div className="absolute bottom-20 left-0 right-0 text-center">
-            <p className={`text-base ${accentColor} italic font-medium`}>Aamiin Ya Rabbal 'Alamin.</p>
-          </div>
-
-          {/* From - At the bottom */}
-          {data.from && (
-            <div className="absolute bottom-8 left-0 right-0 text-center border-t border-poster-white/30 pt-3 mx-20">
-              <p className="text-sm text-poster-white/90">
-                <span className={`${accentColor} font-semibold`}>Daripada:</span> {data.from}
-              </p>
-            </div>
-          )}
+          <div className="absolute top-3 left-3 w-6 h-6 border-t-2 border-l-2 border-poster-gold/30"></div>
+          <div className="absolute top-3 right-3 w-6 h-6 border-t-2 border-r-2 border-poster-gold/30"></div>
+          <div className="absolute bottom-3 left-3 w-6 h-6 border-b-2 border-l-2 border-poster-gold/30"></div>
+          <div className="absolute bottom-3 right-3 w-6 h-6 border-b-2 border-r-2 border-poster-gold/30"></div>
         </div>
 
         {/* Download Button */}
