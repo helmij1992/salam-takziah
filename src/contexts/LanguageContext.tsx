@@ -43,6 +43,7 @@ interface Translations {
   themeLabel: string;
   themeClassic: string;
   themeRetro: string;
+  themePremium: string;
   formatLabel: string;
   formatClassic: string;
   formatInstagramSquare: string;
@@ -112,6 +113,36 @@ interface Translations {
   homeNavCompany: string;
   homePlanPopularBadge: string;
   homePlans: HomePlanTranslation[];
+  freeTierNoticeTitle: string;
+  freeTierNoticeDescription: string;
+  freeTierRemaining: string;
+  freeTierLimitReached: string;
+  freeTierClassicOnly: string;
+  freeTierBasicFieldsOnly: string;
+  freeTierWatermarkNotice: string;
+  freeTierMessageLocked: string;
+  freeTierOrganizationLocked: string;
+  freeTierFromLocked: string;
+  freeTierDownloadNotice: string;
+  premiumTierNoticeTitle: string;
+  premiumTierNoticeDescription: string;
+  premiumTierExportNotice: string;
+  premiumTierThemeNotice: string;
+  diamondTierNoticeTitle: string;
+  diamondTierNoticeDescription: string;
+  diamondTierWhiteLabelLabel: string;
+  diamondTierWhiteLabelDescription: string;
+  diamondTierOrgTemplateNotice: string;
+  diamondTierShareNotice: string;
+  sharePosterButton: string;
+  sharePosterUnsupported: string;
+  downloadPngButton: string;
+  dashboardPlanLabel: string;
+  dashboardPlanFree: string;
+  dashboardPlanPremium: string;
+  dashboardPlanDiamond: string;
+  dashboardFeaturesLabel: string;
+  dashboardEnterprisePendingLabel: string;
 }
 
 const translations: Record<Language, Translations> = {
@@ -140,6 +171,7 @@ const translations: Record<Language, Translations> = {
     themeLabel: "🎨 Tema Poster",
     themeClassic: "Klasik",
     themeRetro: "Retro",
+    themePremium: "Premium",
     formatLabel: "📱 Format Poster",
     formatClassic: "Klasik (4:3)",
     formatInstagramSquare: "Instagram - Kuasa (1:1)",
@@ -205,20 +237,20 @@ const translations: Record<Language, Translations> = {
       {
         id: "basic",
         name: "Basic Memorial",
-        tier: "Percuma",
+        tier: "Free",
         price: "RM 0",
         period: "selamanya",
         description: "Sesuai untuk pengguna kasual dan pencipta kali pertama",
         features: [
-          "5 poster sebulan",
-          "Format klasik (4:3)",
-          "Tema asas (Klasik & Retro)",
-          "Resolusi standard (1080p)",
-          "Muat naik gambar & skala kelabu",
-          "Medan borang asas",
+          "5 posters per month",
+          "Classic format (4:3)",
+          "Basic themes (Classic & Retro)",
+          "Standard resolution (1080p)",
+          "Photo upload & grayscale",
+          "Basic form fields",
           "Doa Islamik standard",
-          "Muat turun dengan tanda air",
-          "Sokongan asas (FAQ)",
+          "Watermarked downloads",
+          "Basic support (FAQ)",
         ],
         buttonText: "Mula Percuma",
         popular: false,
@@ -272,6 +304,36 @@ const translations: Record<Language, Translations> = {
         popular: false,
       },
     ],
+    freeTierNoticeTitle: "Akses Pelan Free",
+    freeTierNoticeDescription: "Pelan Free dihadkan kepada 5 poster sebulan, format Classic, medan asas, dan muat turun bertanda air.",
+    freeTierRemaining: "Baki poster bulan ini: {count}/5",
+    freeTierLimitReached: "Had 5 poster sebulan untuk pelan Free telah digunakan. Naik taraf untuk terus menjana poster.",
+    freeTierClassicOnly: "Pelan Free hanya menyokong format Classic (4:3).",
+    freeTierBasicFieldsOnly: "Pelan Free hanya menyokong medan asas dan doa standard.",
+    freeTierWatermarkNotice: "Muat turun pelan Free akan disertakan tanda air Salam Takziah.",
+    freeTierMessageLocked: "Ucapan tersuai tersedia untuk pelan berbayar. Pelan Free menggunakan doa standard.",
+    freeTierOrganizationLocked: "Medan organisasi tersedia untuk pelan berbayar.",
+    freeTierFromLocked: "Medan 'Daripada' tersedia untuk pelan berbayar.",
+    freeTierDownloadNotice: "Pelan Free memuat turun poster dengan tanda air.",
+    premiumTierNoticeTitle: "Akses Pelan Premium",
+    premiumTierNoticeDescription: "Pelan Premium membuka semua format sosial, tema premium, ucapan tersuai, output resolusi tinggi, dan muat turun tanpa tanda air.",
+    premiumTierExportNotice: "Pelan Premium menyokong eksport JPEG dan PNG tanpa tanda air.",
+    premiumTierThemeNotice: "Tema Premium termasuk gaya visual yang lebih mewah dengan corak lembut.",
+    diamondTierNoticeTitle: "Akses Pelan Diamond",
+    diamondTierNoticeDescription: "Pelan Diamond membuka semua ciri Premium serta mod white-label, templat organisasi, perkongsian lanjutan, dan sokongan multi-bahasa.",
+    diamondTierWhiteLabelLabel: "White-label branding",
+    diamondTierWhiteLabelDescription: "Sembunyikan penjenamaan Salam Takziah untuk kegunaan organisasi anda.",
+    diamondTierOrgTemplateNotice: "Pelan Diamond menggunakan susun atur organisasi apabila medan organisasi diisi.",
+    diamondTierShareNotice: "Pelan Diamond menyokong perkongsian poster terus dari aplikasi pada peranti yang serasi.",
+    sharePosterButton: "Kongsi Poster",
+    sharePosterUnsupported: "Perkongsian terus tidak disokong pada peranti ini. Sila muat turun poster dahulu.",
+    downloadPngButton: "Muat Turun sebagai PNG",
+    dashboardPlanLabel: "Pelan Semasa",
+    dashboardPlanFree: "Free",
+    dashboardPlanPremium: "Premium",
+    dashboardPlanDiamond: "Diamond",
+    dashboardFeaturesLabel: "Ciri Aktif",
+    dashboardEnterprisePendingLabel: "Ciri Enterprise Lanjutan",
   },
   en: {
     mainTitle: "Islamic Condolence Messages with Prayers & Remembrance",
@@ -298,6 +360,7 @@ const translations: Record<Language, Translations> = {
     themeLabel: "🎨 Poster Theme",
     themeClassic: "Classic",
     themeRetro: "Retro",
+    themePremium: "Premium",
     formatLabel: "📱 Poster Format",
     formatClassic: "Classic (4:3)",
     formatInstagramSquare: "Instagram - Square (1:1)",
@@ -365,8 +428,8 @@ const translations: Record<Language, Translations> = {
         name: "Basic Memorial",
         tier: "Free",
         price: "RM 0",
-        period: "forever",
-        description: "Best for casual users and first-time creators",
+        period: "selamanya",
+        description: "Sesuai untuk pengguna kasual dan pencipta kali pertama",
         features: [
           "5 posters per month",
           "Classic format (4:3)",
@@ -430,6 +493,36 @@ const translations: Record<Language, Translations> = {
         popular: false,
       },
     ],
+    freeTierNoticeTitle: "Free Plan Access",
+    freeTierNoticeDescription: "The Free plan is limited to 5 posters per month, Classic format, basic form fields, and watermarked downloads.",
+    freeTierRemaining: "Posters remaining this month: {count}/5",
+    freeTierLimitReached: "You have reached the Free plan limit of 5 posters this month. Upgrade to keep generating posters.",
+    freeTierClassicOnly: "The Free plan only supports the Classic (4:3) format.",
+    freeTierBasicFieldsOnly: "The Free plan only supports basic form fields and standard prayers.",
+    freeTierWatermarkNotice: "Free plan downloads include a Salam Takziah watermark.",
+    freeTierMessageLocked: "Custom condolence messages are available on paid plans. The Free plan uses the standard prayer.",
+    freeTierOrganizationLocked: "The organization field is available on paid plans.",
+    freeTierFromLocked: "The 'From' field is available on paid plans.",
+    freeTierDownloadNotice: "The Free plan downloads posters with a watermark.",
+    premiumTierNoticeTitle: "Premium Plan Access",
+    premiumTierNoticeDescription: "The Premium plan unlocks all social formats, premium themes, custom messages, high-resolution output, and downloads without watermarks.",
+    premiumTierExportNotice: "The Premium plan supports both JPEG and PNG exports without watermarks.",
+    premiumTierThemeNotice: "Premium themes include a more elevated visual style with subtle patterns.",
+    diamondTierNoticeTitle: "Diamond Plan Access",
+    diamondTierNoticeDescription: "The Diamond plan unlocks everything in Premium plus white-label mode, organization templates, advanced sharing, and multi-language support.",
+    diamondTierWhiteLabelLabel: "White-label branding",
+    diamondTierWhiteLabelDescription: "Hide Salam Takziah branding for your organization-facing materials.",
+    diamondTierOrgTemplateNotice: "The Diamond plan uses an organization-focused layout when the organization field is filled in.",
+    diamondTierShareNotice: "The Diamond plan supports direct poster sharing from the app on compatible devices.",
+    sharePosterButton: "Share Poster",
+    sharePosterUnsupported: "Direct sharing is not supported on this device. Please download the poster first.",
+    downloadPngButton: "Download as PNG",
+    dashboardPlanLabel: "Current Plan",
+    dashboardPlanFree: "Free",
+    dashboardPlanPremium: "Premium",
+    dashboardPlanDiamond: "Diamond",
+    dashboardFeaturesLabel: "Active Features",
+    dashboardEnterprisePendingLabel: "Advanced Enterprise Features",
   },
 };
 

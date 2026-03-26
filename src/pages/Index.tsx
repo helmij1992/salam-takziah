@@ -5,10 +5,33 @@ import InfoSections from "@/components/InfoSections";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { PosterData } from "@/types/poster";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useSubscription } from "@/hooks/use-subscription";
 
 const Index = () => {
   const [posterData, setPosterData] = useState<PosterData | null>(null);
   const { t } = useLanguage();
+  const { isFreeTier, isPaidTier, isDiamondTier, remainingFreePosters, canGeneratePoster, recordPosterGeneration } = useSubscription();
+
+  const handleGenerate = (data: PosterData) => {
+    if (!canGeneratePoster) {
+      return false;
+    }
+
+    const sanitizedData: PosterData = isFreeTier
+      ? {
+          ...data,
+          format: "classic",
+          organization: "",
+          message: "",
+          from: "",
+          whiteLabel: false,
+        }
+      : data;
+
+    setPosterData(sanitizedData);
+    recordPosterGeneration();
+    return true;
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -32,12 +55,19 @@ const Index = () => {
         <div className="grid lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
           {/* Form Section */}
           <div>
-            <PosterForm onGenerate={setPosterData} />
+            <PosterForm
+              isFreeTier={isFreeTier}
+              isPaidTier={isPaidTier}
+              isDiamondTier={isDiamondTier}
+              remainingFreePosters={remainingFreePosters}
+              canGeneratePoster={canGeneratePoster}
+              onGenerate={handleGenerate}
+            />
           </div>
 
           {/* Preview Section */}
           <div className="lg:sticky lg:top-8 h-fit">
-            <PosterPreview data={posterData} />
+            <PosterPreview data={posterData} isFreeTier={isFreeTier} isPaidTier={isPaidTier} isDiamondTier={isDiamondTier} />
           </div>
         </div>
 

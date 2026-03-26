@@ -9,9 +9,12 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 interface PosterPreviewProps {
   data: PosterData | null;
+  isFreeTier: boolean;
+  isPaidTier: boolean;
+  isDiamondTier: boolean;
 }
 
-const PosterPreview = ({ data }: PosterPreviewProps) => {
+const PosterPreview = ({ data, isFreeTier, isPaidTier, isDiamondTier }: PosterPreviewProps) => {
   const { t } = useLanguage();
   const posterRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -64,13 +67,13 @@ const PosterPreview = ({ data }: PosterPreviewProps) => {
     img.src = imageSrc;
   };
 
-  const handleDownload = async () => {
+  const handleDownload = async (type: "jpeg" | "png") => {
     if (!posterRef.current || !data) return;
 
     setIsDownloading(true);
     try {
       const canvas = await html2canvas(posterRef.current, {
-        scale: 2,
+        scale: isFreeTier ? 1.35 : 2,
         backgroundColor: "#0a0a0a",
         logging: false,
       });
@@ -83,16 +86,55 @@ const PosterPreview = ({ data }: PosterPreviewProps) => {
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
-        link.download = `Takziah-${data.fullName.replace(/\s+/g, "-")}-${data.format}.jpg`;
+        link.download = `Takziah-${data.fullName.replace(/\s+/g, "-")}-${data.format}.${type === "png" ? "png" : "jpg"}`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
         setTimeout(() => URL.revokeObjectURL(url), 1000);
         toast.success("Poster berjaya dimuat turun!");
-      }, "image/jpeg", 0.95);
+      }, type === "png" ? "image/png" : "image/jpeg", type === "png" ? undefined : 0.95);
     } catch (error) {
       console.error("Error downloading poster:", error);
       toast.error("Gagal memuat turun poster. Sila cuba lagi.");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  const handleShare = async () => {
+    if (!posterRef.current || !data || !navigator.share) {
+      toast.error(t.sharePosterUnsupported);
+      return;
+    }
+
+    setIsDownloading(true);
+    try {
+      const canvas = await html2canvas(posterRef.current, {
+        scale: 2,
+        backgroundColor: "#0a0a0a",
+        logging: false,
+      });
+
+      const blob = await new Promise<Blob | null>((resolve) => {
+        canvas.toBlob((nextBlob) => resolve(nextBlob), "image/png");
+      });
+
+      if (!blob) {
+        toast.error("Gagal menjana poster.");
+        return;
+      }
+
+      const file = new File([blob], `Takziah-${data.fullName.replace(/\s+/g, "-")}.png`, { type: "image/png" });
+      await navigator.share({
+        title: data.fullName,
+        text: data.organization || data.fullName,
+        files: [file],
+      });
+    } catch (error) {
+      if (!(error instanceof DOMException && error.name === "AbortError")) {
+        console.error("Error sharing poster:", error);
+        toast.error(t.sharePosterUnsupported);
+      }
     } finally {
       setIsDownloading(false);
     }
@@ -135,6 +177,11 @@ const PosterPreview = ({ data }: PosterPreviewProps) => {
 
   const accentColor = data.theme === "classic" ? "text-poster-gold" : "text-poster-white";
   const genderTitle = data.gender === "allahyarham" ? "Allahyarham" : "Almarhumah";
+  const posterBackgroundClass =
+    data.theme === "premium"
+      ? "bg-[radial-gradient(circle_at_top,_rgba(212,175,55,0.22),_transparent_42%),linear-gradient(180deg,_#18120f_0%,_#090909_100%)]"
+      : "bg-poster-bg";
+  const showEnterpriseTemplate = isDiamondTier && Boolean(data.organization);
 
   return (
     <Card>
@@ -145,7 +192,7 @@ const PosterPreview = ({ data }: PosterPreviewProps) => {
         {/* Poster */}
         <div
           ref={posterRef}
-          className="relative bg-poster-bg flex flex-col text-center overflow-hidden rounded-lg shadow-lg"
+          className={`relative flex flex-col text-center overflow-hidden rounded-lg shadow-lg ${posterBackgroundClass}`}
           style={{
             fontFamily: "Inter, sans-serif",
             aspectRatio: config.aspectRatio,
@@ -155,6 +202,13 @@ const PosterPreview = ({ data }: PosterPreviewProps) => {
         >
           {/* Header Section with Arabic Text */}
           <div className="flex-shrink-0 pt-6 px-4 pb-3">
+            {showEnterpriseTemplate && (
+              <div className="mb-4 flex justify-center">
+                <div className="rounded-full border border-poster-gold/40 bg-black/20 px-4 py-1 text-[11px] uppercase tracking-[0.24em] text-poster-white/85">
+                  {data.organization}
+                </div>
+              </div>
+            )}
             <p
               className={`text-lg md:text-xl ${accentColor} font-arabic mb-1 leading-relaxed`}
               style={{
@@ -191,7 +245,7 @@ const PosterPreview = ({ data }: PosterPreviewProps) => {
               <h2 className="text-lg md:text-xl font-bold text-poster-white mb-1">
                 {data.fullName}
               </h2>
-              {data.organization && (
+              {data.organization && !showEnterpriseTemplate && (
                 <p className="text-xs md:text-sm italic text-poster-white/70">
                   {data.organization}
                 </p>
@@ -255,13 +309,53 @@ const PosterPreview = ({ data }: PosterPreviewProps) => {
           <div className="absolute top-3 right-3 w-6 h-6 border-t-2 border-r-2 border-poster-gold/30"></div>
           <div className="absolute bottom-3 left-3 w-6 h-6 border-b-2 border-l-2 border-poster-gold/30"></div>
           <div className="absolute bottom-3 right-3 w-6 h-6 border-b-2 border-r-2 border-poster-gold/30"></div>
+
+          {data.theme === "premium" && (
+            <div className="absolute inset-0 opacity-20 pointer-events-none">
+              <div className="absolute inset-6 rounded-[2rem] border border-poster-gold/30" />
+              <div className="absolute inset-x-8 top-10 h-px bg-gradient-to-r from-transparent via-poster-gold/60 to-transparent" />
+              <div className="absolute inset-x-8 bottom-10 h-px bg-gradient-to-r from-transparent via-poster-gold/40 to-transparent" />
+            </div>
+          )}
+
+          {isFreeTier && (
+            <div className="absolute inset-x-0 bottom-8 flex justify-center pointer-events-none">
+              <div className="rounded-full border border-poster-white/20 bg-black/35 px-4 py-1 text-[10px] uppercase tracking-[0.3em] text-poster-white/80">
+                Salam Takziah
+              </div>
+            </div>
+          )}
+
+          {isDiamondTier && !data.whiteLabel && (
+            <div className="absolute right-4 top-4 rounded-full border border-poster-gold/30 bg-black/20 px-3 py-1 text-[10px] uppercase tracking-[0.28em] text-poster-white/80">
+              Salam Takziah Enterprise
+            </div>
+          )}
         </div>
 
         {/* Download Button */}
-        <Button onClick={handleDownload} disabled={isDownloading} className="w-full" size="lg">
-          <Download className="mr-2 h-4 w-4" />
-          {isDownloading ? t.downloadingButton : t.downloadButton}
-        </Button>
+        <div className="space-y-2">
+          {isFreeTier && <p className="text-xs text-muted-foreground">{t.freeTierDownloadNotice}</p>}
+          {isPaidTier && <p className="text-xs text-muted-foreground">{t.premiumTierExportNotice}</p>}
+          {isDiamondTier && <p className="text-xs text-muted-foreground">{t.diamondTierShareNotice}</p>}
+          <div className={`grid gap-2 ${isPaidTier ? "sm:grid-cols-2" : "grid-cols-1"}`}>
+            <Button onClick={() => handleDownload("jpeg")} disabled={isDownloading} className="w-full" size="lg">
+              <Download className="mr-2 h-4 w-4" />
+              {isDownloading ? t.downloadingButton : t.downloadButton}
+            </Button>
+            {isPaidTier && (
+              <Button onClick={() => handleDownload("png")} disabled={isDownloading} className="w-full" size="lg" variant="secondary">
+                <Download className="mr-2 h-4 w-4" />
+                {isDownloading ? t.downloadingButton : t.downloadPngButton}
+              </Button>
+            )}
+          </div>
+          {isDiamondTier && (
+            <Button onClick={handleShare} disabled={isDownloading} className="w-full" variant="outline" size="lg">
+              {isDownloading ? t.downloadingButton : t.sharePosterButton}
+            </Button>
+          )}
+        </div>
       </CardContent>
     </Card>
   );

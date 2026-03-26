@@ -34,7 +34,15 @@ const Register = () => {
     }
 
     setIsLoading(true);
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          plan: "free",
+        },
+      },
+    });
     setIsLoading(false);
 
     if (error) {

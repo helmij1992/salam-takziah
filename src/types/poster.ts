@@ -1,4 +1,5 @@
 export type PosterFormat = "classic" | "instagram-square" | "instagram-landscape" | "instagram-portrait" | "facebook" | "instagram-story";
+export type PosterTheme = "classic" | "retro" | "premium";
 
 export interface PosterData {
   photo: string | null;
@@ -9,6 +10,7 @@ export interface PosterData {
   organization?: string;
   message?: string;
   from: string;
-  theme: "classic" | "retro";
+  theme: PosterTheme;
   format: PosterFormat;
+  whiteLabel: boolean;
 }
