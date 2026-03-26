@@ -87,18 +87,18 @@ const HomePage = () => {
   const features = [
     {
       icon: Sparkles,
-      title: "Easy to Use",
-      description: "Create beautiful condolence posters in minutes with our intuitive interface"
+      title: t.homeFeature1Title,
+      description: t.homeFeature1Desc
     },
     {
       icon: Users,
-      title: "Social Media Ready",
-      description: "Optimized formats for Instagram, Facebook, and all major social platforms"
+      title: t.homeFeature2Title,
+      description: t.homeFeature2Desc
     },
     {
       icon: Zap,
-      title: "High Quality",
-      description: "Professional-grade posters with 4K resolution and premium themes"
+      title: t.homeFeature3Title,
+      description: t.homeFeature3Desc
     }
   ];
 
@@ -114,7 +114,7 @@ const HomePage = () => {
             </div>
             <div className="flex items-center space-x-4">
               <Link to="/create">
-                <Button variant="ghost">Create Poster</Button>
+                <Button variant="ghost">{t.homeNavCreate}</Button>
               </Link>
               <LanguageSwitcher />
             </div>
@@ -126,22 +126,20 @@ const HomePage = () => {
       <section className="py-20 px-4">
         <div className="container mx-auto text-center max-w-4xl">
           <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
-            Create Beautiful
-            <span className="text-primary block">Condolence Posters</span>
+            {t.homeHeroTitle}
           </h1>
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Honor loved ones with professionally designed Islamic condolence posters.
-            Perfect for social media sharing and memorial services.
+            {t.homeHeroSubtitle}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/create">
               <Button size="lg" className="text-lg px-8 py-6">
-                Create Your Poster
+                {t.homeHeroCreateButton}
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
             </Link>
             <Button size="lg" variant="outline" className="text-lg px-8 py-6">
-              View Examples
+              {t.homeHeroExamplesButton}
             </Button>
           </div>
         </div>
@@ -151,9 +149,9 @@ const HomePage = () => {
       <section className="py-16 px-4 bg-muted/30">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Why Choose Salam Takziah?</h2>
+            <h2 className="text-3xl font-bold mb-4">{t.homeFeaturesTitle}</h2>
             <p className="text-muted-foreground text-lg">
-              Professional tools designed specifically for Islamic condolence posters
+              {t.homeFeaturesSubtitle}
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
@@ -174,9 +172,9 @@ const HomePage = () => {
       <section className="py-20 px-4">
         <div className="container mx-auto max-w-7xl">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">Choose Your Plan</h2>
+            <h2 className="text-4xl font-bold mb-4">{t.homePricingTitle}</h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Start free and upgrade as your needs grow. All plans include our core features.
+              {t.homePricingSubtitle}
             </p>
           </div>
 
@@ -231,10 +229,10 @@ const HomePage = () => {
 
           <div className="text-center mt-12">
             <p className="text-muted-foreground mb-4">
-              All plans include a 14-day free trial for Premium and Diamond tiers
+              {t.homeTrialText}
             </p>
             <p className="text-sm text-muted-foreground">
-              Yearly subscriptions save 17% • Cancel anytime • No setup fees
+              {t.homeSavingsText}
             </p>
           </div>
         </div>
@@ -243,13 +241,13 @@ const HomePage = () => {
       {/* CTA Section */}
       <section className="py-16 px-4 bg-primary text-primary-foreground">
         <div className="container mx-auto text-center max-w-4xl">
-          <h2 className="text-3xl font-bold mb-4">Ready to Create Your First Poster?</h2>
+          <h2 className="text-3xl font-bold mb-4">{t.homeCtaTitle}</h2>
           <p className="text-lg mb-8 opacity-90">
-            Join thousands of families who trust Salam Takziah for their memorial needs
+            {t.homeCtaSubtitle}
           </p>
           <Link to="/create">
             <Button size="lg" variant="secondary" className="text-lg px-8 py-6">
-              Start Creating Now
+              {t.homeCtaButton}
               <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
           </Link>
@@ -266,34 +264,34 @@ const HomePage = () => {
                 <span className="font-bold">Salam Takziah</span>
               </div>
               <p className="text-muted-foreground text-sm">
-                Creating meaningful memorials with technology and compassion.
+                {t.homeFooterTagline}
               </p>
             </div>
 
             <div>
-              <h4 className="font-semibold mb-4">Product</h4>
+              <h4 className="font-semibold mb-4">{t.homeNavProduct || "Product"}</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/create" className="hover:text-foreground">Create Poster</Link></li>
-                <li><a href="#" className="hover:text-foreground">Templates</a></li>
-                <li><a href="#" className="hover:text-foreground">Pricing</a></li>
+                <li><Link to="/create" className="hover:text-foreground">{t.homeNavCreate}</Link></li>
+                <li><a href="#" className="hover:text-foreground">{t.homeNavTemplates}</a></li>
+                <li><a href="#" className="hover:text-foreground">{t.homeNavPricing}</a></li>
               </ul>
             </div>
 
             <div>
-              <h4 className="font-semibold mb-4">Support</h4>
+              <h4 className="font-semibold mb-4">{t.homeNavSupport || "Support"}</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><a href="#" className="hover:text-foreground">Help Center</a></li>
-                <li><a href="#" className="hover:text-foreground">Contact Us</a></li>
-                <li><a href="#" className="hover:text-foreground">Status</a></li>
+                <li><a href="#" className="hover:text-foreground">{t.homeNavHelp}</a></li>
+                <li><a href="#" className="hover:text-foreground">{t.homeNavContact}</a></li>
+                <li><a href="#" className="hover:text-foreground">{t.homeNavStatus}</a></li>
               </ul>
             </div>
 
             <div>
-              <h4 className="font-semibold mb-4">Company</h4>
+              <h4 className="font-semibold mb-4">{t.homeNavCompany || "Company"}</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><a href="#" className="hover:text-foreground">About</a></li>
-                <li><a href="#" className="hover:text-foreground">Blog</a></li>
-                <li><a href="#" className="hover:text-foreground">Privacy</a></li>
+                <li><a href="#" className="hover:text-foreground">{t.homeNavAbout}</a></li>
+                <li><a href="#" className="hover:text-foreground">{t.homeNavBlog}</a></li>
+                <li><a href="#" className="hover:text-foreground">{t.homeNavPrivacy}</a></li>
               </ul>
             </div>
           </div>
