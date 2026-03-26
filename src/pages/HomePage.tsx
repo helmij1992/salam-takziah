@@ -109,8 +109,8 @@ const HomePage = () => {
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-2">
-              <Heart className="w-8 h-8 text-primary" />
-              <span className="text-xl font-bold">Salam Takziah</span>
+              <span className="text-2xl">🕌</span>
+              <span className="text-xl font-bold tracking-wide">Salam Takziah</span>
             </div>
             <div className="flex items-center space-x-4">
               <Link to="/create">
@@ -144,14 +144,14 @@ const HomePage = () => {
           </div>
 
           <div className="mt-8 flex flex-wrap justify-center gap-3 text-sm text-muted-foreground">
-            <span className="inline-flex items-center gap-2 px-3 py-1 rounded bg-primary/10 text-primary">
-              🇲🇾 Malaysia-inspired design
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded bg-primary/10 text-primary border border-primary/20">
+              🇲🇾 Reka Bentuk Malaysia
             </span>
-            <span className="inline-flex items-center gap-2 px-3 py-1 rounded bg-secondary/10 text-secondary">
-              🕌 Khutbah & Islamic motif ready
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded bg-secondary/10 text-secondary border border-secondary/20">
+              🕋 Khat & Motif Islamik Sedia
             </span>
-            <span className="inline-flex items-center gap-2 px-3 py-1 rounded bg-accent/10 text-accent">
-              📱 Social-ready with optimal ratios
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded bg-accent/10 text-accent border border-accent/20">
+              📱 Media Sosial Teroptimum
             </span>
           </div>
         </div>
