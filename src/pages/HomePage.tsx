@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check, Star, Crown, Sparkles, ArrowRight, Heart, Users, Zap } from "lucide-react";
+import { Check, Star, Crown, Sparkles, ArrowRight, Users, Zap } from "lucide-react";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -37,7 +37,7 @@ const HomePage = () => {
       price: "RM 0",
       period: "selamanya",
       description: "Sesuai untuk pengguna kasual dan pencipta kali pertama",
-      icon: Heart,
+      icon: Sparkles,
       features: [
         "5 posters per month",
         "Classic format (4:3)",
@@ -310,7 +310,7 @@ const HomePage = () => {
           <div className="grid md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center space-x-2 mb-4">
-                <Heart className="w-6 h-6 text-primary" />
+                <span className="text-2xl">🌙</span>
                 <span className="font-bold">Salam Takziah</span>
               </div>
               <p className="text-muted-foreground text-sm">
