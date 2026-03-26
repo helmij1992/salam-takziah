@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import HomePage from "./pages/HomePage";
 import Index from "./pages/Index";
 import MesejTakziah from "./pages/MesejTakziah";
 import EnglishCondolences from "./pages/EnglishCondolences";
@@ -21,7 +22,8 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<HomePage />} />
+            <Route path="/create" element={<Index />} />
             <Route path="/mesej-takziah" element={<MesejTakziah />} />
             <Route path="/english-condolences" element={<EnglishCondolences />} />
             <Route path="/ucapan-whatsapp" element={<UcapanWhatsapp />} />
