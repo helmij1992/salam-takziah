@@ -1,13 +1,34 @@
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Check, Star, Crown, Sparkles, ArrowRight, Heart, Users, Zap } from "lucide-react";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { supabase } from "@/integrations/supabase/client";
 
 const HomePage = () => {
   const { t } = useLanguage();
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      setUserEmail(data.session?.user?.email ?? null);
+    };
+
+    fetchSession();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      setUserEmail(session?.user?.email ?? null);
+      if (event === "SIGNED_OUT") {
+        setUserEmail(null);
+      }
+    });
+
+    return () => authListener?.subscription.unsubscribe();
+  }, []);
 
   const plans = [
     {
@@ -116,6 +137,23 @@ const HomePage = () => {
               <Link to="/create">
                 <Button variant="ghost">{t.homeNavCreate}</Button>
               </Link>
+              {userEmail ? (
+                <>
+                  <span className="text-sm text-muted-foreground">{userEmail}</span>
+                  <Link to="/dashboard">
+                    <Button variant="default">Dashboard</Button>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link to="/login">
+                    <Button variant="outline">Login</Button>
+                  </Link>
+                  <Link to="/register">
+                    <Button variant="secondary">Register</Button>
+                  </Link>
+                </>
+              )}
               <LanguageSwitcher />
             </div>
           </div>

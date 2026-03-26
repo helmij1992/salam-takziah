@@ -6,6 +6,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import HomePage from "./pages/HomePage";
 import Index from "./pages/Index";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Dashboard from "./pages/Dashboard";
 import MesejTakziah from "./pages/MesejTakziah";
 import EnglishCondolences from "./pages/EnglishCondolences";
 import UcapanWhatsapp from "./pages/UcapanWhatsapp";
@@ -24,6 +27,9 @@ const App = () => (
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/create" element={<Index />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/mesej-takziah" element={<MesejTakziah />} />
             <Route path="/english-condolences" element={<EnglishCondolences />} />
             <Route path="/ucapan-whatsapp" element={<UcapanWhatsapp />} />
