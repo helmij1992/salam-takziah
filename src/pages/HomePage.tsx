@@ -9,7 +9,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 
 const HomePage = () => {
-  const { t } = useLanguage();
+  const { t, language, setLanguage } = useLanguage();
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
   useEffect(() => {
@@ -32,26 +32,40 @@ const HomePage = () => {
 
   const plans = [
     {
-      name: "Basic Memorial",
-      tier: "Percuma",
-      price: "RM 0",
-      period: "selamanya",
-      description: "Sesuai untuk pengguna kasual dan pencipta kali pertama",
+      name: t.homePlanBasicName,
+      tier: t.homePlanBasicTier,
+      price: t.homePlanBasicPrice,
+      period: t.homePlanBasicPeriod,
+      description: t.homePlanBasicDescription,
       icon: Sparkles,
-      features: [
-        "5 poster sebulan",
-        "Format klasik (4:3)",
-        "Tema asas (Klasik & Retro)",
-        "Resolusi standard (1080p)",
-        "Muat naik gambar & skala kelabu",
-        "Medan borang asas",
-        "Doa Islamik standard",
-        "Muat turun dengan tanda air",
-        "Sokongan asas (FAQ)"
-      ],
-      buttonText: "Mula Percuma",
+      features: t.homePlanBasicFeatures,
+      buttonText: t.homePlanBasicButton,
       buttonVariant: "outline" as const,
-      popular: false
+      popular: false,
+    },
+    {
+      name: t.homePlanProName,
+      tier: t.homePlanProTier,
+      price: t.homePlanProPrice,
+      period: t.homePlanProPeriod,
+      description: t.homePlanProDescription,
+      icon: Star,
+      features: t.homePlanProFeatures,
+      buttonText: t.homePlanProButton,
+      buttonVariant: "default" as const,
+      popular: true,
+    },
+    {
+      name: t.homePlanEnterpriseName,
+      tier: t.homePlanEnterpriseTier,
+      price: t.homePlanEnterprisePrice,
+      period: t.homePlanEnterprisePeriod,
+      description: t.homePlanEnterpriseDescription,
+      icon: Crown,
+      features: t.homePlanEnterpriseFeatures,
+      buttonText: t.homePlanEnterpriseButton,
+      buttonVariant: "secondary" as const,
+      popular: false,
     },
     {
       name: "Professional Memorial",
@@ -221,6 +235,23 @@ const HomePage = () => {
       {/* Pricing Section */}
       <section className="py-20 px-4">
         <div className="container mx-auto max-w-7xl">
+          <div className="flex justify-end gap-2 mb-6">
+            <Button
+              size="sm"
+              variant={language === "ms" ? "default" : "outline"}
+              onClick={() => setLanguage("ms")}
+            >
+              MS
+            </Button>
+            <Button
+              size="sm"
+              variant={language === "en" ? "default" : "outline"}
+              onClick={() => setLanguage("en")}
+            >
+              EN
+            </Button>
+          </div>
+
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-4">{t.homePricingTitle}</h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
