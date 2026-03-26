@@ -142,6 +142,18 @@ const HomePage = () => {
               {t.homeHeroExamplesButton}
             </Button>
           </div>
+
+          <div className="mt-8 flex flex-wrap justify-center gap-3 text-sm text-muted-foreground">
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded bg-primary/10 text-primary">
+              🇲🇾 Malaysia-inspired design
+            </span>
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded bg-secondary/10 text-secondary">
+              🕌 Khutbah & Islamic motif ready
+            </span>
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded bg-accent/10 text-accent">
+              📱 Social-ready with optimal ratios
+            </span>
+          </div>
         </div>
       </section>
 
