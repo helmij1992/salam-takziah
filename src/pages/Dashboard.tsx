@@ -203,6 +203,48 @@ const Dashboard = () => {
   const freePosterHistory = analytics
     .filter((event) => event.type === "poster_generated")
     .slice(0, 10);
+  const overviewCards = useMemo(() => {
+    if (!isPaidTier) {
+      return [];
+    }
+
+    if (isDiamondTier) {
+      return [
+        { title: ui.cloudDrafts, value: summary.draftCount, description: ui.cloudDraftsDesc },
+        { title: ui.analyticsEvents, value: analytics.length, description: ui.analyticsEventsDesc },
+        { title: ui.teamMembers, value: summary.teamCount, description: ui.teamDescShort },
+        { title: ui.restoreBin, value: summary.recycleBinCount, description: ui.restoreDescShort },
+      ];
+    }
+
+    return [
+      { title: ui.cloudDrafts, value: summary.draftCount, description: ui.cloudDraftsDesc },
+      { title: ui.batchProjects, value: summary.batchCount, description: ui.outputDescShort },
+      { title: ui.restoreBin, value: summary.recycleBinCount, description: ui.restoreDescShort },
+    ];
+  }, [analytics.length, isDiamondTier, isPaidTier, summary.batchCount, summary.draftCount, summary.recycleBinCount, summary.teamCount, ui.analyticsEvents, ui.analyticsEventsDesc, ui.batchProjects, ui.cloudDrafts, ui.cloudDraftsDesc, ui.outputDescShort, ui.restoreBin, ui.restoreDescShort, ui.teamDescShort, ui.teamMembers]);
+  const visibleTabs = useMemo(() => {
+    if (!isPaidTier) {
+      return [];
+    }
+
+    if (isDiamondTier) {
+      return [
+        { value: "drafts", label: ui.drafts, icon: Cloud },
+        { value: "batches", label: ui.batches, icon: FileStack },
+        { value: "analytics", label: ui.analytics, icon: Activity },
+        { value: "team", label: ui.team, icon: Users },
+        { value: "tools", label: ui.tools, icon: KeyRound },
+        { value: "restore", label: ui.restoreBin, icon: ArchiveRestore },
+      ];
+    }
+
+    return [
+      { value: "drafts", label: ui.drafts, icon: Cloud },
+      { value: "batches", label: ui.batches, icon: FileStack },
+      { value: "restore", label: ui.restoreBin, icon: ArchiveRestore },
+    ];
+  }, [isDiamondTier, isPaidTier, ui.analytics, ui.batches, ui.drafts, ui.restoreBin, ui.team, ui.tools]);
   const isInviteExpired = (inviteExpiresAt?: string) =>
     Boolean(inviteExpiresAt && new Date(inviteExpiresAt).getTime() < Date.now());
   const ui = {
@@ -273,9 +315,8 @@ const Dashboard = () => {
     cloudSyncLater: isMs ? "Penyegerakan awan akan bermula selepas ruang kerja tersedia di Supabase." : "Cloud sync will start after your workspace is available in Supabase.",
     retrySync: isMs ? "Cuba Lagi" : "Retry Sync",
     openBuilderShort: isMs ? "Buka Pembina" : "Open Builder",
-    createPageTitle: isMs ? "Halaman Cipta Poster" : "Create Poster Page",
-    createPageDesc: isMs ? "Buka terus halaman pembina poster untuk mula menghasilkan memorial baharu." : "Open the poster builder page directly to start a new memorial.",
-    openCreatePage: isMs ? "Buka /create" : "Open /create",
+    overview: isMs ? "Ringkasan" : "Overview",
+    quickAccess: isMs ? "Fokus pada draf, batch, dan tindakan utama tanpa gangguan." : "Focus on drafts, batches, and the main actions without extra clutter.",
     queuedDeletion: isMs ? "dijadual untuk dipadam." : "is queued for deletion.",
     undo: isMs ? "Undo" : "Undo",
     cloudDrafts: isMs ? "Draf Awan" : "Cloud Drafts",
@@ -288,6 +329,9 @@ const Dashboard = () => {
     teamMembersDesc: isMs ? "Kolaborator ruang kerja dan peranan" : "Workspace collaborators and roles",
     restoreBin: isMs ? "Tong Pulih" : "Restore Bin",
     restoreBinDesc: isMs ? "Pulihkan item ruang kerja yang dipadam baru-baru ini" : "Recover recently deleted workspace items",
+    restoreDescShort: isMs ? "Item dipadam yang masih boleh dipulihkan." : "Deleted items that can still be restored.",
+    teamDescShort: isMs ? "Kolaborator aktif dan tertunda." : "Active and pending collaborators.",
+    outputDescShort: isMs ? "Poster dan batch yang telah anda sediakan." : "Posters and batches you have prepared.",
     drafts: isMs ? "Draf" : "Drafts",
     batches: isMs ? "Batch" : "Batches",
     analytics: isMs ? "Analitik" : "Analytics",
@@ -904,7 +948,7 @@ const Dashboard = () => {
               {userEmail ? `${ui.signedInAs} ${userEmail}` : ui.noSession}
             </p>
             <p className="text-sm text-muted-foreground">
-              {ui.workspaceDesc}
+              {isPaidTier ? ui.quickAccess : ui.workspaceDesc}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -951,19 +995,6 @@ const Dashboard = () => {
                 {ui.openBuilderShort}
               </Button>
             </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="flex flex-col gap-4 py-4 md:flex-row md:items-center md:justify-between">
-            <div className="space-y-1">
-              <p className="text-sm font-medium">{ui.createPageTitle}</p>
-              <p className="text-sm text-muted-foreground">{ui.createPageDesc}</p>
-              <p className="text-xs text-muted-foreground">https://salam-takziah.vercel.app/create</p>
-            </div>
-            <Button asChild variant="outline">
-              <Link to="/create">{ui.openCreatePage}</Link>
-            </Button>
           </CardContent>
         </Card>
 
@@ -1051,62 +1082,32 @@ const Dashboard = () => {
           </div>
         ) : (
         <>
-        <div className="grid gap-4 md:grid-cols-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">{ui.cloudDrafts}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-semibold">{summary.draftCount}</p>
-              <p className="text-xs text-muted-foreground">{ui.cloudDraftsDesc}</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">{ui.batchProjects}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-semibold">{summary.batchCount}</p>
-              <p className="text-xs text-muted-foreground">{ui.batchProjectsDesc}</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">{ui.analyticsEvents}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-semibold">{analytics.length}</p>
-              <p className="text-xs text-muted-foreground">{ui.analyticsEventsDesc}</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">{ui.teamMembers}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-semibold">{summary.teamCount}</p>
-              <p className="text-xs text-muted-foreground">{ui.teamMembersDesc}</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">{ui.restoreBin}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-semibold">{summary.recycleBinCount}</p>
-              <p className="text-xs text-muted-foreground">{ui.restoreBinDesc}</p>
-            </CardContent>
-          </Card>
-        </div>
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle>{ui.overview}</CardTitle>
+            <p className="text-sm text-muted-foreground">{ui.quickAccess}</p>
+          </CardHeader>
+          <CardContent>
+            <div className={`grid gap-4 ${isDiamondTier ? "md:grid-cols-4" : "md:grid-cols-3"}`}>
+              {overviewCards.map((card) => (
+                <div key={card.title} className="rounded-xl border border-border/70 p-4">
+                  <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">{card.title}</p>
+                  <p className="mt-2 text-3xl font-semibold">{card.value}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{card.description}</p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
-        <Tabs defaultValue="drafts" className="space-y-4">
-          <TabsList className="grid h-auto grid-cols-2 gap-2 md:grid-cols-6">
-            <TabsTrigger value="drafts" className="gap-2"><Cloud className="h-4 w-4" />{ui.drafts}</TabsTrigger>
-            <TabsTrigger value="batches" className="gap-2"><FileStack className="h-4 w-4" />{ui.batches}</TabsTrigger>
-            <TabsTrigger value="analytics" className="gap-2"><Activity className="h-4 w-4" />{ui.analytics}</TabsTrigger>
-            <TabsTrigger value="team" className="gap-2"><Users className="h-4 w-4" />{ui.team}</TabsTrigger>
-            <TabsTrigger value="tools" className="gap-2"><KeyRound className="h-4 w-4" />CSV / API</TabsTrigger>
-            <TabsTrigger value="restore" className="gap-2"><ArchiveRestore className="h-4 w-4" />{ui.restoreBin}</TabsTrigger>
+        <Tabs defaultValue={visibleTabs[0]?.value ?? "drafts"} className="space-y-4">
+          <TabsList className={`grid h-auto gap-2 ${isDiamondTier ? "grid-cols-2 md:grid-cols-6" : "grid-cols-3"}`}>
+            {visibleTabs.map((tab) => (
+              <TabsTrigger key={tab.value} value={tab.value} className="gap-2">
+                <tab.icon className="h-4 w-4" />
+                {tab.label}
+              </TabsTrigger>
+            ))}
           </TabsList>
 
           <TabsContent value="drafts" className="space-y-4">
@@ -1283,7 +1284,7 @@ const Dashboard = () => {
             ) : (
               <Card>
                 <CardHeader>
-                  <CardTitle>Batch Projects</CardTitle>
+                  <CardTitle>{ui.batchProjects}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {batches.length === 0 ? (
@@ -1550,6 +1551,7 @@ const Dashboard = () => {
                 <Card>
                   <CardHeader>
                     <CardTitle>{ui.workspaceTeam}</CardTitle>
+                    <p className="text-sm text-muted-foreground">{ui.teamDescShort}</p>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     {team.map((member) => (
@@ -1697,6 +1699,7 @@ const Dashboard = () => {
               <Card>
                 <CardHeader>
                   <CardTitle>{ui.csvImports}</CardTitle>
+                  <p className="text-sm text-muted-foreground">{isMs ? "Alat import dan integrasi lanjutan untuk operasi berskala." : "Import and integration tools for larger-scale operations."}</p>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {plan !== "diamond" ? (
@@ -1732,6 +1735,7 @@ const Dashboard = () => {
               <Card>
                 <CardHeader>
                   <CardTitle>{ui.apiAccess}</CardTitle>
+                  <p className="text-sm text-muted-foreground">{isMs ? "Urus kredensial integrasi tanpa memaparkan token mentah secara terbuka." : "Manage integration credentials without exposing raw tokens openly."}</p>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {!isDiamondTier ? (
