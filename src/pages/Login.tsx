@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowRight, Lock, Mail } from "lucide-react";
 
@@ -26,6 +26,38 @@ const Login = () => {
   const redirectTo = sanitizeRedirectPath((location.state as { redirectTo?: string } | null)?.redirectTo, "/dashboard");
   const isSubmitting = isLoading || isGoogleLoading;
   const rateLimitKey = `login:${email.trim().toLowerCase() || "anonymous"}`;
+
+  useEffect(() => {
+    let isActive = true;
+
+    const handleAuthenticatedSession = async () => {
+      try {
+        const { data } = await supabase.auth.getSession();
+        if (!isActive || !data.session) {
+          return;
+        }
+
+        navigate(redirectTo, { replace: true });
+      } catch {
+        // Keep the login screen visible if the browser cannot resolve the current session.
+      }
+    };
+
+    void handleAuthenticatedSession();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!isActive || !session) {
+        return;
+      }
+
+      navigate(redirectTo, { replace: true });
+    });
+
+    return () => {
+      isActive = false;
+      authListener.subscription.unsubscribe();
+    };
+  }, [navigate, redirectTo]);
 
   const showRateLimitToast = (retryAfterMs: number) => {
     toast({
