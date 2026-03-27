@@ -98,7 +98,7 @@ const Index = () => {
     };
   }, [hasUnsavedChanges]);
 
-  const handleGenerate = (data: PosterData) => {
+  const handleGenerate = async (data: PosterData) => {
     if (!canGeneratePoster) {
       return false;
     }
@@ -114,8 +114,12 @@ const Index = () => {
         }
       : data;
 
+    const didConsumeQuota = await recordPosterGeneration();
+    if (!didConsumeQuota) {
+      return false;
+    }
+
     setPosterData(sanitizedData);
-    recordPosterGeneration();
     trackEvent({
       type: "poster_generated",
       meta: {

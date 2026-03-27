@@ -8,7 +8,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
+import { buildOAuthRedirectUrl, sanitizeRedirectPath } from "@/lib/auth";
+import { clearRateLimit, consumeRateLimit, formatRetryWindow } from "@/lib/rate-limit";
 import { toast } from "@/components/ui/use-toast";
+
+const AUTH_WINDOW_MS = 10 * 60 * 1000;
+const AUTH_MAX_ATTEMPTS = 5;
 
 const Register = () => {
   const navigate = useNavigate();
@@ -19,16 +24,31 @@ const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const redirectTo = (location.state as { redirectTo?: string } | null)?.redirectTo ?? "/dashboard";
+  const redirectTo = sanitizeRedirectPath((location.state as { redirectTo?: string } | null)?.redirectTo, "/dashboard");
   const isSubmitting = isLoading || isGoogleLoading;
+  const rateLimitKey = `register:${email.trim().toLowerCase() || "anonymous"}`;
+
+  const showRateLimitToast = (retryAfterMs: number) => {
+    toast({
+      title: t.authRateLimitTitle,
+      description: t.authRateLimitDesc.replace("{time}", formatRetryWindow(retryAfterMs)),
+      variant: "destructive",
+    });
+  };
 
   const handleGoogleRegister = async () => {
+    const attempt = consumeRateLimit(`${rateLimitKey}:google`, AUTH_MAX_ATTEMPTS, AUTH_WINDOW_MS);
+    if (!attempt.allowed) {
+      showRateLimitToast(attempt.retryAfterMs);
+      return;
+    }
+
     setIsGoogleLoading(true);
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}${redirectTo}`,
+        redirectTo: buildOAuthRedirectUrl(redirectTo),
       },
     });
 
@@ -39,7 +59,10 @@ const Register = () => {
         description: error.message || t.authGoogleErrorDesc,
         variant: "destructive",
       });
+      return;
     }
+
+    clearRateLimit(`${rateLimitKey}:google`);
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -58,6 +81,12 @@ const Register = () => {
         title: t.authToastPasswordMismatchTitle,
         description: t.authToastPasswordMismatchDesc,
       });
+      return;
+    }
+
+    const attempt = consumeRateLimit(rateLimitKey, AUTH_MAX_ATTEMPTS, AUTH_WINDOW_MS);
+    if (!attempt.allowed) {
+      showRateLimitToast(attempt.retryAfterMs);
       return;
     }
 
@@ -82,6 +111,7 @@ const Register = () => {
       return;
     }
 
+    clearRateLimit(rateLimitKey);
     toast({
       title: t.authToastRegisterSuccessTitle,
       description: t.authToastRegisterSuccessDesc.replace("{email}", email),

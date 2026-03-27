@@ -15,16 +15,19 @@ create table if not exists public.workspace_state (
 
 alter table public.workspace_state enable row level security;
 
+drop policy if exists "Users can view their own workspace state" on public.workspace_state;
 create policy "Users can view their own workspace state"
 on public.workspace_state
 for select
 using (auth.uid() = user_id);
 
+drop policy if exists "Users can insert their own workspace state" on public.workspace_state;
 create policy "Users can insert their own workspace state"
 on public.workspace_state
 for insert
 with check (auth.uid() = user_id);
 
+drop policy if exists "Users can update their own workspace state" on public.workspace_state;
 create policy "Users can update their own workspace state"
 on public.workspace_state
 for update

@@ -21,7 +21,7 @@ interface PosterFormProps {
   draftTitle?: string | null;
   isDraftSaving?: boolean;
   hasUnsavedChanges?: boolean;
-  onGenerate: (data: PosterData) => boolean;
+  onGenerate: (data: PosterData) => boolean | Promise<boolean>;
   onSaveDraft?: (title: string, data: PosterData, mode?: "update" | "copy") => void;
   onDataChange?: (data: PosterData) => void;
 }
@@ -52,6 +52,7 @@ const PosterForm = ({
   const [theme, setTheme] = useState<PosterTheme>("classic");
   const [format, setFormat] = useState<PosterFormat>("classic");
   const [whiteLabel, setWhiteLabel] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
     if (!initialData) {
@@ -122,7 +123,7 @@ const PosterForm = ({
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!canGeneratePoster) {
@@ -174,7 +175,9 @@ const PosterForm = ({
     }
 
     const nextData = buildPosterData();
-    const didGenerate = onGenerate(nextData);
+    setIsGenerating(true);
+    const didGenerate = await onGenerate(nextData);
+    setIsGenerating(false);
     if (didGenerate) {
       toast.success(t.toastSuccess);
     }
@@ -468,7 +471,7 @@ const PosterForm = ({
 
           {/* Submit Button */}
           <div className={`grid gap-2 ${onSaveDraft ? "sm:grid-cols-3" : "grid-cols-1"}`}>
-            <Button type="submit" className="w-full" size="lg">
+            <Button type="submit" className="w-full" size="lg" disabled={isGenerating}>
               {t.generateButton}
             </Button>
             {onSaveDraft && (

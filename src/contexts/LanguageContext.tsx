@@ -215,6 +215,8 @@ interface Translations {
   authGoogleLoading: string;
   authGoogleErrorTitle: string;
   authGoogleErrorDesc: string;
+  authRateLimitTitle: string;
+  authRateLimitDesc: string;
   authToastMissingLoginTitle: string;
   authToastMissingLoginDesc: string;
   authToastLoginFailedTitle: string;
@@ -512,6 +514,8 @@ const translations: Record<Language, Translations> = {
     authGoogleLoading: "Mengarahkan ke Google...",
     authGoogleErrorTitle: "Google SSO gagal",
     authGoogleErrorDesc: "Semak tetapan Google provider dan URL redirect di Supabase.",
+    authRateLimitTitle: "Terlalu banyak cubaan",
+    authRateLimitDesc: "Sila tunggu {time} sebelum mencuba lagi.",
     authToastMissingLoginTitle: "Sila isi emel dan kata laluan",
     authToastMissingLoginDesc: "Emel dan kata laluan diperlukan untuk log masuk.",
     authToastLoginFailedTitle: "Log masuk gagal",
@@ -807,6 +811,8 @@ const translations: Record<Language, Translations> = {
     authGoogleLoading: "Redirecting to Google...",
     authGoogleErrorTitle: "Google SSO failed",
     authGoogleErrorDesc: "Check your Google provider and redirect URL settings in Supabase.",
+    authRateLimitTitle: "Too many attempts",
+    authRateLimitDesc: "Please wait {time} before trying again.",
     authToastMissingLoginTitle: "Please enter your email and password",
     authToastMissingLoginDesc: "Email and password are required to sign in.",
     authToastLoginFailedTitle: "Login failed",

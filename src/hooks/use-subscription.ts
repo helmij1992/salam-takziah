@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Session } from "@supabase/supabase-js";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +9,12 @@ const FREE_POSTER_LIMIT_PER_MONTH = 5;
 const FREE_POSTER_USAGE_KEY = "salam-takziah-free-usage";
 
 type UsageStore = Record<string, number>;
+type QuotaStatus = {
+  generationCount: number;
+  remainingCount: number;
+  monthlyLimit: number;
+  periodKey: string | null;
+};
 
 const getCurrentMonthKey = () => {
   const now = new Date();
@@ -73,12 +79,72 @@ const getIdentityFromSession = (session: Session | null) => {
   return "guest";
 };
 
+const getLocalQuotaStatus = (identity: string): QuotaStatus => {
+  const store = readUsageStore();
+  const generationCount = store[getUsageKey(identity)] ?? 0;
+
+  return {
+    generationCount,
+    remainingCount: Math.max(0, FREE_POSTER_LIMIT_PER_MONTH - generationCount),
+    monthlyLimit: FREE_POSTER_LIMIT_PER_MONTH,
+    periodKey: getCurrentMonthKey(),
+  };
+};
+
 export const useSubscription = () => {
   const [session, setSession] = useState<Session | null>(null);
-  const [usageCount, setUsageCount] = useState(0);
+  const [quotaStatus, setQuotaStatus] = useState<QuotaStatus>({
+    generationCount: 0,
+    remainingCount: FREE_POSTER_LIMIT_PER_MONTH,
+    monthlyLimit: FREE_POSTER_LIMIT_PER_MONTH,
+    periodKey: null,
+  });
+  const [isQuotaLoading, setIsQuotaLoading] = useState(false);
+  const [quotaSource, setQuotaSource] = useState<"local" | "remote">("local");
 
   const plan = useMemo(() => resolvePlanFromSession(session), [session]);
   const identity = useMemo(() => getIdentityFromSession(session), [session]);
+
+  const refreshQuota = useCallback(async () => {
+    if (!session?.user) {
+      setQuotaStatus(getLocalQuotaStatus(identity));
+      setQuotaSource("local");
+      setIsQuotaLoading(false);
+      return;
+    }
+
+    if (plan !== "free") {
+      setQuotaStatus({
+        generationCount: 0,
+        remainingCount: FREE_POSTER_LIMIT_PER_MONTH,
+        monthlyLimit: FREE_POSTER_LIMIT_PER_MONTH,
+        periodKey: getCurrentMonthKey(),
+      });
+      setQuotaSource("remote");
+      setIsQuotaLoading(false);
+      return;
+    }
+
+    setIsQuotaLoading(true);
+    const { data, error } = await supabase.rpc("get_free_poster_quota_status");
+
+    if (error || !data || data.length === 0) {
+      setQuotaStatus(getLocalQuotaStatus(identity));
+      setQuotaSource("local");
+      setIsQuotaLoading(false);
+      return;
+    }
+
+    const nextStatus = data[0];
+    setQuotaStatus({
+      generationCount: nextStatus.generation_count,
+      remainingCount: nextStatus.remaining_count,
+      monthlyLimit: nextStatus.monthly_limit,
+      periodKey: nextStatus.period_key,
+    });
+    setQuotaSource("remote");
+    setIsQuotaLoading(false);
+  }, [identity, plan, session?.user]);
 
   useEffect(() => {
     const syncSession = async () => {
@@ -96,21 +162,46 @@ export const useSubscription = () => {
   }, []);
 
   useEffect(() => {
-    const store = readUsageStore();
-    setUsageCount(store[getUsageKey(identity)] ?? 0);
-  }, [identity]);
+    void refreshQuota();
+  }, [identity, plan, refreshQuota]);
 
-  const recordPosterGeneration = () => {
-    const store = readUsageStore();
-    const key = getUsageKey(identity);
-    const nextCount = (store[key] ?? 0) + 1;
+  const recordPosterGeneration = useCallback(async () => {
+    if (plan !== "free" || !session?.user) {
+      return true;
+    }
 
-    store[key] = nextCount;
-    writeUsageStore(store);
-    setUsageCount(nextCount);
-  };
+    const { data, error } = await supabase.rpc("consume_free_poster_quota");
 
-  const remainingFreePosters = Math.max(0, FREE_POSTER_LIMIT_PER_MONTH - usageCount);
+    if (error || !data || data.length === 0) {
+      const store = readUsageStore();
+      const key = getUsageKey(identity);
+      const nextCount = (store[key] ?? 0) + 1;
+
+      if (nextCount > FREE_POSTER_LIMIT_PER_MONTH) {
+        setQuotaStatus(getLocalQuotaStatus(identity));
+        setQuotaSource("local");
+        return false;
+      }
+
+      store[key] = nextCount;
+      writeUsageStore(store);
+      setQuotaStatus(getLocalQuotaStatus(identity));
+      setQuotaSource("local");
+      return true;
+    }
+
+    const nextStatus = data[0];
+    setQuotaStatus({
+      generationCount: nextStatus.generation_count,
+      remainingCount: nextStatus.remaining_count,
+      monthlyLimit: nextStatus.monthly_limit,
+      periodKey: nextStatus.period_key,
+    });
+    setQuotaSource("remote");
+    return nextStatus.allowed;
+  }, [identity, plan, session?.user]);
+
+  const remainingFreePosters = Math.max(0, quotaStatus.remainingCount);
   const canGeneratePoster = plan !== "free" || remainingFreePosters > 0;
   const isPremiumTier = plan === "premium";
   const isDiamondTier = plan === "diamond";
@@ -124,9 +215,12 @@ export const useSubscription = () => {
     isPremiumTier,
     isDiamondTier,
     isPaidTier,
-    monthlyPosterCount: usageCount,
+    monthlyPosterCount: quotaStatus.generationCount,
     remainingFreePosters,
     canGeneratePoster,
+    isQuotaLoading,
+    quotaSource,
+    refreshQuota,
     recordPosterGeneration,
   };
 };

@@ -94,6 +94,14 @@ const WorkspaceLocked = ({ title, description }: { title: string; description: s
   </Card>
 );
 
+const maskSecret = (value: string) => {
+  if (value.length <= 8) {
+    return "••••••••";
+  }
+
+  return `${value.slice(0, 4)}••••••••${value.slice(-4)}`;
+};
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const { language, t } = useLanguage();
@@ -212,7 +220,7 @@ const Dashboard = () => {
     inviteCreated: isMs ? "Jemputan dicipta" : "Invite created",
     inviteCreatedDesc: isMs ? "Kolaborator telah ditambah dengan status jemputan tertunda." : "The collaborator has been added with a pending invite state.",
     apiKeyCreated: isMs ? "Kunci API dicipta" : "API key created",
-    saveToken: isMs ? "Simpan token ini dengan selamat:" : "Save this token securely:",
+    saveToken: isMs ? "Token berjaya dijana. Salin hanya apabila diperlukan." : "The token was generated successfully. Copy it only when needed.",
     csvProcessed: isMs ? "CSV diproses dengan isu" : "CSV processed with issues",
     csvImported: isMs ? "CSV diimport" : "CSV imported",
     deleted: isMs ? "Dipadam" : "Deleted",
@@ -349,6 +357,10 @@ const Dashboard = () => {
     apiAccessReserved: isMs ? "Akses API dan integrasi tersedia pada Diamond." : "API access and integrations are available on Diamond.",
     keyName: isMs ? "Nama kunci" : "Key name",
     generateApiKey: isMs ? "Jana Kunci API" : "Generate API Key",
+    copyToken: isMs ? "Salin Token" : "Copy Token",
+    tokenCopied: isMs ? "Token disalin" : "Token copied",
+    tokenCopyFailed: isMs ? "Token tidak dapat disalin" : "Token could not be copied",
+    tokenHidden: isMs ? "Token disembunyikan untuk keselamatan" : "Token hidden for safety",
     revoked: isMs ? "Dibatalkan" : "Revoked",
     active: isMs ? "Aktif" : "Active",
     suggestedEndpoint: isMs ? "Contoh bentuk endpoint:" : "Suggested endpoint shape:",
@@ -537,7 +549,7 @@ const Dashboard = () => {
     setApiKeyName(isMs ? "Integrasi dashboard" : "Dashboard integration");
     toast({
       title: ui.apiKeyCreated,
-      description: `${ui.saveToken} ${credential.token}`,
+      description: `${ui.saveToken} (${maskSecret(credential.token)})`,
     });
   };
 
@@ -759,8 +771,24 @@ const Dashboard = () => {
     const nextToken = rotateApiCredential(credentialId);
     toast({
       title: ui.apiKeyRotated,
-      description: isMs ? `${name} kini menggunakan token baharu: ${nextToken}` : `${name} now uses a new token: ${nextToken}`,
+      description: isMs ? `${name} kini menggunakan token baharu (${maskSecret(nextToken)}).` : `${name} now uses a new token (${maskSecret(nextToken)}).`,
     });
+  };
+
+  const handleCopyApiToken = async (name: string, token: string) => {
+    try {
+      await navigator.clipboard.writeText(token);
+      toast({
+        title: ui.tokenCopied,
+        description: isMs ? `Token untuk ${name} telah disalin.` : `The token for ${name} has been copied.`,
+      });
+    } catch {
+      toast({
+        title: ui.tokenCopyFailed,
+        description: isMs ? "Sila salin token secara manual jika perlu." : "Please copy the token manually if needed.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleRevokeApiKey = (credentialId: string, name: string) => {
@@ -1725,6 +1753,9 @@ const Dashboard = () => {
                               </div>
                               <div className="flex items-center gap-2">
                                 <Badge variant="outline">{credential.revokedAt ? ui.revoked : ui.active}</Badge>
+                                <Button size="sm" variant="outline" onClick={() => handleCopyApiToken(credential.name, credential.token)}>
+                                  {ui.copyToken}
+                                </Button>
                                 <Button size="icon" variant="ghost" onClick={() => startEditingApiKey(credential.id, credential.name)}>
                                   <Pencil className="h-4 w-4" />
                                 </Button>
@@ -1745,7 +1776,9 @@ const Dashboard = () => {
                             </>
                           )}
                         </div>
-                        <p className="mt-1 break-all text-xs text-muted-foreground">{credential.token}</p>
+                        <p className="mt-1 break-all text-xs text-muted-foreground">
+                          {ui.tokenHidden}: {maskSecret(credential.token)}
+                        </p>
                       </div>
                     ))}
                     {isDiamondTier && (

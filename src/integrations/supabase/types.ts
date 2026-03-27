@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      free_tier_usage: {
+        Row: {
+          created_at: string
+          generation_count: number
+          period_key: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          generation_count?: number
+          period_key: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          generation_count?: number
+          period_key?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       workspace_state: {
         Row: {
           api_credentials: Json
@@ -58,7 +82,28 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      consume_free_poster_quota: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          allowed: boolean
+          generation_count: number
+          monthly_limit: number
+          period_key: string
+          plan: string
+          remaining_count: number
+        }[]
+      }
+      get_free_poster_quota_status: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          allowed: boolean
+          generation_count: number
+          monthly_limit: number
+          period_key: string
+          plan: string
+          remaining_count: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
