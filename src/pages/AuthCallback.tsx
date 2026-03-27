@@ -26,6 +26,31 @@ const AuthCallback = () => {
 
     const resolveSession = async () => {
       try {
+        const hashParams = new URLSearchParams(location.hash.replace(/^#/, ""));
+        const accessToken = hashParams.get("access_token");
+        const refreshToken = hashParams.get("refresh_token");
+        const authCode = new URLSearchParams(location.search).get("code");
+
+        if (accessToken && refreshToken) {
+          const { error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
+
+          if (!error) {
+            finish(redirectTarget);
+            return;
+          }
+        }
+
+        if (authCode) {
+          const { error } = await supabase.auth.exchangeCodeForSession(authCode);
+          if (!error) {
+            finish(redirectTarget);
+            return;
+          }
+        }
+
         const { data } = await supabase.auth.getSession();
         if (data.session) {
           finish(redirectTarget);
@@ -46,7 +71,7 @@ const AuthCallback = () => {
 
     const timeoutId = window.setTimeout(() => {
       finish("/login");
-    }, 4000);
+    }, 6000);
 
     return () => {
       isActive = false;
