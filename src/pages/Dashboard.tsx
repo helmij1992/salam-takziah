@@ -1,6 +1,6 @@
 import { DragEvent, useEffect, useMemo, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Activity, ArchiveRestore, ArrowDown, ArrowUp, Cloud, Copy, FileStack, KeyRound, Pencil, Plus, Save, Search, Trash2, Upload, Users, X } from "lucide-react";
+import { Activity, ArchiveRestore, ArrowDown, ArrowUp, Check, Cloud, Copy, FileStack, KeyRound, Pencil, Plus, Save, Search, Trash2, Upload, Users, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useSubscription } from "@/hooks/use-subscription";
 import { createEmptyPoster, useWorkspace } from "@/hooks/use-workspace";
@@ -184,12 +185,20 @@ const Dashboard = () => {
   const [selectedRestoreIds, setSelectedRestoreIds] = useState<string[]>([]);
 
   const planLabel = plan === "diamond" ? t.dashboardPlanDiamond : plan === "premium" ? t.dashboardPlanPremium : t.dashboardPlanFree;
+  const currentPlanDetails = t.homePlans.find((homePlan) =>
+    plan === "diamond"
+      ? homePlan.id === "enterprise"
+      : plan === "premium"
+        ? homePlan.id === "pro"
+        : homePlan.id === "basic",
+  );
   const isInviteExpired = (inviteExpiresAt?: string) =>
     Boolean(inviteExpiresAt && new Date(inviteExpiresAt).getTime() < Date.now());
   const ui = {
     logoutFailed: isMs ? "Log keluar gagal" : "Logout failed",
     loggedOut: isMs ? "Berjaya log keluar" : "Logged out",
     signedOut: isMs ? "Anda telah log keluar." : "You have been signed out.",
+    signOut: isMs ? "Log Keluar" : "Sign Out",
     selectDrafts: isMs ? "Pilih draf" : "Select drafts",
     chooseDrafts: isMs ? "Pilih sekurang-kurangnya satu draf untuk mencipta batch." : "Choose at least one draft to create a batch.",
     batchLimit: isMs ? "Had batch dicapai" : "Batch limit reached",
@@ -231,8 +240,12 @@ const Dashboard = () => {
     signedInAs: isMs ? "Log masuk sebagai" : "Signed in as",
     noSession: isMs ? "Sesi log masuk tidak ditemui." : "Signed in session not found.",
     workspaceDesc: isMs ? "Bina draf, jalankan batch, semak analitik, urus kolaborator, dan sediakan import di satu tempat." : "Build drafts, run batch jobs, review analytics, manage collaborators, and prepare imports from one place.",
+    freeWorkspaceDesc: isMs ? "Pelan Free memfokuskan penciptaan poster asas dengan had penggunaan, format, dan muat turun standard." : "The Free plan focuses on essential poster creation with standard usage, format, and download limits.",
     openBuilder: isMs ? "Buka Pembina Poster" : "Open Poster Builder",
     newDraft: isMs ? "Draf Baru" : "New Draft",
+    currentPlanDetails: isMs ? "Butiran Pelan Semasa" : "Current Plan Details",
+    freePlanAccessOnly: isMs ? "Akses Free Tier Sahaja" : "Free Tier Access Only",
+    freePlanOnlyDesc: isMs ? "Dashboard ini hanya memaparkan ciri yang tersedia untuk pelan Basic Memorial." : "This dashboard only shows the features available on the Basic Memorial plan.",
     cloudSyncAttention: isMs ? "Penyegerakan awan memerlukan perhatian" : "Cloud sync needs attention",
     syncingWorkspace: isMs ? "Menyegerak ruang kerja ke Supabase..." : "Syncing workspace to Supabase...",
     workspaceConnected: isMs ? "Penyegerakan ruang kerja disambungkan" : "Workspace sync is connected",
@@ -852,7 +865,8 @@ const Dashboard = () => {
               {ui.workspaceDesc}
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <LanguageSwitcher />
             <Button variant="secondary" onClick={() => navigate("/create")}>
               {ui.openBuilder}
             </Button>
@@ -860,7 +874,7 @@ const Dashboard = () => {
               {ui.newDraft}
             </Button>
             <Button variant="destructive" onClick={signOut}>
-              Log Keluar
+              {ui.signOut}
             </Button>
           </div>
         </div>
@@ -915,6 +929,48 @@ const Dashboard = () => {
           </Card>
         )}
 
+        {!isPaidTier && currentPlanDetails ? (
+          <Card>
+            <CardHeader className="space-y-4">
+              <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                <div className="space-y-2">
+                  <CardTitle className="text-2xl">{currentPlanDetails.name}</CardTitle>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge variant="outline">{currentPlanDetails.tier}</Badge>
+                    <span className="text-3xl font-semibold">
+                      {currentPlanDetails.price}
+                      <span className="ml-1 text-base font-normal text-muted-foreground">
+                        /{currentPlanDetails.period}
+                      </span>
+                    </span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{currentPlanDetails.description}</p>
+                </div>
+                <Badge variant="secondary">{ui.freePlanAccessOnly}</Badge>
+              </div>
+              <p className="text-sm text-muted-foreground">{ui.freePlanOnlyDesc}</p>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="rounded-2xl border border-border bg-muted/30 p-4">
+                <p className="text-sm font-medium">{t.freeTierNoticeTitle}</p>
+                <p className="mt-2 text-sm text-muted-foreground">{ui.freeWorkspaceDesc}</p>
+              </div>
+
+              <div className="space-y-3">
+                <p className="text-sm font-medium">{ui.currentPlanDetails}</p>
+                <ul className="grid gap-3 md:grid-cols-2">
+                  {currentPlanDetails.features.map((feature) => (
+                    <li key={feature} className="flex items-start gap-3 rounded-xl border border-border/70 p-3">
+                      <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
+                      <span className="text-sm">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+        <>
         <div className="grid gap-4 md:grid-cols-4">
           <Card>
             <CardHeader className="pb-2">
@@ -1769,6 +1825,9 @@ const Dashboard = () => {
             </Card>
           </TabsContent>
         </Tabs>
+
+        </>
+        )}
 
         <p className="text-sm text-muted-foreground">
           {ui.pricingDetails} <Link className="text-primary underline" to="/">{ui.backHome}</Link>
