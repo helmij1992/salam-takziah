@@ -273,6 +273,9 @@ const Dashboard = () => {
     cloudSyncLater: isMs ? "Penyegerakan awan akan bermula selepas ruang kerja tersedia di Supabase." : "Cloud sync will start after your workspace is available in Supabase.",
     retrySync: isMs ? "Cuba Lagi" : "Retry Sync",
     openBuilderShort: isMs ? "Buka Pembina" : "Open Builder",
+    createPageTitle: isMs ? "Halaman Cipta Poster" : "Create Poster Page",
+    createPageDesc: isMs ? "Buka terus halaman pembina poster untuk mula menghasilkan memorial baharu." : "Open the poster builder page directly to start a new memorial.",
+    openCreatePage: isMs ? "Buka /create" : "Open /create",
     queuedDeletion: isMs ? "dijadual untuk dipadam." : "is queued for deletion.",
     undo: isMs ? "Undo" : "Undo",
     cloudDrafts: isMs ? "Draf Awan" : "Cloud Drafts",
@@ -948,6 +951,19 @@ const Dashboard = () => {
                 {ui.openBuilderShort}
               </Button>
             </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="flex flex-col gap-4 py-4 md:flex-row md:items-center md:justify-between">
+            <div className="space-y-1">
+              <p className="text-sm font-medium">{ui.createPageTitle}</p>
+              <p className="text-sm text-muted-foreground">{ui.createPageDesc}</p>
+              <p className="text-xs text-muted-foreground">https://salam-takziah.vercel.app/create</p>
+            </div>
+            <Button asChild variant="outline">
+              <Link to="/create">{ui.openCreatePage}</Link>
+            </Button>
           </CardContent>
         </Card>
 
