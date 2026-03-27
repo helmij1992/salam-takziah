@@ -9,6 +9,9 @@ import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { PosterData } from "@/types/poster";
+import { toast } from "@/components/ui/use-toast";
+
+const ENTERPRISE_REQUEST_STORAGE_KEY = "salam-takziah-enterprise-request";
 
 const exampleAccentMap = {
   classic: "from-stone-100 via-zinc-100 to-amber-50",
@@ -128,8 +131,31 @@ const HomePage = () => {
     };
   };
 
-  const handleEnterprisePrimaryAction = () => {
+  const handleEnterprisePrimaryAction = async () => {
     setIsEnterpriseDialogOpen(false);
+    if (userEmail) {
+      const { error } = await supabase.rpc("submit_enterprise_request", { request_source: "pricing_dialog" });
+
+      if (error) {
+        toast({
+          title: t.homeEnterpriseDialogTitle,
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: t.homeEnterpriseDialogTitle,
+          description: t.homeEnterpriseDialogResponseValue,
+        });
+      }
+      navigate("/dashboard");
+      return;
+    }
+
+    if (typeof window !== "undefined") {
+      window.sessionStorage.setItem(ENTERPRISE_REQUEST_STORAGE_KEY, "pricing_dialog");
+    }
+
     navigate(userEmail ? "/dashboard" : "/register", {
       state: userEmail
         ? undefined
@@ -143,6 +169,9 @@ const HomePage = () => {
 
   const handleEnterpriseSecondaryAction = () => {
     setIsEnterpriseDialogOpen(false);
+    if (!userEmail && typeof window !== "undefined") {
+      window.sessionStorage.setItem(ENTERPRISE_REQUEST_STORAGE_KEY, "pricing_dialog");
+    }
     navigate(userEmail ? "/dashboard" : "/login", {
       state: userEmail
         ? undefined

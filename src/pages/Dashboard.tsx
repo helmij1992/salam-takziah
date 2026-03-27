@@ -27,6 +27,27 @@ import { PosterData } from "@/types/poster";
 import { WorkspaceRole } from "@/types/workspace";
 
 type PendingDeleteKind = "draft" | "batch" | "member" | "api";
+const ENTERPRISE_REQUEST_STORAGE_KEY = "salam-takziah-enterprise-request";
+
+interface AdminUserSummary {
+  user_id: string;
+  email: string;
+  subscription_plan: string;
+  app_role: string;
+  created_at: string;
+  last_sign_in_at: string | null;
+}
+
+interface EnterpriseRequestSummary {
+  request_id: string;
+  user_id: string | null;
+  email: string;
+  requested_plan: string;
+  status: string;
+  source: string;
+  created_at: string;
+  updated_at: string;
+}
 
 interface PendingDelete {
   id: string;
@@ -193,6 +214,10 @@ const Dashboard = () => {
   const [batchItemTheme, setBatchItemTheme] = useState<PosterData["theme"]>("classic");
   const [batchItemFormat, setBatchItemFormat] = useState<PosterData["format"]>("classic");
   const [selectedRestoreIds, setSelectedRestoreIds] = useState<string[]>([]);
+  const [adminUsers, setAdminUsers] = useState<AdminUserSummary[]>([]);
+  const [enterpriseRequests, setEnterpriseRequests] = useState<EnterpriseRequestSummary[]>([]);
+  const [isAdminDataLoading, setIsAdminDataLoading] = useState(false);
+  const [adminDataError, setAdminDataError] = useState<string | null>(null);
 
   const planLabel = isSuperadmin
     ? t.dashboardPlanSuperadmin
@@ -396,6 +421,20 @@ const Dashboard = () => {
     removePermanently: isMs ? "Buang Secara Kekal" : "Remove Permanently",
     pricingDetails: isMs ? "Perlu lihat butiran harga?" : "Need pricing details?",
     backHome: isMs ? "Kembali ke Halaman Utama" : "Back to Home",
+    allUsers: isMs ? "Semua Pengguna" : "All Users",
+    allUsersDesc: isMs ? "Senarai akaun yang berdaftar dalam platform untuk semakan superadmin." : "Registered platform accounts available to the superadmin.",
+    enterpriseRequests: isMs ? "Permintaan Enterprise Memorial" : "Enterprise Memorial Requests",
+    enterpriseRequestsDesc: isMs ? "Pengguna yang meminta akses atau dihubungi untuk pelan Enterprise." : "Users who asked for Enterprise access or sales contact.",
+    noUsersYet: isMs ? "Belum ada pengguna dipaparkan." : "No users are available yet.",
+    noEnterpriseRequestsYet: isMs ? "Belum ada permintaan Enterprise." : "No Enterprise requests yet.",
+    appRole: isMs ? "Peranan Aplikasi" : "App Role",
+    created: isMs ? "Dicipta" : "Created",
+    lastSignIn: isMs ? "Log masuk terakhir" : "Last sign-in",
+    neverSignedIn: isMs ? "Belum pernah log masuk" : "Never signed in",
+    requestSource: isMs ? "Sumber" : "Source",
+    requestStatus: isMs ? "Status" : "Status",
+    requestCaptured: isMs ? "Permintaan Enterprise diterima" : "Enterprise request received",
+    requestCapturedDesc: isMs ? "Permintaan anda untuk pelan Enterprise telah direkodkan." : "Your Enterprise plan request has been recorded.",
   };
 
   const overviewCards = useMemo(() => {
@@ -530,6 +569,77 @@ const Dashboard = () => {
       authListener?.subscription.unsubscribe();
     };
   }, [navigate]);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !userEmail) {
+      return;
+    }
+
+    const requestSource = window.sessionStorage.getItem(ENTERPRISE_REQUEST_STORAGE_KEY);
+    if (!requestSource) {
+      return;
+    }
+
+    const submitPendingEnterpriseRequest = async () => {
+      const { error } = await supabase.rpc("submit_enterprise_request", { request_source: requestSource });
+
+      if (error) {
+        window.sessionStorage.removeItem(ENTERPRISE_REQUEST_STORAGE_KEY);
+        return;
+      }
+
+      window.sessionStorage.removeItem(ENTERPRISE_REQUEST_STORAGE_KEY);
+      toast({
+        title: ui.requestCaptured,
+        description: ui.requestCapturedDesc,
+      });
+    };
+
+    void submitPendingEnterpriseRequest();
+  }, [ui.requestCaptured, ui.requestCapturedDesc, userEmail]);
+
+  useEffect(() => {
+    if (!isSuperadmin) {
+      setAdminUsers([]);
+      setEnterpriseRequests([]);
+      setAdminDataError(null);
+      setIsAdminDataLoading(false);
+      return;
+    }
+
+    let isActive = true;
+
+    const loadAdminData = async () => {
+      setIsAdminDataLoading(true);
+      const [{ data: usersData, error: usersError }, { data: requestsData, error: requestsError }] = await Promise.all([
+        supabase.rpc("admin_list_users"),
+        supabase.rpc("admin_list_enterprise_requests"),
+      ]);
+
+      if (!isActive) {
+        return;
+      }
+
+      if (usersError || requestsError) {
+        setAdminDataError(usersError?.message ?? requestsError?.message ?? "Failed to load superadmin data.");
+        setAdminUsers([]);
+        setEnterpriseRequests([]);
+        setIsAdminDataLoading(false);
+        return;
+      }
+
+      setAdminUsers((usersData ?? []) as AdminUserSummary[]);
+      setEnterpriseRequests((requestsData ?? []) as EnterpriseRequestSummary[]);
+      setAdminDataError(null);
+      setIsAdminDataLoading(false);
+    };
+
+    void loadAdminData();
+
+    return () => {
+      isActive = false;
+    };
+  }, [isSuperadmin]);
 
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
@@ -1023,6 +1133,83 @@ const Dashboard = () => {
               ))}
             </CardContent>
           </Card>
+        )}
+
+        {isSuperadmin && (
+          <div className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
+            <Card>
+              <CardHeader>
+                <CardTitle>{ui.allUsers}</CardTitle>
+                <p className="text-sm text-muted-foreground">{ui.allUsersDesc}</p>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {isAdminDataLoading ? (
+                  <p className="text-sm text-muted-foreground">{ui.loading}</p>
+                ) : adminDataError ? (
+                  <p className="text-sm text-destructive">{adminDataError}</p>
+                ) : adminUsers.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">{ui.noUsersYet}</p>
+                ) : (
+                  adminUsers.map((user) => (
+                    <div key={user.user_id} className="rounded-xl border border-border/70 p-4">
+                      <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                        <div className="space-y-1">
+                          <p className="font-medium">{user.email}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {ui.created} {new Date(user.created_at).toLocaleString()}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {ui.lastSignIn}{" "}
+                            {user.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleString() : ui.neverSignedIn}
+                          </p>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          <Badge variant="outline">{user.subscription_plan}</Badge>
+                          <Badge>{user.app_role}</Badge>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>{ui.enterpriseRequests}</CardTitle>
+                <p className="text-sm text-muted-foreground">{ui.enterpriseRequestsDesc}</p>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {isAdminDataLoading ? (
+                  <p className="text-sm text-muted-foreground">{ui.loading}</p>
+                ) : adminDataError ? (
+                  <p className="text-sm text-destructive">{adminDataError}</p>
+                ) : enterpriseRequests.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">{ui.noEnterpriseRequestsYet}</p>
+                ) : (
+                  enterpriseRequests.map((request) => (
+                    <div key={request.request_id} className="rounded-xl border border-border/70 p-4">
+                      <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                        <div className="space-y-1">
+                          <p className="font-medium">{request.email}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {ui.created} {new Date(request.created_at).toLocaleString()}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {ui.requestSource}: {request.source}
+                          </p>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          <Badge variant="outline">{request.requested_plan}</Badge>
+                          <Badge>{request.status}</Badge>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </CardContent>
+            </Card>
+          </div>
         )}
 
         {!isPaidTier && currentPlanDetails ? (
