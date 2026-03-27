@@ -263,7 +263,7 @@ const Dashboard = () => {
     generatedOn: isMs ? "Dijana pada" : "Generated on",
     simplePlanSummary: isMs ? "Ringkasan pelan asas" : "Simple plan summary",
     posterPerMonth: isMs ? "5 poster sebulan" : "5 posters per month",
-    classicOnly: isMs ? "Classic 4:3 sahaja" : "Classic 4:3 only",
+    classicOnly: isMs ? "Classic 4:3 & Instagram Story 9:16" : "Classic 4:3 & Instagram Story 9:16",
     watermarked: isMs ? "Muat turun bertanda air" : "Watermarked downloads",
     cloudSyncAttention: isMs ? "Penyegerakan awan memerlukan perhatian" : "Cloud sync needs attention",
     syncingWorkspace: isMs ? "Menyegerak ruang kerja ke Supabase..." : "Syncing workspace to Supabase...",

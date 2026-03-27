@@ -11,6 +11,9 @@ import { toast } from "sonner";
 import { Upload } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
+const getFreeTierFormat = (value: PosterFormat): PosterFormat =>
+  value === "instagram-story" ? "instagram-story" : "classic";
+
 interface PosterFormProps {
   isFreeTier: boolean;
   isPaidTier: boolean;
@@ -82,7 +85,7 @@ const PosterForm = ({
     message: isFreeTier ? "" : message.trim(),
     from: isFreeTier ? "" : from.trim(),
     theme,
-    format: isFreeTier ? "classic" : format,
+    format: isFreeTier ? getFreeTierFormat(format) : format,
     whiteLabel: isDiamondTier ? whiteLabel : false,
   }), [
     photo,
@@ -455,8 +458,8 @@ const PosterForm = ({
                 </Label>
               </div>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="instagram-story" id="format-ig-story" disabled={isFreeTier} />
-                <Label htmlFor="format-ig-story" className={`font-normal text-sm ${isFreeTier ? "cursor-not-allowed text-muted-foreground" : "cursor-pointer"}`}>
+                <RadioGroupItem value="instagram-story" id="format-ig-story" />
+                <Label htmlFor="format-ig-story" className="font-normal cursor-pointer text-sm">
                   {t.formatInstagramStory}
                 </Label>
               </div>

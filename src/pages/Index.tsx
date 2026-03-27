@@ -106,7 +106,7 @@ const Index = () => {
     const sanitizedData: PosterData = isFreeTier
       ? {
           ...data,
-          format: "classic",
+          format: data.format === "instagram-story" ? "instagram-story" : "classic",
           organization: "",
           message: "",
           from: "",
