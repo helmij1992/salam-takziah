@@ -329,9 +329,9 @@ const PosterPreview = ({ data, isFreeTier, isPaidTier, isDiamondTier }: PosterPr
           )}
 
           {isFreeTier && (
-            <div className="absolute inset-x-0 bottom-8 flex justify-center pointer-events-none">
-              <div className="rounded-full border border-poster-white/20 bg-black/35 px-4 py-1 text-[10px] uppercase tracking-[0.3em] text-poster-white/80">
-              Salam Takziah
+            <div className="pointer-events-none absolute bottom-4 left-4">
+              <div className="rounded-md border border-poster-white/15 bg-black/30 px-3 py-1 text-[10px] font-medium tracking-[0.18em] text-poster-white/70 shadow-sm backdrop-blur-sm">
+                ©SalamTakziah
               </div>
             </div>
           )}
