@@ -1,7 +1,10 @@
 import { useState, type FormEvent } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { ArrowRight, Lock, Mail } from "lucide-react";
+
+import AuthShell from "@/components/AuthShell";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,6 +13,7 @@ import { toast } from "@/components/ui/use-toast";
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useLanguage();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -19,8 +23,8 @@ const Login = () => {
     event.preventDefault();
     if (!email || !password) {
       toast({
-        title: "Sila isi emel dan kata laluan",
-        description: "Email dan password diperlukan untuk log masuk.",
+        title: t.authToastMissingLoginTitle,
+        description: t.authToastMissingLoginDesc,
       });
       return;
     }
@@ -31,7 +35,7 @@ const Login = () => {
 
     if (error) {
       toast({
-        title: "Log masuk gagal",
+        title: t.authToastLoginFailedTitle,
         description: error.message,
         variant: "destructive",
       });
@@ -39,51 +43,69 @@ const Login = () => {
     }
 
     toast({
-      title: "Berjaya",
-      description: `Selamat datang kembali, ${data.user?.email ?? "pengguna"}`,
+      title: t.authToastLoginSuccessTitle,
+      description: t.authToastLoginSuccessDesc.replace("{email}", data.user?.email ?? "user"),
     });
 
     navigate(redirectTo);
   };
 
   return (
-    <main className="min-h-screen bg-background flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Login Salam Takziah</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form className="space-y-4" onSubmit={handleSubmit}>
-            <div>
-              <Label htmlFor="email">Emel</Label>
+    <AuthShell
+      eyebrow={t.authLoginEyebrow}
+      title={t.authLoginTitle}
+      subtitle={t.authLoginSubtitle}
+      switchPrompt={t.authLoginSwitchPrompt}
+      switchLabel={t.authLoginSwitchLabel}
+      switchTo={{ pathname: "/register", state: { redirectTo } }}
+      form={(
+        <form className="space-y-5" onSubmit={handleSubmit}>
+          <div className="space-y-2">
+            <Label htmlFor="email">{t.authLoginEmailLabel}</Label>
+            <div className="relative">
+              <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                placeholder={t.authLoginEmailPlaceholder}
+                className="h-12 pl-10"
                 required
               />
             </div>
-            <div>
-              <Label htmlFor="password">Kata Laluan</Label>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="password">{t.authLoginPasswordLabel}</Label>
+              <span className="text-xs text-muted-foreground">{t.authLoginPasswordHint}</span>
+            </div>
+            <div className="relative">
+              <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                placeholder={t.authLoginPasswordPlaceholder}
+                className="h-12 pl-10"
                 required
               />
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Sedang log masuk..." : "Log Masuk"}
-            </Button>
-          </form>
-          <p className="text-sm text-muted-foreground mt-4">
-            Belum ada akaun? <Link className="text-primary underline" to="/register" state={{ redirectTo }}>Daftar sekarang</Link>
-          </p>
-        </CardContent>
-      </Card>
-    </main>
+          </div>
+
+          <div className="rounded-2xl border border-border bg-muted/40 p-4 text-sm text-muted-foreground">
+            {t.authLoginRedirectHint}
+          </div>
+
+          <Button type="submit" className="h-12 w-full text-base" disabled={isLoading}>
+            {isLoading ? t.authLoginLoading : t.authLoginButton}
+            {!isLoading && <ArrowRight className="ml-2 h-4 w-4" />}
+          </Button>
+        </form>
+      )}
+    />
   );
 };
 

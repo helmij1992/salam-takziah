@@ -99,7 +99,6 @@ const HomePage = () => {
       })),
     [t.homeExamples, t.homeExamplesPreviewLabel],
   );
-  const createNavLabel = userEmail ? t.homeNavCreate : "Login untuk Cipta Poster";
   const createHeroLabel = userEmail ? t.homeHeroCreateButton : "Login untuk Cipta Poster";
   const createCtaLabel = userEmail ? t.homeCtaButton : "Login untuk Mula Mencipta";
 
@@ -139,7 +138,6 @@ const HomePage = () => {
               <span className="text-xl font-bold tracking-wide">Salam Takziah</span>
             </div>
             <div className="flex items-center space-x-4">
-              <Button variant="ghost" onClick={handleStartCreating}>{createNavLabel}</Button>
               {userEmail ? (
                 <>
                   <span className="text-sm text-muted-foreground">{userEmail}</span>
@@ -378,7 +376,7 @@ const HomePage = () => {
             <div>
               <h4 className="font-semibold mb-4">{t.homeNavProduct || "Product"}</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><button type="button" onClick={handleStartCreating} className="hover:text-foreground">{createNavLabel}</button></li>
+                <li><button type="button" onClick={handleStartCreating} className="hover:text-foreground">{t.homeNavCreate}</button></li>
                 <li><a href="#" className="hover:text-foreground">{t.homeNavTemplates}</a></li>
                 <li><a href="#" className="hover:text-foreground">{t.homeNavPricing}</a></li>
               </ul>

@@ -15,7 +15,7 @@ interface PosterPreviewProps {
 }
 
 const PosterPreview = ({ data, isFreeTier, isPaidTier, isDiamondTier }: PosterPreviewProps) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const posterRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [grayscalePhoto, setGrayscalePhoto] = useState<string | null>(null);
@@ -80,7 +80,7 @@ const PosterPreview = ({ data, isFreeTier, isPaidTier, isDiamondTier }: PosterPr
 
       canvas.toBlob((blob) => {
         if (!blob) {
-          toast.error("Gagal menjana poster.");
+          toast.error(language === "ms" ? "Gagal menjana poster." : "Failed to generate poster.");
           return;
         }
         const url = URL.createObjectURL(blob);
@@ -91,11 +91,11 @@ const PosterPreview = ({ data, isFreeTier, isPaidTier, isDiamondTier }: PosterPr
         link.click();
         document.body.removeChild(link);
         setTimeout(() => URL.revokeObjectURL(url), 1000);
-        toast.success("Poster berjaya dimuat turun!");
+        toast.success(language === "ms" ? "Poster berjaya dimuat turun!" : "Poster downloaded successfully!");
       }, type === "png" ? "image/png" : "image/jpeg", type === "png" ? undefined : 0.95);
     } catch (error) {
       console.error("Error downloading poster:", error);
-      toast.error("Gagal memuat turun poster. Sila cuba lagi.");
+      toast.error(language === "ms" ? "Gagal memuat turun poster. Sila cuba lagi." : "Failed to download poster. Please try again.");
     } finally {
       setIsDownloading(false);
     }
@@ -120,7 +120,7 @@ const PosterPreview = ({ data, isFreeTier, isPaidTier, isDiamondTier }: PosterPr
       });
 
       if (!blob) {
-        toast.error("Gagal menjana poster.");
+        toast.error(language === "ms" ? "Gagal menjana poster." : "Failed to generate poster.");
         return;
       }
 
@@ -142,7 +142,7 @@ const PosterPreview = ({ data, isFreeTier, isPaidTier, isDiamondTier }: PosterPr
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString("ms-MY", {
+    return date.toLocaleDateString(language === "ms" ? "ms-MY" : "en-MY", {
       day: "numeric",
       month: "long",
       year: "numeric",
@@ -176,7 +176,18 @@ const PosterPreview = ({ data, isFreeTier, isPaidTier, isDiamondTier }: PosterPr
   }
 
   const accentColor = data.theme === "classic" ? "text-poster-gold" : "text-poster-white";
-  const genderTitle = data.gender === "allahyarham" ? "Allahyarham" : "Almarhumah";
+  const genderTitle = data.gender === "allahyarham"
+    ? "Allahyarham"
+    : "Almarhumah";
+  const defaultPrayerLineOne = language === "ms"
+    ? "Ya Allah, ampunilah dia, rahmatilah dia, maafkanlah dia, muliakanlah kematiannya, lapangkanlah kuburnya, dan jadikanlah syurga sebagai ganti tempat tinggalnya."
+    : "O Allah, forgive them, have mercy on them, pardon them, honor their passing, widen their grave, and grant Paradise as their eternal home.";
+  const defaultPrayerLineTwo = language === "ms"
+    ? `Semoga roh ${genderTitle} dicucuri rahmat dan ditempatkan di sisi-Mu bersama para solihin.`
+    : `May the soul of ${genderTitle} be showered with mercy and placed among the righteous.`;
+  const amenText = language === "ms" ? "Aamiin Ya Rabbal 'Alamin." : "Ameen, Lord of all worlds.";
+  const fromLabel = language === "ms" ? "Daripada:" : "From:";
+  const enterpriseBadge = "Salam Takziah Enterprise";
   const posterBackgroundClass =
     data.theme === "premium"
       ? "bg-[radial-gradient(circle_at_top,_rgba(212,175,55,0.22),_transparent_42%),linear-gradient(180deg,_#18120f_0%,_#090909_100%)]"
@@ -274,11 +285,10 @@ const PosterPreview = ({ data, isFreeTier, isPaidTier, isDiamondTier }: PosterPr
                     بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ
                   </p>
                   <p className="text-xs md:text-sm text-poster-white/90 leading-relaxed">
-                    Ya Allah, ampunilah dia, rahmatilah dia, maafkanlah dia, muliakanlah kematiannya,
-                    lapangkanlah kuburnya, dan jadikanlah syurga sebagai ganti tempat tinggalnya.
+                    {defaultPrayerLineOne}
                   </p>
                   <p className="text-xs md:text-sm text-poster-white/90 leading-relaxed">
-                    Semoga roh {genderTitle} dicucuri rahmat dan ditempatkan di sisi-Mu bersama para solihin.
+                    {defaultPrayerLineTwo}
                   </p>
                 </div>
               )}
@@ -290,7 +300,7 @@ const PosterPreview = ({ data, isFreeTier, isPaidTier, isDiamondTier }: PosterPr
             {/* Aamiin */}
             <div className="mb-2">
               <p className={`text-xs md:text-sm ${accentColor} italic font-medium`}>
-                Aamiin Ya Rabbal 'Alamin.
+                {amenText}
               </p>
             </div>
 
@@ -298,7 +308,7 @@ const PosterPreview = ({ data, isFreeTier, isPaidTier, isDiamondTier }: PosterPr
             {data.from && (
               <div className="border-t border-poster-white/30 pt-2">
                 <p className="text-xs md:text-sm text-poster-white/90">
-                  <span className={`${accentColor} font-semibold`}>Daripada:</span> {data.from}
+                  <span className={`${accentColor} font-semibold`}>{fromLabel}</span> {data.from}
                 </p>
               </div>
             )}
@@ -321,14 +331,14 @@ const PosterPreview = ({ data, isFreeTier, isPaidTier, isDiamondTier }: PosterPr
           {isFreeTier && (
             <div className="absolute inset-x-0 bottom-8 flex justify-center pointer-events-none">
               <div className="rounded-full border border-poster-white/20 bg-black/35 px-4 py-1 text-[10px] uppercase tracking-[0.3em] text-poster-white/80">
-                Salam Takziah
+              Salam Takziah
               </div>
             </div>
           )}
 
           {isDiamondTier && !data.whiteLabel && (
             <div className="absolute right-4 top-4 rounded-full border border-poster-gold/30 bg-black/20 px-3 py-1 text-[10px] uppercase tracking-[0.28em] text-poster-white/80">
-              Salam Takziah Enterprise
+              {enterpriseBadge}
             </div>
           )}
         </div>

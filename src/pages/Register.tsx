@@ -1,7 +1,10 @@
 import { useState, type FormEvent } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { ArrowRight, Lock, Mail, ShieldPlus } from "lucide-react";
+
+import AuthShell from "@/components/AuthShell";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,6 +13,7 @@ import { toast } from "@/components/ui/use-toast";
 const Register = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useLanguage();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -21,16 +25,16 @@ const Register = () => {
 
     if (!email || !password || !confirmPassword) {
       toast({
-        title: "Sila isi semua medan",
-        description: "Emel, kata laluan dan pengesahan kata laluan diperlukan.",
+        title: t.authToastMissingRegisterTitle,
+        description: t.authToastMissingRegisterDesc,
       });
       return;
     }
 
     if (password !== confirmPassword) {
       toast({
-        title: "Kata laluan tidak sepadan",
-        description: "Sila pastikan kata laluan dan pengesahan adalah sama.",
+        title: t.authToastPasswordMismatchTitle,
+        description: t.authToastPasswordMismatchDesc,
       });
       return;
     }
@@ -49,7 +53,7 @@ const Register = () => {
 
     if (error) {
       toast({
-        title: "Pendaftaran gagal",
+        title: t.authToastRegisterFailedTitle,
         description: error.message,
         variant: "destructive",
       });
@@ -57,8 +61,8 @@ const Register = () => {
     }
 
     toast({
-      title: "Daftar berjaya",
-      description: `Sila semak emel ${email} untuk pautan pengesahan.`,
+      title: t.authToastRegisterSuccessTitle,
+      description: t.authToastRegisterSuccessDesc.replace("{email}", email),
     });
 
     if (data.session) {
@@ -69,55 +73,79 @@ const Register = () => {
   };
 
   return (
-    <main className="min-h-screen bg-background flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Daftar Salam Takziah</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form className="space-y-4" onSubmit={handleSubmit}>
-            <div>
-              <Label htmlFor="email">Emel</Label>
+    <AuthShell
+      eyebrow={t.authRegisterEyebrow}
+      title={t.authRegisterTitle}
+      subtitle={t.authRegisterSubtitle}
+      switchPrompt={t.authRegisterSwitchPrompt}
+      switchLabel={t.authRegisterSwitchLabel}
+      switchTo={{ pathname: "/login", state: { redirectTo } }}
+      form={(
+        <form className="space-y-5" onSubmit={handleSubmit}>
+          <div className="space-y-2">
+            <Label htmlFor="email">{t.authRegisterEmailLabel}</Label>
+            <div className="relative">
+              <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                placeholder={t.authRegisterEmailPlaceholder}
+                className="h-12 pl-10"
                 required
               />
             </div>
-            <div>
-              <Label htmlFor="password">Kata Laluan</Label>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="password">{t.authRegisterPasswordLabel}</Label>
+              <span className="text-xs text-muted-foreground">{t.authRegisterPasswordHint}</span>
+            </div>
+            <div className="relative">
+              <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                placeholder={t.authRegisterPasswordPlaceholder}
+                className="h-12 pl-10"
                 required
                 minLength={8}
               />
             </div>
-            <div>
-              <Label htmlFor="confirmPassword">Pengesahan Kata Laluan</Label>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="confirmPassword">{t.authRegisterConfirmLabel}</Label>
+            <div className="relative">
+              <ShieldPlus className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 id="confirmPassword"
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder={t.authRegisterConfirmPlaceholder}
+                className="h-12 pl-10"
                 required
                 minLength={8}
               />
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Sedang mendaftar..." : "Daftar"}
-            </Button>
-          </form>
-          <p className="text-sm text-muted-foreground mt-4">
-            Sudah ada akaun? <Link className="text-primary underline" to="/login" state={{ redirectTo }}>Log masuk</Link>
-          </p>
-        </CardContent>
-      </Card>
-    </main>
+          </div>
+
+          <div className="rounded-2xl border border-border bg-muted/40 p-4 text-sm text-muted-foreground">
+            {t.authRegisterPlanHint}
+          </div>
+
+          <Button type="submit" className="h-12 w-full text-base" disabled={isLoading}>
+            {isLoading ? t.authRegisterLoading : t.authRegisterButton}
+            {!isLoading && <ArrowRight className="ml-2 h-4 w-4" />}
+          </Button>
+        </form>
+      )}
+    />
   );
 };
 

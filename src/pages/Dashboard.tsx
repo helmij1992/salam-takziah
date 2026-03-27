@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useSubscription } from "@/hooks/use-subscription";
 import { createEmptyPoster, useWorkspace } from "@/hooks/use-workspace";
 import { PosterData } from "@/types/poster";
@@ -33,14 +34,17 @@ interface PendingDelete {
   timeoutId: number;
 }
 
-const parseCsvRows = (csvText: string) => {
+const parseCsvRows = (csvText: string, isMs: boolean) => {
   const lines = csvText
     .split(/\r?\n/)
     .map((line) => line.trim())
     .filter(Boolean);
 
   if (lines.length < 2) {
-    return { posters: [] as PosterData[], errors: ["CSV needs a header row and at least one data row."] };
+    return {
+      posters: [] as PosterData[],
+      errors: [isMs ? "CSV memerlukan baris header dan sekurang-kurangnya satu baris data." : "CSV needs a header row and at least one data row."],
+    };
   }
 
   const headers = lines[0].split(",").map((header) => header.trim());
@@ -52,7 +56,7 @@ const parseCsvRows = (csvText: string) => {
     const row = Object.fromEntries(headers.map((header, headerIndex) => [header, values[headerIndex] ?? ""]));
 
     if (!row.fullName) {
-      errors.push(`Row ${index + 2}: fullName is required.`);
+      errors.push(isMs ? `Baris ${index + 2}: fullName diperlukan.` : `Row ${index + 2}: fullName is required.`);
       return;
     }
 
@@ -91,6 +95,8 @@ const WorkspaceLocked = ({ title, description }: { title: string; description: s
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { language, t } = useLanguage();
+  const isMs = language === "ms";
   const {
     plan,
     isPaidTier,
@@ -177,32 +183,194 @@ const Dashboard = () => {
   const [batchItemFormat, setBatchItemFormat] = useState<PosterData["format"]>("classic");
   const [selectedRestoreIds, setSelectedRestoreIds] = useState<string[]>([]);
 
-  const planLabel = plan === "diamond" ? "Diamond" : plan === "premium" ? "Premium" : "Free";
+  const planLabel = plan === "diamond" ? t.dashboardPlanDiamond : plan === "premium" ? t.dashboardPlanPremium : t.dashboardPlanFree;
   const isInviteExpired = (inviteExpiresAt?: string) =>
     Boolean(inviteExpiresAt && new Date(inviteExpiresAt).getTime() < Date.now());
+  const ui = {
+    logoutFailed: isMs ? "Log keluar gagal" : "Logout failed",
+    loggedOut: isMs ? "Berjaya log keluar" : "Logged out",
+    signedOut: isMs ? "Anda telah log keluar." : "You have been signed out.",
+    selectDrafts: isMs ? "Pilih draf" : "Select drafts",
+    chooseDrafts: isMs ? "Pilih sekurang-kurangnya satu draf untuk mencipta batch." : "Choose at least one draft to create a batch.",
+    batchLimit: isMs ? "Had batch dicapai" : "Batch limit reached",
+    batchLimitDesc: isMs ? "Premium menyokong sehingga 10 poster bagi setiap batch." : "Premium supports up to 10 posters per batch.",
+    batchCreated: isMs ? "Batch dicipta" : "Batch created",
+    missingDetails: isMs ? "Maklumat tidak lengkap" : "Missing details",
+    missingDetailsDesc: isMs ? "Nama dan emel diperlukan untuk menjemput rakan sepasukan." : "Name and email are required to invite a teammate.",
+    inviteCreated: isMs ? "Jemputan dicipta" : "Invite created",
+    inviteCreatedDesc: isMs ? "Kolaborator telah ditambah dengan status jemputan tertunda." : "The collaborator has been added with a pending invite state.",
+    apiKeyCreated: isMs ? "Kunci API dicipta" : "API key created",
+    saveToken: isMs ? "Simpan token ini dengan selamat:" : "Save this token securely:",
+    csvProcessed: isMs ? "CSV diproses dengan isu" : "CSV processed with issues",
+    csvImported: isMs ? "CSV diimport" : "CSV imported",
+    deleted: isMs ? "Dipadam" : "Deleted",
+    scheduledDelete: isMs ? "Dijadual untuk dipadam" : "Scheduled for deletion",
+    draftRenamed: isMs ? "Draf dinamakan semula" : "Draft renamed",
+    memberUpdated: isMs ? "Ahli dikemas kini" : "Member updated",
+    apiKeyUpdated: isMs ? "Kunci API dikemas kini" : "API key updated",
+    undoComplete: isMs ? "Undo berjaya" : "Undo complete",
+    itemRestored: isMs ? "Item dipulihkan" : "Item restored",
+    removedPermanently: isMs ? "Dibuang secara kekal" : "Removed permanently",
+    batchUpdated: isMs ? "Batch dikemas kini" : "Batch updated",
+    batchItemRemoved: isMs ? "Item batch dibuang" : "Batch item removed",
+    batchItemUpdated: isMs ? "Item batch dikemas kini" : "Batch item updated",
+    batchItemDuplicated: isMs ? "Item batch diduplikasi" : "Batch item duplicated",
+    apiKeyRotated: isMs ? "Kunci API diputar semula" : "API key rotated",
+    apiKeyRevoked: isMs ? "Kunci API dibatalkan" : "API key revoked",
+    invitationAccepted: isMs ? "Jemputan diterima" : "Invitation accepted",
+    inviteLinkUnavailable: isMs ? "Pautan jemputan tidak tersedia" : "Invite link unavailable",
+    inviteLinkUnavailableDesc: isMs ? "Jana atau hantar semula pautan jemputan terlebih dahulu." : "Generate or resend the invite link first.",
+    inviteLinkCopied: isMs ? "Pautan jemputan disalin" : "Invite link copied",
+    copyFailed: isMs ? "Salin gagal" : "Copy failed",
+    inviteLinkRefreshed: isMs ? "Pautan jemputan diperbaharui" : "Invite link refreshed",
+    onlyPending: isMs ? "Hanya kolaborator tertunda boleh menerima pautan yang diperbaharui." : "Only pending collaborators can receive a renewed invite link.",
+    itemsRestored: isMs ? "Item dipulihkan" : "Items restored",
+    itemsRemoved: isMs ? "Item dibuang secara kekal" : "Items removed permanently",
+    loading: isMs ? "Memuatkan..." : "Loading...",
+    workspaceDashboard: isMs ? "Dashboard Ruang Kerja" : "Workspace Dashboard",
+    signedInAs: isMs ? "Log masuk sebagai" : "Signed in as",
+    noSession: isMs ? "Sesi log masuk tidak ditemui." : "Signed in session not found.",
+    workspaceDesc: isMs ? "Bina draf, jalankan batch, semak analitik, urus kolaborator, dan sediakan import di satu tempat." : "Build drafts, run batch jobs, review analytics, manage collaborators, and prepare imports from one place.",
+    openBuilder: isMs ? "Buka Pembina Poster" : "Open Poster Builder",
+    newDraft: isMs ? "Draf Baru" : "New Draft",
+    cloudSyncAttention: isMs ? "Penyegerakan awan memerlukan perhatian" : "Cloud sync needs attention",
+    syncingWorkspace: isMs ? "Menyegerak ruang kerja ke Supabase..." : "Syncing workspace to Supabase...",
+    workspaceConnected: isMs ? "Penyegerakan ruang kerja disambungkan" : "Workspace sync is connected",
+    localWorkspaceMode: isMs ? "Menggunakan mod ruang kerja tempatan" : "Using local workspace mode",
+    lastSynced: isMs ? "Disegerak terakhir" : "Last synced",
+    cloudSyncLater: isMs ? "Penyegerakan awan akan bermula selepas ruang kerja tersedia di Supabase." : "Cloud sync will start after your workspace is available in Supabase.",
+    retrySync: isMs ? "Cuba Lagi" : "Retry Sync",
+    openBuilderShort: isMs ? "Buka Pembina" : "Open Builder",
+    queuedDeletion: isMs ? "dijadual untuk dipadam." : "is queued for deletion.",
+    undo: isMs ? "Undo" : "Undo",
+    cloudDrafts: isMs ? "Draf Awan" : "Cloud Drafts",
+    cloudDraftsDesc: isMs ? "Draf poster boleh guna semula dalam ruang kerja anda" : "Reusable poster drafts in your workspace",
+    batchProjects: isMs ? "Projek Batch" : "Batch Projects",
+    batchProjectsDesc: isMs ? "Batch poster manual dan berasaskan CSV" : "Manual and CSV-based poster batches",
+    analyticsEvents: isMs ? "Acara Analitik" : "Analytics Events",
+    analyticsEventsDesc: isMs ? "Penggunaan yang dijejak merentasi pembina dan dashboard" : "Tracked usage across builder and dashboard",
+    teamMembers: isMs ? "Ahli Pasukan" : "Team Members",
+    teamMembersDesc: isMs ? "Kolaborator ruang kerja dan peranan" : "Workspace collaborators and roles",
+    restoreBin: isMs ? "Tong Pulih" : "Restore Bin",
+    restoreBinDesc: isMs ? "Pulihkan item ruang kerja yang dipadam baru-baru ini" : "Recover recently deleted workspace items",
+    drafts: isMs ? "Draf" : "Drafts",
+    batches: isMs ? "Batch" : "Batches",
+    analytics: isMs ? "Analitik" : "Analytics",
+    team: isMs ? "Pasukan" : "Team",
+    tools: isMs ? "CSV / API" : "CSV / API",
+    savedDrafts: isMs ? "Draf Tersimpan" : "Saved Drafts",
+    searchDrafts: isMs ? "Cari ikut draf, nama, atau organisasi" : "Search by draft, person, or organization",
+    allThemes: isMs ? "Semua tema" : "All themes",
+    allFormats: isMs ? "Semua format" : "All formats",
+    showingDrafts: isMs ? "Menunjukkan" : "Showing",
+    of: isMs ? "daripada" : "of",
+    noDraftsYet: isMs ? "Tiada draf lagi. Simpan satu dari pembina poster untuk guna semula di sini." : "No drafts yet. Save one from the poster builder to reuse it here.",
+    noDraftsMatch: isMs ? "Tiada draf sepadan dengan carian dan penapis semasa." : "No drafts match the current search and filters.",
+    updated: isMs ? "Dikemas kini" : "Updated",
+    untitledMemorial: isMs ? "Memorial tanpa tajuk" : "Untitled memorial",
+    open: isMs ? "Buka" : "Open",
+    delete: isMs ? "Padam" : "Delete",
+    createBatchFromDrafts: isMs ? "Cipta Batch Daripada Draf" : "Create Batch From Drafts",
+    batchName: isMs ? "Nama batch" : "Batch name",
+    batchPlaceholder: isMs ? "Batch memorial mingguan" : "Weekly memorial batch",
+    addDraftsFirst: isMs ? "Tambah draf dahulu, kemudian pilih di sini untuk diproses sebagai batch." : "Add drafts first, then select them here for batch processing.",
+    createBatch: isMs ? "Cipta Batch" : "Create Batch",
+    premiumBatchHint: isMs ? "Premium menyokong sehingga 10 poster per batch. Diamond boleh membina batch organisasi yang lebih besar." : "Premium supports up to 10 posters per batch. Diamond can build larger organization batches.",
+    batchPaidOnlyTitle: isMs ? "Penciptaan batch tersedia pada pelan berbayar" : "Batch creation is available on paid plans",
+    batchPaidOnlyDesc: isMs ? "Naik taraf ke Premium atau Diamond untuk menyediakan kumpulan poster dan memproses memorial dengan lebih pantas." : "Upgrade to Premium or Diamond to prepare poster groups and process multiple memorials faster.",
+    noBatchesYet: isMs ? "Tiada projek batch lagi. Cipta satu daripada draf atau import CSV." : "No batch projects yet. Create one from drafts or a CSV import.",
+    postersLabel: isMs ? "poster" : "posters",
+    updatedShort: isMs ? "dikemas kini" : "updated",
+    fullName: isMs ? "Nama penuh" : "Full name",
+    organization: isMs ? "Organisasi" : "Organization",
+    from: isMs ? "Daripada" : "From",
+    shortMessage: isMs ? "Ucapan takziah ringkas" : "Short condolence message",
+    saveItem: isMs ? "Simpan Item" : "Save Item",
+    cancel: isMs ? "Batal" : "Cancel",
+    noOrganization: isMs ? "Tiada organisasi" : "No organization",
+    itemPosition: isMs ? "Item" : "Item",
+    ofTotal: isMs ? "daripada" : "of",
+    dragToReorder: isMs ? "Seret dan lepas untuk menyusun semula dalam batch ini." : "Drag and drop to reorder within this batch.",
+    analyticsDiamondTitle: isMs ? "Analitik lanjutan dibuka pada Diamond" : "Advanced analytics unlock on Diamond",
+    analyticsDiamondDesc: isMs ? "Ruang kerja Diamond boleh menyemak trend penjanaan, penggunaan draf, import, dan aktiviti pasukan di satu tempat." : "Diamond workspaces can review generation trends, draft usage, imports, and team activity in one place.",
+    generated: isMs ? "Dijana" : "Generated",
+    draftSaves: isMs ? "Simpanan Draf" : "Draft Saves",
+    csvImports: isMs ? "Import CSV" : "CSV Imports",
+    apiKeys: isMs ? "Kunci API" : "API Keys",
+    recentActivity: isMs ? "Aktiviti Terkini" : "Recent Activity",
+    analyticsEmpty: isMs ? "Acara analitik akan muncul di sini apabila pasukan anda menggunakan ruang kerja." : "Analytics events will appear here as your team uses the workspace.",
+    teamDiamondTitle: isMs ? "Kolaborasi pasukan dibuka pada Diamond" : "Team collaboration unlocks on Diamond",
+    teamDiamondDesc: isMs ? "Ruang kerja Diamond boleh mengurus peranan, menyelaras operasi memorial, dan berkongsi konteks ruang kerja." : "Diamond workspaces can manage roles, coordinate memorial operations, and share workspace context.",
+    workspaceTeam: isMs ? "Pasukan Ruang Kerja" : "Workspace Team",
+    pendingSince: isMs ? "Jemputan tertunda sejak" : "Invite pending since",
+    acceptedOn: isMs ? "Diterima" : "Accepted",
+    acceptedCollaborator: isMs ? "Kolaborator diterima" : "Accepted collaborator",
+    inviteLinkExpired: isMs ? "Pautan jemputan tamat" : "Invite link expired",
+    inviteLinkExpires: isMs ? "Pautan jemputan tamat pada" : "Invite link expires",
+    expired: isMs ? "tamat" : "expired",
+    copyLink: isMs ? "Salin Pautan" : "Copy Link",
+    resend: isMs ? "Hantar Semula" : "Resend",
+    accept: isMs ? "Terima" : "Accept",
+    addCollaborator: isMs ? "Tambah Kolaborator" : "Add Collaborator",
+    name: isMs ? "Nama" : "Name",
+    email: isMs ? "Emel" : "Email",
+    role: isMs ? "Peranan" : "Role",
+    addMember: isMs ? "Tambah Ahli" : "Add Member",
+    pendingInviteHint: isMs ? "Kolaborator baharu bermula sebagai tertunda sehingga diterima dari senarai pasukan." : "New collaborators start as pending until they are accepted from the team list.",
+    csvImportReserved: isMs ? "Import CSV dikhaskan untuk ruang kerja Diamond." : "CSV import is reserved for Diamond workspaces.",
+    importName: isMs ? "Nama import" : "Import name",
+    csvContent: isMs ? "Kandungan CSV" : "CSV content",
+    processCsv: isMs ? "Proses CSV" : "Process CSV",
+    apiAccess: isMs ? "Akses API" : "API Access",
+    apiAccessReserved: isMs ? "Akses API dan integrasi tersedia pada Diamond." : "API access and integrations are available on Diamond.",
+    keyName: isMs ? "Nama kunci" : "Key name",
+    generateApiKey: isMs ? "Jana Kunci API" : "Generate API Key",
+    revoked: isMs ? "Dibatalkan" : "Revoked",
+    active: isMs ? "Aktif" : "Active",
+    suggestedEndpoint: isMs ? "Contoh bentuk endpoint:" : "Suggested endpoint shape:",
+    searchDeleted: isMs ? "Cari item dipadam" : "Search deleted items",
+    itemType: isMs ? "Jenis item" : "Item type",
+    allItemTypes: isMs ? "Semua jenis item" : "All item types",
+    draftsType: isMs ? "Draf" : "Drafts",
+    batchesType: isMs ? "Batch" : "Batches",
+    membersType: isMs ? "Ahli pasukan" : "Team members",
+    apiKeysType: isMs ? "Kunci API" : "API keys",
+    showingDeleted: isMs ? "Menunjukkan" : "Showing",
+    deletedItems: isMs ? "item dipadam" : "deleted items",
+    selectVisible: isMs ? "Pilih item yang kelihatan" : "Select visible items",
+    restoreSelected: isMs ? "Pulihkan Dipilih" : "Restore Selected",
+    removeSelected: isMs ? "Buang Dipilih" : "Remove Selected",
+    restoreEmpty: isMs ? "Draf, batch, ahli pasukan, dan kunci API yang dipadam akan muncul di sini untuk dipulihkan." : "Deleted drafts, batches, team members, and API keys will appear here for recovery.",
+    restoreNoMatch: isMs ? "Tiada item dipadam sepadan dengan carian dan penapis semasa." : "No deleted items match the current search and filters.",
+    deletedAt: isMs ? "dipadam" : "deleted",
+    restore: isMs ? "Pulihkan" : "Restore",
+    removePermanently: isMs ? "Buang Secara Kekal" : "Remove Permanently",
+    pricingDetails: isMs ? "Perlu lihat butiran harga?" : "Need pricing details?",
+    backHome: isMs ? "Kembali ke Halaman Utama" : "Back to Home",
+  };
 
   const getRowSyncLabel = (updatedAt?: string, revokedAt?: string) => {
     if (revokedAt) {
-      return `Revoked ${new Date(revokedAt).toLocaleString()}`;
+      return `${isMs ? "Dibatalkan" : "Revoked"} ${new Date(revokedAt).toLocaleString()}`;
     }
 
     if (!updatedAt) {
-      return "Not synced yet";
+      return isMs ? "Belum disegerakkan" : "Not synced yet";
     }
 
     if (remoteError) {
-      return "Sync issue";
+      return isMs ? "Isu penyegerakan" : "Sync issue";
     }
 
     if (isSyncing) {
-      return "Saving...";
+      return isMs ? "Menyimpan..." : "Saving...";
     }
 
     if (lastSyncedAt && updatedAt <= lastSyncedAt) {
-      return "Saved to cloud";
+      return isMs ? "Disimpan ke awan" : "Saved to cloud";
     }
 
-    return "Pending sync";
+    return isMs ? "Menunggu penyegerakan" : "Pending sync";
   };
 
   useEffect(() => {
@@ -274,14 +442,14 @@ const Dashboard = () => {
     const { error } = await supabase.auth.signOut();
     if (error) {
       toast({
-        title: "Logout failed",
+        title: ui.logoutFailed,
         description: error.message,
         variant: "destructive",
       });
       return;
     }
 
-    toast({ title: "Logged out", description: "You have been signed out." });
+    toast({ title: ui.loggedOut, description: ui.signedOut });
     navigate("/");
   };
 
@@ -298,7 +466,7 @@ const Dashboard = () => {
     navigate("/create", {
       state: {
         draftPoster: poster,
-        sourceLabel: `draft: ${draftTitle}`,
+        sourceLabel: `${isMs ? "draf" : "draft"}: ${draftTitle}`,
         draftId,
         draftTitle,
       },
@@ -312,24 +480,24 @@ const Dashboard = () => {
 
     const selectedDrafts = drafts.filter((draft) => selectedDraftIds.includes(draft.id));
     if (selectedDrafts.length === 0) {
-      toast({ title: "Select drafts", description: "Choose at least one draft to create a batch." });
+      toast({ title: ui.selectDrafts, description: ui.chooseDrafts });
       return;
     }
 
     if (plan === "premium" && selectedDrafts.length > 10) {
-      toast({ title: "Batch limit reached", description: "Premium supports up to 10 posters per batch." });
+      toast({ title: ui.batchLimit, description: ui.batchLimitDesc });
       return;
     }
 
     const batch = createBatch(batchName.trim() || `Batch ${batches.length + 1}`, selectedDrafts.map((draft) => draft.poster), "manual");
     setSelectedDraftIds([]);
     setBatchName("");
-    toast({ title: "Batch created", description: `${batch.items.length} posters added to ${batch.name}.` });
+    toast({ title: ui.batchCreated, description: isMs ? `${batch.items.length} poster ditambah ke ${batch.name}.` : `${batch.items.length} posters added to ${batch.name}.` });
   };
 
   const handleAddMember = () => {
     if (!memberName.trim() || !memberEmail.trim()) {
-      toast({ title: "Missing details", description: "Name and email are required to invite a teammate." });
+      toast({ title: ui.missingDetails, description: ui.missingDetailsDesc });
       return;
     }
 
@@ -337,34 +505,36 @@ const Dashboard = () => {
     setMemberName("");
     setMemberEmail("");
     setMemberRole("editor");
-    toast({ title: "Invite created", description: "The collaborator has been added with a pending invite state." });
+    toast({ title: ui.inviteCreated, description: ui.inviteCreatedDesc });
   };
 
   const handleCreateApiKey = () => {
-    const credential = createApiCredential(apiKeyName.trim() || "Workspace integration");
-    setApiKeyName("Dashboard integration");
+    const credential = createApiCredential(apiKeyName.trim() || (isMs ? "Integrasi ruang kerja" : "Workspace integration"));
+    setApiKeyName(isMs ? "Integrasi dashboard" : "Dashboard integration");
     toast({
-      title: "API key created",
-      description: `Save this token securely: ${credential.token}`,
+      title: ui.apiKeyCreated,
+      description: `${ui.saveToken} ${credential.token}`,
     });
   };
 
   const handleImportCsv = () => {
-    const { posters, errors } = parseCsvRows(csvText);
-    const job = createImportJob(csvName.trim() || "CSV import", posters.length + errors.length, posters.length, errors);
+    const { posters, errors } = parseCsvRows(csvText, isMs);
+    const job = createImportJob(csvName.trim() || (isMs ? "Import CSV" : "CSV import"), posters.length + errors.length, posters.length, errors);
 
     if (posters.length > 0) {
-      createBatch(csvName.trim() || "CSV import", posters, "csv");
+      createBatch(csvName.trim() || (isMs ? "Import CSV" : "CSV import"), posters, "csv");
     }
 
     toast({
-      title: errors.length > 0 ? "CSV processed with issues" : "CSV imported",
-      description: `${job.successCount} rows ready for poster creation${errors.length > 0 ? `, ${errors.length} rows need review.` : "."}`,
+      title: errors.length > 0 ? ui.csvProcessed : ui.csvImported,
+      description: isMs
+        ? `${job.successCount} baris sedia untuk penciptaan poster${errors.length > 0 ? `, ${errors.length} baris perlu disemak.` : "."}`
+        : `${job.successCount} rows ready for poster creation${errors.length > 0 ? `, ${errors.length} rows need review.` : "."}`,
     });
   };
 
   const handleQuickDraft = () => {
-    const draft = saveDraft("Quick memorial draft", createEmptyPoster());
+    const draft = saveDraft(isMs ? "Draf memorial pantas" : "Quick memorial draft", createEmptyPoster());
     openDraft(draft.id, draft.title, draft.poster);
   };
 
@@ -372,7 +542,7 @@ const Dashboard = () => {
     const timeoutId = window.setTimeout(() => {
       onCommit();
       setPendingDeletes((current) => current.filter((item) => item.id !== id));
-      toast({ title: "Deleted", description: `${label} has been removed.` });
+      toast({ title: ui.deleted, description: isMs ? `${label} telah dibuang.` : `${label} has been removed.` });
     }, 5000);
 
     setPendingDeletes((current) => [
@@ -381,8 +551,8 @@ const Dashboard = () => {
     ]);
 
     toast({
-      title: "Scheduled for deletion",
-      description: `${label} will be deleted in 5 seconds unless you undo it below.`,
+      title: ui.scheduledDelete,
+      description: isMs ? `${label} akan dipadam dalam 5 saat melainkan anda undo di bawah.` : `${label} will be deleted in 5 seconds unless you undo it below.`,
     });
   };
 
@@ -394,7 +564,7 @@ const Dashboard = () => {
     renameDraft(draftId, draftTitleInput);
     setRenamingDraftId(null);
     setDraftTitleInput("");
-    toast({ title: "Draft renamed", description: "The draft title has been updated." });
+    toast({ title: ui.draftRenamed, description: isMs ? "Tajuk draf telah dikemas kini." : "The draft title has been updated." });
   };
 
   const startEditingMember = (
@@ -419,7 +589,7 @@ const Dashboard = () => {
       status: memberEditStatus,
     });
     setEditingMemberId(null);
-    toast({ title: "Member updated", description: "The collaborator details have been saved." });
+    toast({ title: ui.memberUpdated, description: isMs ? "Butiran kolaborator telah disimpan." : "The collaborator details have been saved." });
   };
 
   const handleDeleteMember = (memberId: string, name: string) => {
@@ -435,7 +605,7 @@ const Dashboard = () => {
     updateApiCredential(credentialId, apiKeyEditName);
     setEditingApiKeyId(null);
     setApiKeyEditName("");
-    toast({ title: "API key updated", description: "The credential label has been updated." });
+    toast({ title: ui.apiKeyUpdated, description: isMs ? "Label kredensial telah dikemas kini." : "The credential label has been updated." });
   };
 
   const handleDeleteApiKey = (credentialId: string, name: string) => {
@@ -450,17 +620,17 @@ const Dashboard = () => {
 
     window.clearTimeout(pendingDelete.timeoutId);
     setPendingDeletes((current) => current.filter((item) => item.id !== id));
-    toast({ title: "Undo complete", description: `${pendingDelete.label} was kept.` });
+    toast({ title: ui.undoComplete, description: isMs ? `${pendingDelete.label} dikekalkan.` : `${pendingDelete.label} was kept.` });
   };
 
   const handleRestoreDeletedItem = (deletedItemId: string, label: string) => {
     restoreDeletedItem(deletedItemId);
-    toast({ title: "Item restored", description: `${label} has been restored to the workspace.` });
+    toast({ title: ui.itemRestored, description: isMs ? `${label} telah dipulihkan ke ruang kerja.` : `${label} has been restored to the workspace.` });
   };
 
   const handleClearDeletedItem = (deletedItemId: string, label: string) => {
     clearDeletedItem(deletedItemId);
-    toast({ title: "Removed permanently", description: `${label} was removed from the restore bin.` });
+    toast({ title: ui.removedPermanently, description: isMs ? `${label} telah dibuang dari tong pulih.` : `${label} was removed from the restore bin.` });
   };
 
   const startEditingBatch = (batchId: string, name: string) => {
@@ -472,7 +642,7 @@ const Dashboard = () => {
     updateBatch(batchId, { name: batchEditName });
     setEditingBatchId(null);
     setBatchEditName("");
-    toast({ title: "Batch updated", description: "The batch name has been saved." });
+    toast({ title: ui.batchUpdated, description: isMs ? "Nama batch telah disimpan." : "The batch name has been saved." });
   };
 
   const handleDeleteBatch = (batchId: string, batchNameValue: string) => {
@@ -509,8 +679,8 @@ const Dashboard = () => {
   const handleRemoveBatchItem = (batchId: string, itemId: string, label: string) => {
     removeBatchItem(batchId, itemId);
     toast({
-      title: "Batch item removed",
-      description: `${label} was removed from the batch.`,
+      title: ui.batchItemRemoved,
+      description: isMs ? `${label} telah dibuang dari batch.` : `${label} was removed from the batch.`,
     });
   };
 
@@ -548,48 +718,48 @@ const Dashboard = () => {
     });
     stopEditingBatchItem();
     toast({
-      title: "Batch item updated",
-      description: "The poster details were updated inside this batch.",
+      title: ui.batchItemUpdated,
+      description: isMs ? "Butiran poster telah dikemas kini dalam batch ini." : "The poster details were updated inside this batch.",
     });
   };
 
   const handleDuplicateBatchItem = (batchId: string, itemId: string, label: string) => {
     duplicateBatchItem(batchId, itemId);
     toast({
-      title: "Batch item duplicated",
-      description: `${label} was duplicated inside the batch.`,
+      title: ui.batchItemDuplicated,
+      description: isMs ? `${label} telah diduplikasi dalam batch.` : `${label} was duplicated inside the batch.`,
     });
   };
 
   const handleRotateApiKey = (credentialId: string, name: string) => {
     const nextToken = rotateApiCredential(credentialId);
     toast({
-      title: "API key rotated",
-      description: `${name} now uses a new token: ${nextToken}`,
+      title: ui.apiKeyRotated,
+      description: isMs ? `${name} kini menggunakan token baharu: ${nextToken}` : `${name} now uses a new token: ${nextToken}`,
     });
   };
 
   const handleRevokeApiKey = (credentialId: string, name: string) => {
     revokeApiCredential(credentialId);
     toast({
-      title: "API key revoked",
-      description: `${name} has been revoked and should no longer be used.`,
+      title: ui.apiKeyRevoked,
+      description: isMs ? `${name} telah dibatalkan dan tidak patut digunakan lagi.` : `${name} has been revoked and should no longer be used.`,
     });
   };
 
   const handleAcceptMemberInvite = (memberId: string, name: string) => {
     acceptTeamMemberInvite(memberId);
     toast({
-      title: "Invitation accepted",
-      description: `${name} is now an active collaborator.`,
+      title: ui.invitationAccepted,
+      description: isMs ? `${name} kini ialah kolaborator aktif.` : `${name} is now an active collaborator.`,
     });
   };
 
   const handleCopyInviteLink = async (name: string, inviteLink?: string) => {
     if (!inviteLink) {
       toast({
-        title: "Invite link unavailable",
-        description: "Generate or resend the invite link first.",
+        title: ui.inviteLinkUnavailable,
+        description: ui.inviteLinkUnavailableDesc,
         variant: "destructive",
       });
       return;
@@ -598,12 +768,12 @@ const Dashboard = () => {
     try {
       await navigator.clipboard.writeText(inviteLink);
       toast({
-        title: "Invite link copied",
-        description: `${name}'s share link is ready to send.`,
+        title: ui.inviteLinkCopied,
+        description: isMs ? `Pautan kongsi ${name} sedia untuk dihantar.` : `${name}'s share link is ready to send.`,
       });
     } catch {
       toast({
-        title: "Copy failed",
+        title: ui.copyFailed,
         description: inviteLink,
         variant: "destructive",
       });
@@ -614,10 +784,10 @@ const Dashboard = () => {
     const inviteLink = resendTeamMemberInvite(memberId);
 
     toast({
-      title: "Invite link refreshed",
+      title: ui.inviteLinkRefreshed,
       description: inviteLink
-        ? `${name}'s invite link has been renewed for another 7 days.`
-        : "Only pending collaborators can receive a renewed invite link.",
+        ? (isMs ? `Pautan jemputan ${name} telah diperbaharui untuk 7 hari lagi.` : `${name}'s invite link has been renewed for another 7 days.`)
+        : ui.onlyPending,
       variant: inviteLink ? "default" : "destructive",
     });
   };
@@ -639,8 +809,10 @@ const Dashboard = () => {
 
     restoreDeletedItems(selectedRestoreIds);
     toast({
-      title: "Items restored",
-      description: `${selectedRestoreIds.length} deleted item${selectedRestoreIds.length === 1 ? "" : "s"} restored to the workspace.`,
+      title: ui.itemsRestored,
+      description: isMs
+        ? `${selectedRestoreIds.length} item dipadam telah dipulihkan ke ruang kerja.`
+        : `${selectedRestoreIds.length} deleted item${selectedRestoreIds.length === 1 ? "" : "s"} restored to the workspace.`,
     });
     setSelectedRestoreIds([]);
   };
@@ -652,14 +824,16 @@ const Dashboard = () => {
 
     clearDeletedItems(selectedRestoreIds);
     toast({
-      title: "Items removed permanently",
-      description: `${selectedRestoreIds.length} deleted item${selectedRestoreIds.length === 1 ? "" : "s"} removed from the restore bin.`,
+      title: ui.itemsRemoved,
+      description: isMs
+        ? `${selectedRestoreIds.length} item dipadam telah dibuang dari tong pulih.`
+        : `${selectedRestoreIds.length} deleted item${selectedRestoreIds.length === 1 ? "" : "s"} removed from the restore bin.`,
     });
     setSelectedRestoreIds([]);
   };
 
   if (loading) {
-    return <main className="min-h-screen bg-background flex items-center justify-center">Loading...</main>;
+    return <main className="min-h-screen bg-background flex items-center justify-center">{ui.loading}</main>;
   }
 
   return (
@@ -668,22 +842,22 @@ const Dashboard = () => {
         <div className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-6 md:flex-row md:items-center md:justify-between">
           <div className="space-y-2">
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-semibold">Workspace Dashboard</h1>
+              <h1 className="text-2xl font-semibold">{ui.workspaceDashboard}</h1>
               <Badge variant={plan === "free" ? "outline" : "default"}>{planLabel}</Badge>
             </div>
             <p className="text-sm text-muted-foreground">
-              {userEmail ? `Signed in as ${userEmail}` : "Signed in session not found."}
+              {userEmail ? `${ui.signedInAs} ${userEmail}` : ui.noSession}
             </p>
             <p className="text-sm text-muted-foreground">
-              Build drafts, run batch jobs, review analytics, manage collaborators, and prepare imports from one place.
+              {ui.workspaceDesc}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
             <Button variant="secondary" onClick={() => navigate("/create")}>
-              Open Poster Builder
+              {ui.openBuilder}
             </Button>
             <Button variant="outline" onClick={handleQuickDraft}>
-              New Draft
+              {ui.newDraft}
             </Button>
             <Button variant="destructive" onClick={signOut}>
               Log Keluar
@@ -696,29 +870,29 @@ const Dashboard = () => {
             <div className="space-y-1">
               <p className="text-sm font-medium">
                 {remoteError
-                  ? "Cloud sync needs attention"
+                  ? ui.cloudSyncAttention
                   : isSyncing
-                    ? "Syncing workspace to Supabase..."
+                    ? ui.syncingWorkspace
                     : isRemoteReady
-                      ? "Workspace sync is connected"
-                      : "Using local workspace mode"}
+                      ? ui.workspaceConnected
+                      : ui.localWorkspaceMode}
               </p>
               <p className="text-sm text-muted-foreground">
                 {remoteError
                   ? remoteError
                   : lastSyncedAt
-                    ? `Last synced ${new Date(lastSyncedAt).toLocaleString()}`
-                    : "Cloud sync will start after your workspace is available in Supabase."}
+                    ? `${ui.lastSynced} ${new Date(lastSyncedAt).toLocaleString()}`
+                    : ui.cloudSyncLater}
               </p>
             </div>
             <div className="flex gap-2">
               {remoteError && (
                 <Button variant="outline" onClick={retryRemoteSync}>
-                  Retry Sync
+                  {ui.retrySync}
                 </Button>
               )}
               <Button variant="ghost" onClick={() => navigate("/create")}>
-                Open Builder
+                {ui.openBuilderShort}
               </Button>
             </div>
           </CardContent>
@@ -730,10 +904,10 @@ const Dashboard = () => {
               {pendingDeletes.map((pendingDelete) => (
                 <div key={pendingDelete.id} className="flex flex-col gap-2 rounded-lg border border-border p-3 md:flex-row md:items-center md:justify-between">
                   <p className="text-sm text-muted-foreground">
-                    `{pendingDelete.label}` is queued for deletion.
+                    `{pendingDelete.label}` {ui.queuedDeletion}
                   </p>
                   <Button variant="outline" size="sm" onClick={() => handleUndoDelete(pendingDelete.id)}>
-                    Undo
+                    {ui.undo}
                   </Button>
                 </div>
               ))}
@@ -744,72 +918,72 @@ const Dashboard = () => {
         <div className="grid gap-4 md:grid-cols-4">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Cloud Drafts</CardTitle>
+              <CardTitle className="text-sm font-medium">{ui.cloudDrafts}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-3xl font-semibold">{summary.draftCount}</p>
-              <p className="text-xs text-muted-foreground">Reusable poster drafts in your workspace</p>
+              <p className="text-xs text-muted-foreground">{ui.cloudDraftsDesc}</p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Batch Projects</CardTitle>
+              <CardTitle className="text-sm font-medium">{ui.batchProjects}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-3xl font-semibold">{summary.batchCount}</p>
-              <p className="text-xs text-muted-foreground">Manual and CSV-based poster batches</p>
+              <p className="text-xs text-muted-foreground">{ui.batchProjectsDesc}</p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Analytics Events</CardTitle>
+              <CardTitle className="text-sm font-medium">{ui.analyticsEvents}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-3xl font-semibold">{analytics.length}</p>
-              <p className="text-xs text-muted-foreground">Tracked usage across builder and dashboard</p>
+              <p className="text-xs text-muted-foreground">{ui.analyticsEventsDesc}</p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Team Members</CardTitle>
+              <CardTitle className="text-sm font-medium">{ui.teamMembers}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-3xl font-semibold">{summary.teamCount}</p>
-              <p className="text-xs text-muted-foreground">Workspace collaborators and roles</p>
+              <p className="text-xs text-muted-foreground">{ui.teamMembersDesc}</p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Restore Bin</CardTitle>
+              <CardTitle className="text-sm font-medium">{ui.restoreBin}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-3xl font-semibold">{summary.recycleBinCount}</p>
-              <p className="text-xs text-muted-foreground">Recover recently deleted workspace items</p>
+              <p className="text-xs text-muted-foreground">{ui.restoreBinDesc}</p>
             </CardContent>
           </Card>
         </div>
 
         <Tabs defaultValue="drafts" className="space-y-4">
           <TabsList className="grid h-auto grid-cols-2 gap-2 md:grid-cols-6">
-            <TabsTrigger value="drafts" className="gap-2"><Cloud className="h-4 w-4" />Drafts</TabsTrigger>
-            <TabsTrigger value="batches" className="gap-2"><FileStack className="h-4 w-4" />Batches</TabsTrigger>
-            <TabsTrigger value="analytics" className="gap-2"><Activity className="h-4 w-4" />Analytics</TabsTrigger>
-            <TabsTrigger value="team" className="gap-2"><Users className="h-4 w-4" />Team</TabsTrigger>
+            <TabsTrigger value="drafts" className="gap-2"><Cloud className="h-4 w-4" />{ui.drafts}</TabsTrigger>
+            <TabsTrigger value="batches" className="gap-2"><FileStack className="h-4 w-4" />{ui.batches}</TabsTrigger>
+            <TabsTrigger value="analytics" className="gap-2"><Activity className="h-4 w-4" />{ui.analytics}</TabsTrigger>
+            <TabsTrigger value="team" className="gap-2"><Users className="h-4 w-4" />{ui.team}</TabsTrigger>
             <TabsTrigger value="tools" className="gap-2"><KeyRound className="h-4 w-4" />CSV / API</TabsTrigger>
-            <TabsTrigger value="restore" className="gap-2"><ArchiveRestore className="h-4 w-4" />Restore Bin</TabsTrigger>
+            <TabsTrigger value="restore" className="gap-2"><ArchiveRestore className="h-4 w-4" />{ui.restoreBin}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="drafts" className="space-y-4">
             {!isPaidTier ? (
               <WorkspaceLocked
-                title="Cloud drafts unlock on Premium"
-                description="Upgrade from Free to keep reusable drafts in your workspace and reopen them later."
+                title={isMs ? "Draf awan dibuka pada Premium" : "Cloud drafts unlock on Premium"}
+                description={isMs ? "Naik taraf dari Free untuk menyimpan draf boleh guna semula dalam ruang kerja anda." : "Upgrade from Free to keep reusable drafts in your workspace and reopen them later."}
               />
             ) : (
               <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Saved Drafts</CardTitle>
+                    <CardTitle>{ui.savedDrafts}</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid gap-3 md:grid-cols-[1fr_180px_220px]">
@@ -818,43 +992,43 @@ const Dashboard = () => {
                         <Input
                           value={draftSearch}
                           onChange={(event) => setDraftSearch(event.target.value)}
-                          placeholder="Search by draft, person, or organization"
+                          placeholder={ui.searchDrafts}
                           className="pl-9"
                         />
                       </div>
                       <Select value={draftThemeFilter} onValueChange={setDraftThemeFilter}>
                         <SelectTrigger>
-                          <SelectValue placeholder="Theme" />
+                          <SelectValue placeholder={t.themeLabel} />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="all">All themes</SelectItem>
-                          <SelectItem value="classic">Classic</SelectItem>
-                          <SelectItem value="retro">Retro</SelectItem>
-                          <SelectItem value="premium">Premium</SelectItem>
+                          <SelectItem value="all">{ui.allThemes}</SelectItem>
+                          <SelectItem value="classic">{t.themeClassic}</SelectItem>
+                          <SelectItem value="retro">{t.themeRetro}</SelectItem>
+                          <SelectItem value="premium">{t.themePremium}</SelectItem>
                         </SelectContent>
                       </Select>
                       <Select value={draftFormatFilter} onValueChange={setDraftFormatFilter}>
                         <SelectTrigger>
-                          <SelectValue placeholder="Format" />
+                          <SelectValue placeholder={t.formatLabel} />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="all">All formats</SelectItem>
-                          <SelectItem value="classic">Classic</SelectItem>
-                          <SelectItem value="instagram-square">Instagram Square</SelectItem>
-                          <SelectItem value="instagram-landscape">Instagram Landscape</SelectItem>
-                          <SelectItem value="instagram-portrait">Instagram Portrait</SelectItem>
-                          <SelectItem value="facebook">Facebook</SelectItem>
-                          <SelectItem value="instagram-story">Instagram Story</SelectItem>
+                          <SelectItem value="all">{ui.allFormats}</SelectItem>
+                          <SelectItem value="classic">{t.formatClassic}</SelectItem>
+                          <SelectItem value="instagram-square">{t.formatInstagramSquare}</SelectItem>
+                          <SelectItem value="instagram-landscape">{t.formatInstagramLandscape}</SelectItem>
+                          <SelectItem value="instagram-portrait">{t.formatInstagramPortrait}</SelectItem>
+                          <SelectItem value="facebook">{t.formatFacebook}</SelectItem>
+                          <SelectItem value="instagram-story">{t.formatInstagramStory}</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      Showing {filteredDrafts.length} of {drafts.length} drafts
+                      {ui.showingDrafts} {filteredDrafts.length} {ui.of} {drafts.length} {ui.drafts.toLowerCase()}
                     </p>
                     {drafts.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">No drafts yet. Save one from the poster builder to reuse it here.</p>
+                      <p className="text-sm text-muted-foreground">{ui.noDraftsYet}</p>
                     ) : filteredDrafts.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">No drafts match the current search and filters.</p>
+                      <p className="text-sm text-muted-foreground">{ui.noDraftsMatch}</p>
                     ) : (
                       filteredDrafts.map((draft) => (
                         <div key={draft.id} className="flex flex-col gap-3 rounded-lg border border-border p-4 md:flex-row md:items-center md:justify-between">
@@ -896,19 +1070,19 @@ const Dashboard = () => {
                               </div>
                             )}
                             <p className="text-sm text-muted-foreground">
-                              Updated {new Date(draft.updatedAt).toLocaleString()}
+                              {ui.updated} {new Date(draft.updatedAt).toLocaleString()}
                             </p>
                             <p className="text-xs text-muted-foreground">
-                              {draft.poster.fullName || "Untitled memorial"} • {draft.poster.format} • {draft.poster.theme}
+                              {draft.poster.fullName || ui.untitledMemorial} • {draft.poster.format} • {draft.poster.theme}
                             </p>
                             <p className="text-xs text-muted-foreground">{getRowSyncLabel(draft.updatedAt)}</p>
                           </div>
                           <div className="flex flex-wrap gap-2">
                             <Button variant="outline" size="sm" onClick={() => openDraft(draft.id, draft.title, draft.poster)}>
-                              Open
+                              {ui.open}
                             </Button>
                             <Button variant="ghost" size="sm" onClick={() => handleDeleteDraft(draft.id, draft.title)}>
-                              Delete
+                              {ui.delete}
                             </Button>
                           </div>
                         </div>
@@ -918,21 +1092,21 @@ const Dashboard = () => {
                 </Card>
                 <Card>
                   <CardHeader>
-                    <CardTitle>Create Batch From Drafts</CardTitle>
+                    <CardTitle>{ui.createBatchFromDrafts}</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="batch-name">Batch name</Label>
+                      <Label htmlFor="batch-name">{ui.batchName}</Label>
                       <Input
                         id="batch-name"
                         value={batchName}
                         onChange={(event) => setBatchName(event.target.value)}
-                        placeholder="Weekly memorial batch"
+                        placeholder={ui.batchPlaceholder}
                       />
                     </div>
                     <div className="space-y-3">
                       {filteredDrafts.length === 0 ? (
-                        <p className="text-sm text-muted-foreground">Add drafts first, then select them here for batch processing.</p>
+                        <p className="text-sm text-muted-foreground">{ui.addDraftsFirst}</p>
                       ) : (
                         filteredDrafts.map((draft) => (
                           <label key={draft.id} className="flex items-start gap-3 rounded-lg border border-border p-3">
@@ -946,17 +1120,17 @@ const Dashboard = () => {
                             />
                             <div className="space-y-1">
                               <p className="text-sm font-medium">{draft.title}</p>
-                              <p className="text-xs text-muted-foreground">{draft.poster.fullName || "Untitled memorial"}</p>
+                              <p className="text-xs text-muted-foreground">{draft.poster.fullName || ui.untitledMemorial}</p>
                             </div>
                           </label>
                         ))
                       )}
                     </div>
                     <Button className="w-full" onClick={handleCreateBatch}>
-                      Create Batch
+                      {ui.createBatch}
                     </Button>
                     <p className="text-xs text-muted-foreground">
-                      Premium supports up to 10 posters per batch. Diamond can build larger organization batches.
+                      {ui.premiumBatchHint}
                     </p>
                   </CardContent>
                 </Card>
@@ -967,8 +1141,8 @@ const Dashboard = () => {
           <TabsContent value="batches" className="space-y-4">
             {!isPaidTier ? (
               <WorkspaceLocked
-                title="Batch creation is available on paid plans"
-                description="Upgrade to Premium or Diamond to prepare poster groups and process multiple memorials faster."
+                title={ui.batchPaidOnlyTitle}
+                description={ui.batchPaidOnlyDesc}
               />
             ) : (
               <Card>
@@ -977,7 +1151,7 @@ const Dashboard = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {batches.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">No batch projects yet. Create one from drafts or a CSV import.</p>
+                    <p className="text-sm text-muted-foreground">{ui.noBatchesYet}</p>
                   ) : (
                     batches.map((batch) => (
                       <div key={batch.id} className="rounded-xl border border-border p-4 space-y-3">
@@ -1002,7 +1176,7 @@ const Dashboard = () => {
                                   </Button>
                                 </div>
                                 <p className="text-sm text-muted-foreground">
-                                  {batch.items.length} posters • {batch.source} • updated {new Date(batch.updatedAt).toLocaleString()}
+                                  {batch.items.length} {ui.postersLabel} • {batch.source} • {ui.updatedShort} {new Date(batch.updatedAt).toLocaleString()}
                                 </p>
                                 <p className="text-xs text-muted-foreground">{getRowSyncLabel(batch.updatedAt)}</p>
                               </div>
@@ -1036,24 +1210,24 @@ const Dashboard = () => {
                                     <Input
                                       value={batchItemFullName}
                                       onChange={(event) => setBatchItemFullName(event.target.value)}
-                                      placeholder="Full name"
+                                      placeholder={ui.fullName}
                                     />
                                     <Input
                                       value={batchItemOrganization}
                                       onChange={(event) => setBatchItemOrganization(event.target.value)}
-                                      placeholder="Organization"
+                                      placeholder={ui.organization}
                                     />
                                   </div>
                                   <div className="grid gap-3 md:grid-cols-2">
                                     <Input
                                       value={batchItemFrom}
                                       onChange={(event) => setBatchItemFrom(event.target.value)}
-                                      placeholder="From"
+                                      placeholder={ui.from}
                                     />
                                     <Input
                                       value={batchItemMessage}
                                       onChange={(event) => setBatchItemMessage(event.target.value)}
-                                      placeholder="Short condolence message"
+                                      placeholder={ui.shortMessage}
                                     />
                                   </div>
                                   <div className="grid gap-3 md:grid-cols-2">
@@ -1062,12 +1236,12 @@ const Dashboard = () => {
                                       onValueChange={(value) => setBatchItemTheme(value as PosterData["theme"])}
                                     >
                                       <SelectTrigger>
-                                        <SelectValue placeholder="Theme" />
+                                        <SelectValue placeholder={t.themeLabel} />
                                       </SelectTrigger>
                                       <SelectContent>
-                                        <SelectItem value="classic">Classic</SelectItem>
-                                        <SelectItem value="retro">Retro</SelectItem>
-                                        <SelectItem value="premium">Premium</SelectItem>
+                                        <SelectItem value="classic">{t.themeClassic}</SelectItem>
+                                        <SelectItem value="retro">{t.themeRetro}</SelectItem>
+                                        <SelectItem value="premium">{t.themePremium}</SelectItem>
                                       </SelectContent>
                                     </Select>
                                     <Select
@@ -1075,15 +1249,15 @@ const Dashboard = () => {
                                       onValueChange={(value) => setBatchItemFormat(value as PosterData["format"])}
                                     >
                                       <SelectTrigger>
-                                        <SelectValue placeholder="Format" />
+                                        <SelectValue placeholder={t.formatLabel} />
                                       </SelectTrigger>
                                       <SelectContent>
-                                        <SelectItem value="classic">Classic</SelectItem>
-                                        <SelectItem value="instagram-square">Instagram Square</SelectItem>
-                                        <SelectItem value="instagram-landscape">Instagram Landscape</SelectItem>
-                                        <SelectItem value="instagram-portrait">Instagram Portrait</SelectItem>
-                                        <SelectItem value="facebook">Facebook</SelectItem>
-                                        <SelectItem value="instagram-story">Instagram Story</SelectItem>
+                                        <SelectItem value="classic">{t.formatClassic}</SelectItem>
+                                        <SelectItem value="instagram-square">{t.formatInstagramSquare}</SelectItem>
+                                        <SelectItem value="instagram-landscape">{t.formatInstagramLandscape}</SelectItem>
+                                        <SelectItem value="instagram-portrait">{t.formatInstagramPortrait}</SelectItem>
+                                        <SelectItem value="facebook">{t.formatFacebook}</SelectItem>
+                                        <SelectItem value="instagram-story">{t.formatInstagramStory}</SelectItem>
                                       </SelectContent>
                                     </Select>
                                   </div>
@@ -1094,10 +1268,10 @@ const Dashboard = () => {
                                       onClick={() => handleUpdateBatchItem(batch.id, item.id, item.poster)}
                                     >
                                       <Save className="mr-2 h-4 w-4" />
-                                      Save Item
+                                      {ui.saveItem}
                                     </Button>
                                     <Button size="sm" variant="ghost" onClick={stopEditingBatchItem}>
-                                      Cancel
+                                      {ui.cancel}
                                     </Button>
                                   </div>
                                 </div>
@@ -1110,16 +1284,16 @@ const Dashboard = () => {
                                       openPoster(item.poster, `batch: ${batch.name}`);
                                     }}
                                   >
-                                    <p className="text-sm font-medium">{item.poster.fullName || "Untitled memorial"}</p>
-                                    <p className="text-xs text-muted-foreground">{item.poster.organization || "No organization"}</p>
+                                    <p className="text-sm font-medium">{item.poster.fullName || ui.untitledMemorial}</p>
+                                    <p className="text-xs text-muted-foreground">{item.poster.organization || ui.noOrganization}</p>
                                     <p className="text-xs text-muted-foreground">
-                                      Item {itemIndex + 1} of {batch.items.length}
+                                      {ui.itemPosition} {itemIndex + 1} {ui.ofTotal} {batch.items.length}
                                     </p>
                                     <p className="text-xs text-muted-foreground">
                                       {item.poster.theme} theme • {item.poster.format} format
                                     </p>
                                     <p className="text-xs text-muted-foreground">
-                                      Drag and drop to reorder within this batch.
+                                      {ui.dragToReorder}
                                     </p>
                                   </div>
                                   <div className="flex shrink-0 gap-1">
@@ -1139,7 +1313,7 @@ const Dashboard = () => {
                                         handleDuplicateBatchItem(
                                           batch.id,
                                           item.id,
-                                          item.poster.fullName || "Untitled memorial",
+                                          item.poster.fullName || ui.untitledMemorial,
                                         )
                                       }
                                     >
@@ -1171,7 +1345,7 @@ const Dashboard = () => {
                                         handleRemoveBatchItem(
                                           batch.id,
                                           item.id,
-                                          item.poster.fullName || "Untitled memorial",
+                                          item.poster.fullName || ui.untitledMemorial,
                                         )
                                       }
                                     >
@@ -1194,24 +1368,24 @@ const Dashboard = () => {
           <TabsContent value="analytics" className="space-y-4">
             {plan !== "diamond" ? (
               <WorkspaceLocked
-                title="Advanced analytics unlock on Diamond"
-                description="Diamond workspaces can review generation trends, draft usage, imports, and team activity in one place."
+                title={ui.analyticsDiamondTitle}
+                description={ui.analyticsDiamondDesc}
               />
             ) : (
               <>
                 <div className="grid gap-4 md:grid-cols-4">
-                  <Card><CardContent className="pt-6"><p className="text-xs text-muted-foreground">Generated</p><p className="text-3xl font-semibold">{analyticsSummary.generated}</p></CardContent></Card>
-                  <Card><CardContent className="pt-6"><p className="text-xs text-muted-foreground">Draft Saves</p><p className="text-3xl font-semibold">{analyticsSummary.savedDrafts}</p></CardContent></Card>
-                  <Card><CardContent className="pt-6"><p className="text-xs text-muted-foreground">CSV Imports</p><p className="text-3xl font-semibold">{analyticsSummary.imports}</p></CardContent></Card>
-                  <Card><CardContent className="pt-6"><p className="text-xs text-muted-foreground">API Keys</p><p className="text-3xl font-semibold">{analyticsSummary.apiKeys}</p></CardContent></Card>
+                  <Card><CardContent className="pt-6"><p className="text-xs text-muted-foreground">{ui.generated}</p><p className="text-3xl font-semibold">{analyticsSummary.generated}</p></CardContent></Card>
+                  <Card><CardContent className="pt-6"><p className="text-xs text-muted-foreground">{ui.draftSaves}</p><p className="text-3xl font-semibold">{analyticsSummary.savedDrafts}</p></CardContent></Card>
+                  <Card><CardContent className="pt-6"><p className="text-xs text-muted-foreground">{ui.csvImports}</p><p className="text-3xl font-semibold">{analyticsSummary.imports}</p></CardContent></Card>
+                  <Card><CardContent className="pt-6"><p className="text-xs text-muted-foreground">{ui.apiKeys}</p><p className="text-3xl font-semibold">{analyticsSummary.apiKeys}</p></CardContent></Card>
                 </div>
                 <Card>
                   <CardHeader>
-                    <CardTitle>Recent Activity</CardTitle>
+                    <CardTitle>{ui.recentActivity}</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     {analytics.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">Analytics events will appear here as your team uses the workspace.</p>
+                      <p className="text-sm text-muted-foreground">{ui.analyticsEmpty}</p>
                     ) : (
                       analytics.slice(0, 12).map((event) => (
                         <div key={event.id} className="flex items-center justify-between rounded-lg border border-border p-3">
@@ -1232,14 +1406,14 @@ const Dashboard = () => {
           <TabsContent value="team" className="space-y-4">
             {!isDiamondTier ? (
               <WorkspaceLocked
-                title="Team collaboration unlocks on Diamond"
-                description="Diamond workspaces can manage roles, coordinate memorial operations, and share workspace context."
+                title={ui.teamDiamondTitle}
+                description={ui.teamDiamondDesc}
               />
             ) : (
               <div className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Workspace Team</CardTitle>
+                    <CardTitle>{ui.workspaceTeam}</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     {team.map((member) => (
@@ -1263,8 +1437,8 @@ const Dashboard = () => {
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="pending">Pending</SelectItem>
-                                <SelectItem value="accepted">Accepted</SelectItem>
+                                <SelectItem value="pending">{isMs ? "Tertunda" : "Pending"}</SelectItem>
+                                <SelectItem value="accepted">{isMs ? "Diterima" : "Accepted"}</SelectItem>
                               </SelectContent>
                             </Select>
                             <div className="flex gap-2">
@@ -1283,14 +1457,14 @@ const Dashboard = () => {
                               <p className="text-sm text-muted-foreground">{member.email}</p>
                               <p className="text-xs text-muted-foreground">
                                 {member.status === "pending"
-                                  ? `Invite pending since ${new Date(member.createdAt).toLocaleString()}`
+                                  ? `${ui.pendingSince} ${new Date(member.createdAt).toLocaleString()}`
                                   : member.acceptedAt
-                                    ? `Accepted ${new Date(member.acceptedAt).toLocaleString()}`
-                                    : "Accepted collaborator"}
+                                    ? `${ui.acceptedOn} ${new Date(member.acceptedAt).toLocaleString()}`
+                                    : ui.acceptedCollaborator}
                               </p>
                               {member.status === "pending" && member.inviteExpiresAt && (
                                 <p className="text-xs text-muted-foreground">
-                                  Invite link {isInviteExpired(member.inviteExpiresAt) ? "expired" : "expires"} {new Date(member.inviteExpiresAt).toLocaleString()}
+                                  {isInviteExpired(member.inviteExpiresAt) ? ui.inviteLinkExpired : ui.inviteLinkExpires} {new Date(member.inviteExpiresAt).toLocaleString()}
                                 </p>
                               )}
                               {member.status === "pending" && member.inviteLink && (
@@ -1310,22 +1484,22 @@ const Dashboard = () => {
                                 }
                               >
                                 {member.status === "pending" && isInviteExpired(member.inviteExpiresAt)
-                                  ? "expired"
-                                  : member.status}
+                                  ? ui.expired
+                                  : (member.status === "pending" ? (isMs ? "tertunda" : "pending") : (isMs ? "diterima" : "accepted"))}
                               </Badge>
                               {member.status === "pending" && (
                                 <Button size="sm" variant="outline" onClick={() => handleCopyInviteLink(member.name, member.inviteLink)}>
-                                  Copy Link
+                                  {ui.copyLink}
                                 </Button>
                               )}
                               {member.status === "pending" && (
                                 <Button size="sm" variant="outline" onClick={() => handleResendInvite(member.id, member.name)}>
-                                  Resend
+                                  {ui.resend}
                                 </Button>
                               )}
                               {member.status === "pending" && !isInviteExpired(member.inviteExpiresAt) && (
                                 <Button size="sm" variant="outline" onClick={() => handleAcceptMemberInvite(member.id, member.name)}>
-                                  Accept
+                                  {ui.accept}
                                 </Button>
                               )}
                               <Button size="icon" variant="ghost" onClick={() => startEditingMember(member.id, member.name, member.email, member.role, member.status)}>
@@ -1345,19 +1519,19 @@ const Dashboard = () => {
                 </Card>
                 <Card>
                   <CardHeader>
-                    <CardTitle>Add Collaborator</CardTitle>
+                    <CardTitle>{ui.addCollaborator}</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="member-name">Name</Label>
+                      <Label htmlFor="member-name">{ui.name}</Label>
                       <Input id="member-name" value={memberName} onChange={(event) => setMemberName(event.target.value)} />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="member-email">Email</Label>
+                      <Label htmlFor="member-email">{ui.email}</Label>
                       <Input id="member-email" type="email" value={memberEmail} onChange={(event) => setMemberEmail(event.target.value)} />
                     </div>
                     <div className="space-y-2">
-                      <Label>Role</Label>
+                      <Label>{ui.role}</Label>
                       <Select value={memberRole} onValueChange={(value) => setMemberRole(value as WorkspaceRole)}>
                         <SelectTrigger>
                           <SelectValue />
@@ -1371,10 +1545,10 @@ const Dashboard = () => {
                     </div>
                     <Button className="w-full" onClick={handleAddMember}>
                       <Plus className="mr-2 h-4 w-4" />
-                      Add Member
+                      {ui.addMember}
                     </Button>
                     <p className="text-xs text-muted-foreground">
-                      New collaborators start as pending until they are accepted from the team list.
+                      {ui.pendingInviteHint}
                     </p>
                   </CardContent>
                 </Card>
@@ -1386,24 +1560,24 @@ const Dashboard = () => {
             <div className="grid gap-4 lg:grid-cols-2">
               <Card>
                 <CardHeader>
-                  <CardTitle>CSV Import</CardTitle>
+                  <CardTitle>{ui.csvImports}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {plan !== "diamond" ? (
-                    <p className="text-sm text-muted-foreground">CSV import is reserved for Diamond workspaces.</p>
+                    <p className="text-sm text-muted-foreground">{ui.csvImportReserved}</p>
                   ) : (
                     <>
                       <div className="space-y-2">
-                        <Label htmlFor="csv-name">Import name</Label>
+                        <Label htmlFor="csv-name">{ui.importName}</Label>
                         <Input id="csv-name" value={csvName} onChange={(event) => setCsvName(event.target.value)} />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="csv-text">CSV content</Label>
+                        <Label htmlFor="csv-text">{ui.csvContent}</Label>
                         <Textarea id="csv-text" rows={10} value={csvText} onChange={(event) => setCsvText(event.target.value)} />
                       </div>
                       <Button className="w-full" onClick={handleImportCsv}>
                         <Upload className="mr-2 h-4 w-4" />
-                        Process CSV
+                        {ui.processCsv}
                       </Button>
                     </>
                   )}
@@ -1421,19 +1595,19 @@ const Dashboard = () => {
               </Card>
               <Card>
                 <CardHeader>
-                  <CardTitle>API Access</CardTitle>
+                  <CardTitle>{ui.apiAccess}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {!isDiamondTier ? (
-                    <p className="text-sm text-muted-foreground">API access and integrations are available on Diamond.</p>
+                    <p className="text-sm text-muted-foreground">{ui.apiAccessReserved}</p>
                   ) : (
                     <>
                       <div className="space-y-2">
-                        <Label htmlFor="api-key-name">Key name</Label>
+                        <Label htmlFor="api-key-name">{ui.keyName}</Label>
                         <Input id="api-key-name" value={apiKeyName} onChange={(event) => setApiKeyName(event.target.value)} />
                       </div>
                       <Button className="w-full" onClick={handleCreateApiKey}>
-                        Generate API Key
+                        {ui.generateApiKey}
                       </Button>
                     </>
                   )}
@@ -1458,7 +1632,7 @@ const Dashboard = () => {
                                 <p className="text-xs text-muted-foreground">{getRowSyncLabel(credential.updatedAt, credential.revokedAt)}</p>
                               </div>
                               <div className="flex items-center gap-2">
-                                <Badge variant="outline">{credential.revokedAt ? "Revoked" : "Active"}</Badge>
+                                <Badge variant="outline">{credential.revokedAt ? ui.revoked : ui.active}</Badge>
                                 <Button size="icon" variant="ghost" onClick={() => startEditingApiKey(credential.id, credential.name)}>
                                   <Pencil className="h-4 w-4" />
                                 </Button>
@@ -1484,7 +1658,7 @@ const Dashboard = () => {
                     ))}
                     {isDiamondTier && (
                       <div className="rounded-lg border border-dashed border-border p-3 text-xs text-muted-foreground">
-                        Suggested endpoint shape:
+                        {ui.suggestedEndpoint}
                         <br />
                         `POST /api/posters/generate`
                         <br />
@@ -1500,7 +1674,7 @@ const Dashboard = () => {
           <TabsContent value="restore" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Restore Bin</CardTitle>
+                <CardTitle>{ui.restoreBin}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="grid gap-3 md:grid-cols-[1fr_220px]">
@@ -1509,25 +1683,25 @@ const Dashboard = () => {
                     <Input
                       value={restoreSearch}
                       onChange={(event) => setRestoreSearch(event.target.value)}
-                      placeholder="Search deleted items"
+                      placeholder={ui.searchDeleted}
                       className="pl-9"
                     />
                   </div>
                   <Select value={restoreKindFilter} onValueChange={setRestoreKindFilter}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Item type" />
+                      <SelectValue placeholder={ui.itemType} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All item types</SelectItem>
-                      <SelectItem value="draft">Drafts</SelectItem>
-                      <SelectItem value="batch">Batches</SelectItem>
-                      <SelectItem value="member">Team members</SelectItem>
-                      <SelectItem value="api">API keys</SelectItem>
+                      <SelectItem value="all">{ui.allItemTypes}</SelectItem>
+                      <SelectItem value="draft">{ui.draftsType}</SelectItem>
+                      <SelectItem value="batch">{ui.batchesType}</SelectItem>
+                      <SelectItem value="member">{ui.membersType}</SelectItem>
+                      <SelectItem value="api">{ui.apiKeysType}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Showing {filteredRecycleBin.length} of {recycleBin.length} deleted items
+                  {ui.showingDeleted} {filteredRecycleBin.length} {ui.of} {recycleBin.length} {ui.deletedItems}
                 </p>
                 {filteredRecycleBin.length > 0 && (
                   <div className="flex flex-col gap-3 rounded-lg border border-border p-3 md:flex-row md:items-center md:justify-between">
@@ -1539,7 +1713,7 @@ const Dashboard = () => {
                         }
                         onCheckedChange={(checked) => handleToggleAllRestoreSelection(checked === true)}
                       />
-                      Select visible items
+                      {ui.selectVisible}
                     </label>
                     <div className="flex flex-wrap gap-2">
                       <Button
@@ -1548,7 +1722,7 @@ const Dashboard = () => {
                         disabled={selectedRestoreIds.length === 0}
                         onClick={handleBulkRestore}
                       >
-                        Restore Selected
+                        {ui.restoreSelected}
                       </Button>
                       <Button
                         variant="ghost"
@@ -1556,15 +1730,15 @@ const Dashboard = () => {
                         disabled={selectedRestoreIds.length === 0}
                         onClick={handleBulkClearRestore}
                       >
-                        Remove Selected
+                        {ui.removeSelected}
                       </Button>
                     </div>
                   </div>
                 )}
                 {recycleBin.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">Deleted drafts, batches, team members, and API keys will appear here for recovery.</p>
+                  <p className="text-sm text-muted-foreground">{ui.restoreEmpty}</p>
                 ) : filteredRecycleBin.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">No deleted items match the current search and filters.</p>
+                  <p className="text-sm text-muted-foreground">{ui.restoreNoMatch}</p>
                 ) : (
                   filteredRecycleBin.map((item) => (
                     <div key={item.id} className="flex flex-col gap-3 rounded-lg border border-border p-4 md:flex-row md:items-center md:justify-between">
@@ -1576,16 +1750,16 @@ const Dashboard = () => {
                         <div className="space-y-1">
                           <p className="font-medium">{item.label}</p>
                           <p className="text-sm text-muted-foreground">
-                            {item.kind} • deleted {new Date(item.deletedAt).toLocaleString()}
+                            {item.kind} • {ui.deletedAt} {new Date(item.deletedAt).toLocaleString()}
                           </p>
                         </div>
                       </div>
                       <div className="flex gap-2">
                         <Button variant="outline" size="sm" onClick={() => handleRestoreDeletedItem(item.id, item.label)}>
-                          Restore
+                          {ui.restore}
                         </Button>
                         <Button variant="ghost" size="sm" onClick={() => handleClearDeletedItem(item.id, item.label)}>
-                          Remove Permanently
+                          {ui.removePermanently}
                         </Button>
                       </div>
                     </div>
@@ -1597,7 +1771,7 @@ const Dashboard = () => {
         </Tabs>
 
         <p className="text-sm text-muted-foreground">
-          Need pricing details? <Link className="text-primary underline" to="/">Kembali ke Muka Utama</Link>
+          {ui.pricingDetails} <Link className="text-primary underline" to="/">{ui.backHome}</Link>
         </p>
       </div>
     </main>

@@ -160,6 +160,55 @@ interface Translations {
   dashboardPlanDiamond: string;
   dashboardFeaturesLabel: string;
   dashboardEnterprisePendingLabel: string;
+  authBrandTagline: string;
+  authShellHeadline: string;
+  authShellSubtitle: string;
+  authHighlightSecurityTitle: string;
+  authHighlightSecurityDesc: string;
+  authHighlightMemorialTitle: string;
+  authHighlightMemorialDesc: string;
+  authHighlightResumeTitle: string;
+  authHighlightResumeDesc: string;
+  authLoginEyebrow: string;
+  authLoginTitle: string;
+  authLoginSubtitle: string;
+  authLoginEmailLabel: string;
+  authLoginEmailPlaceholder: string;
+  authLoginPasswordLabel: string;
+  authLoginPasswordPlaceholder: string;
+  authLoginPasswordHint: string;
+  authLoginRedirectHint: string;
+  authLoginButton: string;
+  authLoginLoading: string;
+  authLoginSwitchPrompt: string;
+  authLoginSwitchLabel: string;
+  authRegisterEyebrow: string;
+  authRegisterTitle: string;
+  authRegisterSubtitle: string;
+  authRegisterEmailLabel: string;
+  authRegisterEmailPlaceholder: string;
+  authRegisterPasswordLabel: string;
+  authRegisterPasswordPlaceholder: string;
+  authRegisterPasswordHint: string;
+  authRegisterConfirmLabel: string;
+  authRegisterConfirmPlaceholder: string;
+  authRegisterPlanHint: string;
+  authRegisterButton: string;
+  authRegisterLoading: string;
+  authRegisterSwitchPrompt: string;
+  authRegisterSwitchLabel: string;
+  authToastMissingLoginTitle: string;
+  authToastMissingLoginDesc: string;
+  authToastLoginFailedTitle: string;
+  authToastLoginSuccessTitle: string;
+  authToastLoginSuccessDesc: string;
+  authToastMissingRegisterTitle: string;
+  authToastMissingRegisterDesc: string;
+  authToastPasswordMismatchTitle: string;
+  authToastPasswordMismatchDesc: string;
+  authToastRegisterFailedTitle: string;
+  authToastRegisterSuccessTitle: string;
+  authToastRegisterSuccessDesc: string;
 }
 
 const translations: Record<Language, Translations> = {
@@ -390,6 +439,55 @@ const translations: Record<Language, Translations> = {
     dashboardPlanDiamond: "Diamond",
     dashboardFeaturesLabel: "Ciri Aktif",
     dashboardEnterprisePendingLabel: "Ciri Enterprise Lanjutan",
+    authBrandTagline: "Ruang kerja memorial",
+    authShellHeadline: "Cipta poster takziah dengan penuh hormat, dan sambung semula kerja anda bila-bila masa.",
+    authShellSubtitle: "Log masuk untuk mengakses draf tersimpan, kerjasama pasukan, pautan jemputan, analitik, dan aliran kerja memorial anda di satu tempat yang selamat.",
+    authHighlightSecurityTitle: "Akses akaun yang selamat",
+    authHighlightSecurityDesc: "Draf, data ruang kerja, dan tetapan memorial anda kekal terikat pada akaun anda.",
+    authHighlightMemorialTitle: "Direka untuk memorial yang bermakna",
+    authHighlightMemorialDesc: "Cipta poster takziah yang sopan dan tersusun untuk keluarga serta organisasi.",
+    authHighlightResumeTitle: "Sambung dari tempat terakhir",
+    authHighlightResumeDesc: "Teruskan draf, batch, dan aliran kerja pasukan anda dari mana-mana sesi yang telah log masuk.",
+    authLoginEyebrow: "Selamat kembali",
+    authLoginTitle: "Log Masuk Salam Takziah",
+    authLoginSubtitle: "Log masuk untuk sambung pembina poster, draf tersimpan, dan alat ruang kerja anda.",
+    authLoginEmailLabel: "Alamat emel",
+    authLoginEmailPlaceholder: "anda@contoh.com",
+    authLoginPasswordLabel: "Kata laluan",
+    authLoginPasswordPlaceholder: "Masukkan kata laluan anda",
+    authLoginPasswordHint: "Minimum 8 aksara",
+    authLoginRedirectHint: "Anda akan kembali ke ruang kerja selepas log masuk, termasuk halaman yang anda cuba buka tadi.",
+    authLoginButton: "Log Masuk untuk Teruskan",
+    authLoginLoading: "Sedang log masuk...",
+    authLoginSwitchPrompt: "Belum ada akaun lagi?",
+    authLoginSwitchLabel: "Cipta akaun di sini",
+    authRegisterEyebrow: "Cipta akaun anda",
+    authRegisterTitle: "Daftar Salam Takziah",
+    authRegisterSubtitle: "Sediakan akaun anda untuk simpan draf, urus pelan, dan bekerjasama dalam kerja memorial.",
+    authRegisterEmailLabel: "Alamat emel",
+    authRegisterEmailPlaceholder: "anda@contoh.com",
+    authRegisterPasswordLabel: "Kata laluan",
+    authRegisterPasswordPlaceholder: "Cipta kata laluan yang kuat",
+    authRegisterPasswordHint: "Gunakan sekurang-kurangnya 8 aksara",
+    authRegisterConfirmLabel: "Sahkan kata laluan",
+    authRegisterConfirmPlaceholder: "Ulang kata laluan anda",
+    authRegisterPlanHint: "Akaun baru bermula dengan pelan Free dan boleh dinaik taraf kemudian apabila anda perlukan lebih banyak format, draf, dan ciri kolaborasi.",
+    authRegisterButton: "Cipta Akaun",
+    authRegisterLoading: "Sedang mencipta akaun...",
+    authRegisterSwitchPrompt: "Sudah ada akaun?",
+    authRegisterSwitchLabel: "Log masuk di sini",
+    authToastMissingLoginTitle: "Sila isi emel dan kata laluan",
+    authToastMissingLoginDesc: "Emel dan kata laluan diperlukan untuk log masuk.",
+    authToastLoginFailedTitle: "Log masuk gagal",
+    authToastLoginSuccessTitle: "Berjaya",
+    authToastLoginSuccessDesc: "Selamat datang kembali, {email}",
+    authToastMissingRegisterTitle: "Sila isi semua medan",
+    authToastMissingRegisterDesc: "Emel, kata laluan dan pengesahan kata laluan diperlukan.",
+    authToastPasswordMismatchTitle: "Kata laluan tidak sepadan",
+    authToastPasswordMismatchDesc: "Sila pastikan kata laluan dan pengesahan adalah sama.",
+    authToastRegisterFailedTitle: "Pendaftaran gagal",
+    authToastRegisterSuccessTitle: "Daftar berjaya",
+    authToastRegisterSuccessDesc: "Sila semak emel {email} untuk pautan pengesahan.",
   },
   en: {
     mainTitle: "Islamic Condolence Messages with Prayers & Remembrance",
@@ -618,6 +716,55 @@ const translations: Record<Language, Translations> = {
     dashboardPlanDiamond: "Diamond",
     dashboardFeaturesLabel: "Active Features",
     dashboardEnterprisePendingLabel: "Advanced Enterprise Features",
+    authBrandTagline: "Memorial workspace",
+    authShellHeadline: "Compassionate poster creation, with your workspace ready when you are.",
+    authShellSubtitle: "Sign in to access saved drafts, team collaboration, invite links, analytics, and your memorial workflow in one secure place.",
+    authHighlightSecurityTitle: "Secure account access",
+    authHighlightSecurityDesc: "Your drafts, workspace data, and memorial settings stay tied to your account.",
+    authHighlightMemorialTitle: "Designed for meaningful memorials",
+    authHighlightMemorialDesc: "Create respectful condolence posters with layouts that suit families and organizations.",
+    authHighlightResumeTitle: "Pick up where you left off",
+    authHighlightResumeDesc: "Continue editing drafts, batches, and team workflows from any signed-in session.",
+    authLoginEyebrow: "Welcome back",
+    authLoginTitle: "Login Salam Takziah",
+    authLoginSubtitle: "Sign in to continue your poster builder, saved drafts, and workspace tools.",
+    authLoginEmailLabel: "Email address",
+    authLoginEmailPlaceholder: "you@example.com",
+    authLoginPasswordLabel: "Password",
+    authLoginPasswordPlaceholder: "Enter your password",
+    authLoginPasswordHint: "Minimum 8 characters",
+    authLoginRedirectHint: "You’ll return to your workspace after login, including the page you originally tried to open.",
+    authLoginButton: "Login to Continue",
+    authLoginLoading: "Signing in...",
+    authLoginSwitchPrompt: "Don't have an account yet?",
+    authLoginSwitchLabel: "Create one here",
+    authRegisterEyebrow: "Create your account",
+    authRegisterTitle: "Register Salam Takziah",
+    authRegisterSubtitle: "Set up your account to save drafts, manage your plan, and collaborate on memorial work.",
+    authRegisterEmailLabel: "Email address",
+    authRegisterEmailPlaceholder: "you@example.com",
+    authRegisterPasswordLabel: "Password",
+    authRegisterPasswordPlaceholder: "Create a strong password",
+    authRegisterPasswordHint: "Use at least 8 characters",
+    authRegisterConfirmLabel: "Confirm password",
+    authRegisterConfirmPlaceholder: "Repeat your password",
+    authRegisterPlanHint: "New accounts start on the Free plan and can upgrade later when you need more formats, drafts, and collaboration features.",
+    authRegisterButton: "Create Account",
+    authRegisterLoading: "Creating account...",
+    authRegisterSwitchPrompt: "Already have an account?",
+    authRegisterSwitchLabel: "Login instead",
+    authToastMissingLoginTitle: "Please enter your email and password",
+    authToastMissingLoginDesc: "Email and password are required to sign in.",
+    authToastLoginFailedTitle: "Login failed",
+    authToastLoginSuccessTitle: "Success",
+    authToastLoginSuccessDesc: "Welcome back, {email}",
+    authToastMissingRegisterTitle: "Please fill in all fields",
+    authToastMissingRegisterDesc: "Email, password, and password confirmation are required.",
+    authToastPasswordMismatchTitle: "Passwords do not match",
+    authToastPasswordMismatchDesc: "Please make sure the password and confirmation match.",
+    authToastRegisterFailedTitle: "Registration failed",
+    authToastRegisterSuccessTitle: "Registration successful",
+    authToastRegisterSuccessDesc: "Please check {email} for the verification link.",
   },
 };
 
