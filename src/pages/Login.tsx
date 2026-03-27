@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,9 +9,11 @@ import { toast } from "@/components/ui/use-toast";
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const redirectTo = (location.state as { redirectTo?: string } | null)?.redirectTo ?? "/dashboard";
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -41,7 +43,7 @@ const Login = () => {
       description: `Selamat datang kembali, ${data.user?.email ?? "pengguna"}`,
     });
 
-    navigate("/dashboard");
+    navigate(redirectTo);
   };
 
   return (
@@ -77,7 +79,7 @@ const Login = () => {
             </Button>
           </form>
           <p className="text-sm text-muted-foreground mt-4">
-            Belum ada akaun? <Link className="text-primary underline" to="/register">Daftar sekarang</Link>
+            Belum ada akaun? <Link className="text-primary underline" to="/register" state={{ redirectTo }}>Daftar sekarang</Link>
           </p>
         </CardContent>
       </Card>

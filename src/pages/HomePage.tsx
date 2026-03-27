@@ -99,17 +99,31 @@ const HomePage = () => {
       })),
     [t.homeExamples, t.homeExamplesPreviewLabel],
   );
+  const createNavLabel = userEmail ? t.homeNavCreate : "Login untuk Cipta Poster";
+  const createHeroLabel = userEmail ? t.homeHeroCreateButton : "Login untuk Cipta Poster";
+  const createCtaLabel = userEmail ? t.homeCtaButton : "Login untuk Mula Mencipta";
 
   const handleScrollToExamples = () => {
     examplesSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
+  const handleStartCreating = () => {
+    navigate(userEmail ? "/create" : "/login", {
+      state: userEmail ? undefined : { redirectTo: "/create" },
+    });
+  };
+
   const handleUseExample = (poster: PosterData, title: string) => {
-    navigate("/create", {
+    navigate(userEmail ? "/create" : "/login", {
       state: {
-        draftPoster: poster,
-        sourceLabel: `example: ${title}`,
-        draftTitle: title,
+        redirectTo: "/create",
+        ...(userEmail
+          ? {
+              draftPoster: poster,
+              sourceLabel: `example: ${title}`,
+              draftTitle: title,
+            }
+          : {}),
       },
     });
   };
@@ -125,9 +139,7 @@ const HomePage = () => {
               <span className="text-xl font-bold tracking-wide">Salam Takziah</span>
             </div>
             <div className="flex items-center space-x-4">
-              <Link to="/create">
-                <Button variant="ghost">{t.homeNavCreate}</Button>
-              </Link>
+              <Button variant="ghost" onClick={handleStartCreating}>{createNavLabel}</Button>
               {userEmail ? (
                 <>
                   <span className="text-sm text-muted-foreground">{userEmail}</span>
@@ -161,12 +173,10 @@ const HomePage = () => {
             {t.homeHeroSubtitle}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/create">
-              <Button size="lg" className="text-lg px-8 py-6">
-                {t.homeHeroCreateButton}
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
-            </Link>
+            <Button size="lg" className="text-lg px-8 py-6" onClick={handleStartCreating}>
+              {createHeroLabel}
+              <ArrowRight className="ml-2 w-5 h-5" />
+            </Button>
             <Button size="lg" variant="outline" className="text-lg px-8 py-6" onClick={handleScrollToExamples}>
               {t.homeHeroExamplesButton}
             </Button>
@@ -344,12 +354,10 @@ const HomePage = () => {
           <p className="text-lg mb-8 opacity-90">
             {t.homeCtaSubtitle}
           </p>
-          <Link to="/create">
-            <Button size="lg" variant="secondary" className="text-lg px-8 py-6">
-              {t.homeCtaButton}
-              <ArrowRight className="ml-2 w-5 h-5" />
-            </Button>
-          </Link>
+          <Button size="lg" variant="secondary" className="text-lg px-8 py-6" onClick={handleStartCreating}>
+            {createCtaLabel}
+            <ArrowRight className="ml-2 w-5 h-5" />
+          </Button>
         </div>
       </section>
 
@@ -370,7 +378,7 @@ const HomePage = () => {
             <div>
               <h4 className="font-semibold mb-4">{t.homeNavProduct || "Product"}</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/create" className="hover:text-foreground">{t.homeNavCreate}</Link></li>
+                <li><button type="button" onClick={handleStartCreating} className="hover:text-foreground">{createNavLabel}</button></li>
                 <li><a href="#" className="hover:text-foreground">{t.homeNavTemplates}</a></li>
                 <li><a href="#" className="hover:text-foreground">{t.homeNavPricing}</a></li>
               </ul>

@@ -1,9 +1,11 @@
+import { ReactNode, useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { supabase } from "@/integrations/supabase/client";
 import HomePage from "./pages/HomePage";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -17,6 +19,61 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+const ProtectedRoute = ({ children }: { children: ReactNode }) => {
+  const location = useLocation();
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadSession = async () => {
+      const { data } = await supabase.auth.getSession();
+
+      if (!isMounted) {
+        return;
+      }
+
+      setIsAuthenticated(Boolean(data.session));
+      setIsLoading(false);
+    };
+
+    loadSession();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((_, session) => {
+      if (!isMounted) {
+        return;
+      }
+
+      setIsAuthenticated(Boolean(session));
+      setIsLoading(false);
+    });
+
+    return () => {
+      isMounted = false;
+      authListener?.subscription.unsubscribe();
+    };
+  }, []);
+
+  if (isLoading) {
+    return <main className="min-h-screen bg-background flex items-center justify-center">Loading...</main>;
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <Navigate
+        to="/login"
+        replace
+        state={{
+          redirectTo: `${location.pathname}${location.search}${location.hash}`,
+        }}
+      />
+    );
+  }
+
+  return <>{children}</>;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <LanguageProvider>
@@ -26,10 +83,24 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route path="/create" element={<Index />} />
+            <Route
+              path="/create"
+              element={(
+                <ProtectedRoute>
+                  <Index />
+                </ProtectedRoute>
+              )}
+            />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route
+              path="/dashboard"
+              element={(
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              )}
+            />
             <Route path="/mesej-takziah" element={<MesejTakziah />} />
             <Route path="/english-condolences" element={<EnglishCondolences />} />
             <Route path="/ucapan-whatsapp" element={<UcapanWhatsapp />} />

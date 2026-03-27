@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,10 +9,12 @@ import { toast } from "@/components/ui/use-toast";
 
 const Register = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const redirectTo = (location.state as { redirectTo?: string } | null)?.redirectTo ?? "/dashboard";
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -60,9 +62,9 @@ const Register = () => {
     });
 
     if (data.session) {
-      navigate("/dashboard");
+      navigate(redirectTo);
     } else {
-      navigate("/login");
+      navigate("/login", { state: { redirectTo } });
     }
   };
 
@@ -111,7 +113,7 @@ const Register = () => {
             </Button>
           </form>
           <p className="text-sm text-muted-foreground mt-4">
-            Sudah ada akaun? <Link className="text-primary underline" to="/login">Log masuk</Link>
+            Sudah ada akaun? <Link className="text-primary underline" to="/login" state={{ redirectTo }}>Log masuk</Link>
           </p>
         </CardContent>
       </Card>
