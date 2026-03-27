@@ -64,6 +64,7 @@ interface Translations {
   formatFacebook: string;
   formatInstagramStory: string;
   generateButton: string;
+  backToDashboard: string;
   
   // Toast messages
   toastSizeError: string;
@@ -266,6 +267,7 @@ const translations: Record<Language, Translations> = {
     formatFacebook: "Facebook (1.91:1)",
     formatInstagramStory: "Instagram Story (9:16)",
     generateButton: "🎨 Jana Poster",
+    backToDashboard: "Kembali ke Dashboard",
     toastSizeError: "Saiz gambar terlalu besar. Maksimum 5MB.",
     toastRequiredError: "Sila isi semua ruangan yang diwajibkan.",
     toastSuccess: "Poster berjaya dijana!",
@@ -563,6 +565,7 @@ const translations: Record<Language, Translations> = {
     formatFacebook: "Facebook (1.91:1)",
     formatInstagramStory: "Instagram Story (9:16)",
     generateButton: "🎨 Generate Poster",
+    backToDashboard: "Back to Dashboard",
     toastSizeError: "Image size too large. Maximum 5MB.",
     toastRequiredError: "Please fill in all required fields.",
     toastSuccess: "Poster generated successfully!",

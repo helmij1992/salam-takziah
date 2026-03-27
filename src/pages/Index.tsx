@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import PosterForm from "@/components/PosterForm";
 import PosterPreview from "@/components/PosterPreview";
 import InfoSections from "@/components/InfoSections";
@@ -147,7 +147,13 @@ const Index = () => {
       {/* Header */}
       <header className="border-b border-border bg-card">
         <div className="container mx-auto px-4 py-6">
-          <div className="flex justify-end mb-4">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <Link
+              to="/dashboard"
+              className="inline-flex items-center rounded-md border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+            >
+              {t.backToDashboard}
+            </Link>
             <LanguageSwitcher />
           </div>
           <h1 className="text-3xl md:text-4xl font-bold text-center text-foreground">
