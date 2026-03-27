@@ -38,7 +38,7 @@ declare
 begin
   return role_value = 'superadmin'
     or flag_value = 'true'
-    or email_value = 'ai.helmij@gmail.com';
+    or email_value in ('ai.helmij@gmail.com', 'superadmin.test@salamtakziah.com');
 end;
 $$;
 
@@ -89,7 +89,7 @@ as $$
 declare
   request_id uuid;
   current_email text := lower(coalesce(auth.jwt() ->> 'email', auth.jwt() -> 'user_metadata' ->> 'email', ''));
-  current_user uuid := auth.uid();
+  current_user_id uuid := auth.uid();
 begin
   if current_email = '' then
     raise exception 'Authenticated email is required to request Enterprise access.';
@@ -105,7 +105,7 @@ begin
 
   if request_id is not null then
     update public.enterprise_requests
-    set user_id = coalesce(current_user, user_id),
+    set user_id = coalesce(current_user_id, user_id),
         source = coalesce(request_source, source),
         updated_at = timezone('utc', now())
     where id = request_id;
@@ -114,7 +114,7 @@ begin
   end if;
 
   insert into public.enterprise_requests (user_id, email, requested_plan, status, source)
-  values (current_user, current_email, 'enterprise', 'pending', coalesce(request_source, 'pricing'))
+  values (current_user_id, current_email, 'enterprise', 'pending', coalesce(request_source, 'pricing'))
   returning id into request_id;
 
   return request_id;
@@ -154,7 +154,7 @@ begin
       users.raw_app_meta_data ->> 'role',
       users.raw_user_meta_data ->> 'role',
       case
-        when lower(coalesce(users.email::text, '')) = 'ai.helmij@gmail.com' then 'superadmin'
+        when lower(coalesce(users.email::text, '')) in ('ai.helmij@gmail.com', 'superadmin.test@salamtakziah.com') then 'superadmin'
         else 'user'
       end
     )) as app_role,

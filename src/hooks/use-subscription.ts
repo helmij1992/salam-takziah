@@ -8,7 +8,7 @@ export type AppRole = "user" | "superadmin";
 
 const FREE_POSTER_LIMIT_PER_MONTH = 5;
 const FREE_POSTER_USAGE_KEY = "salam-takziah-free-usage";
-const SUPERADMIN_EMAILS = ["ai.helmij@gmail.com"];
+const SUPERADMIN_EMAILS = ["ai.helmij@gmail.com", "superadmin.test@salamtakziah.com"];
 
 type UsageStore = Record<string, number>;
 type QuotaStatus = {
