@@ -231,7 +231,7 @@ const PosterPreview = ({ data, isFreeTier, isPaidTier, isDiamondTier }: PosterPr
             >
               إِنَّا لِلّٰهِ وَإِنَّا إِلَيْهِ رَاجِعُونَ
             </p>
-            <p className={`${isInstagramStory ? "mt-2 text-base md:text-xl" : "mt-1 text-xs md:text-sm"} text-poster-white/90 italic font-medium`}>
+            <p className={`${isInstagramStory ? "mt-4 text-base md:text-xl" : "mt-2 text-xs md:text-sm"} text-poster-white/90 italic font-medium`}>
               Innā lillāhi wa innā ilayhi rāji'ūn
             </p>
           </div>
