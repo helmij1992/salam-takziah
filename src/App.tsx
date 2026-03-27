@@ -11,6 +11,7 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
+import AuthCallback from "./pages/AuthCallback";
 import MesejTakziah from "./pages/MesejTakziah";
 import EnglishCondolences from "./pages/EnglishCondolences";
 import UcapanWhatsapp from "./pages/UcapanWhatsapp";
@@ -105,6 +106,7 @@ const App = () => (
             />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
             <Route
               path="/dashboard"
               element={(

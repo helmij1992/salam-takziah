@@ -28,8 +28,9 @@ export const sanitizeRedirectPath = (value: unknown, fallback = DEFAULT_AUTH_RED
 
 export const buildOAuthRedirectUrl = (redirectPath: string) => {
   if (typeof window === "undefined") {
-    return redirectPath;
+    return `/auth/callback?redirectTo=${encodeURIComponent(sanitizeRedirectPath(redirectPath))}`;
   }
 
-  return `${window.location.origin}${sanitizeRedirectPath(redirectPath)}`;
+  const nextPath = sanitizeRedirectPath(redirectPath);
+  return `${window.location.origin}/auth/callback?redirectTo=${encodeURIComponent(nextPath)}`;
 };
