@@ -27,7 +27,7 @@ const PosterPreview = ({ data, isFreeTier, isPaidTier, isDiamondTier }: PosterPr
     "instagram-landscape": { aspectRatio: "1.91/1", minHeight: "400px", maxHeight: "500px", photoSize: "w-20 h-20 md:w-28 md:h-28" },
     "instagram-portrait": { aspectRatio: "4/5", minHeight: "600px", maxHeight: "750px", photoSize: "w-28 h-28 md:w-36 md:h-36" },
     facebook: { aspectRatio: "1.91/1", minHeight: "400px", maxHeight: "500px", photoSize: "w-20 h-20 md:w-28 md:h-28" },
-    "instagram-story": { aspectRatio: "9/16", minHeight: "820px", maxHeight: "1120px", photoSize: "w-40 h-40 md:w-56 md:h-56" },
+    "instagram-story": { aspectRatio: "9/16", minHeight: "820px", maxHeight: "1120px", photoSize: "w-44 h-44 md:w-60 md:h-60" },
   };
 
   const currentFormat = data?.format || "classic";
@@ -254,7 +254,7 @@ const PosterPreview = ({ data, isFreeTier, isPaidTier, isDiamondTier }: PosterPr
               <p className={`${isInstagramStory ? "text-xl md:text-2xl" : "text-sm md:text-base"} ${accentColor} mb-1.5 font-medium`}>
                 {genderTitle}
               </p>
-              <h2 className={`${isInstagramStory ? "text-3xl md:text-5xl leading-tight" : "text-lg md:text-xl"} font-bold text-poster-white mb-1.5`}>
+              <h2 className={`${isInstagramStory ? "text-2xl md:text-4xl leading-tight" : "text-lg md:text-xl"} font-bold text-poster-white mb-1.5`}>
                 {data.fullName}
               </h2>
               {data.organization && !showEnterpriseTemplate && (
