@@ -552,20 +552,40 @@ const Dashboard = () => {
   }, [recycleBin]);
 
   useEffect(() => {
-    const loadSession = async () => {
-      await supabase.auth.getSession();
-      setLoading(false);
+    let isActive = true;
+
+    const finishLoading = () => {
+      if (isActive) {
+        setLoading(false);
+      }
     };
 
-    loadSession();
+    const loadSession = async () => {
+      try {
+        await supabase.auth.getSession();
+      } catch {
+        // Let the dashboard continue rendering even if the browser session check fails.
+      } finally {
+        finishLoading();
+      }
+    };
+
+    void loadSession();
+
+    const loadingTimeout = window.setTimeout(() => {
+      finishLoading();
+    }, 1500);
 
     const { data: authListener } = supabase.auth.onAuthStateChange((event) => {
+      finishLoading();
       if (event === "SIGNED_OUT") {
         navigate("/");
       }
     });
 
     return () => {
+      isActive = false;
+      window.clearTimeout(loadingTimeout);
       authListener?.subscription.unsubscribe();
     };
   }, [navigate]);
