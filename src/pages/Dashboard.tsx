@@ -203,48 +203,6 @@ const Dashboard = () => {
   const freePosterHistory = analytics
     .filter((event) => event.type === "poster_generated")
     .slice(0, 10);
-  const overviewCards = useMemo(() => {
-    if (!isPaidTier) {
-      return [];
-    }
-
-    if (isDiamondTier) {
-      return [
-        { title: ui.cloudDrafts, value: summary.draftCount, description: ui.cloudDraftsDesc },
-        { title: ui.analyticsEvents, value: analytics.length, description: ui.analyticsEventsDesc },
-        { title: ui.teamMembers, value: summary.teamCount, description: ui.teamDescShort },
-        { title: ui.restoreBin, value: summary.recycleBinCount, description: ui.restoreDescShort },
-      ];
-    }
-
-    return [
-      { title: ui.cloudDrafts, value: summary.draftCount, description: ui.cloudDraftsDesc },
-      { title: ui.batchProjects, value: summary.batchCount, description: ui.outputDescShort },
-      { title: ui.restoreBin, value: summary.recycleBinCount, description: ui.restoreDescShort },
-    ];
-  }, [analytics.length, isDiamondTier, isPaidTier, summary.batchCount, summary.draftCount, summary.recycleBinCount, summary.teamCount, ui.analyticsEvents, ui.analyticsEventsDesc, ui.batchProjects, ui.cloudDrafts, ui.cloudDraftsDesc, ui.outputDescShort, ui.restoreBin, ui.restoreDescShort, ui.teamDescShort, ui.teamMembers]);
-  const visibleTabs = useMemo(() => {
-    if (!isPaidTier) {
-      return [];
-    }
-
-    if (isDiamondTier) {
-      return [
-        { value: "drafts", label: ui.drafts, icon: Cloud },
-        { value: "batches", label: ui.batches, icon: FileStack },
-        { value: "analytics", label: ui.analytics, icon: Activity },
-        { value: "team", label: ui.team, icon: Users },
-        { value: "tools", label: ui.tools, icon: KeyRound },
-        { value: "restore", label: ui.restoreBin, icon: ArchiveRestore },
-      ];
-    }
-
-    return [
-      { value: "drafts", label: ui.drafts, icon: Cloud },
-      { value: "batches", label: ui.batches, icon: FileStack },
-      { value: "restore", label: ui.restoreBin, icon: ArchiveRestore },
-    ];
-  }, [isDiamondTier, isPaidTier, ui.analytics, ui.batches, ui.drafts, ui.restoreBin, ui.team, ui.tools]);
   const isInviteExpired = (inviteExpiresAt?: string) =>
     Boolean(inviteExpiresAt && new Date(inviteExpiresAt).getTime() < Date.now());
   const ui = {
@@ -431,6 +389,50 @@ const Dashboard = () => {
     pricingDetails: isMs ? "Perlu lihat butiran harga?" : "Need pricing details?",
     backHome: isMs ? "Kembali ke Halaman Utama" : "Back to Home",
   };
+
+  const overviewCards = useMemo(() => {
+    if (!isPaidTier) {
+      return [];
+    }
+
+    if (isDiamondTier) {
+      return [
+        { title: ui.cloudDrafts, value: summary.draftCount, description: ui.cloudDraftsDesc },
+        { title: ui.analyticsEvents, value: analytics.length, description: ui.analyticsEventsDesc },
+        { title: ui.teamMembers, value: summary.teamCount, description: ui.teamDescShort },
+        { title: ui.restoreBin, value: summary.recycleBinCount, description: ui.restoreDescShort },
+      ];
+    }
+
+    return [
+      { title: ui.cloudDrafts, value: summary.draftCount, description: ui.cloudDraftsDesc },
+      { title: ui.batchProjects, value: summary.batchCount, description: ui.outputDescShort },
+      { title: ui.restoreBin, value: summary.recycleBinCount, description: ui.restoreDescShort },
+    ];
+  }, [analytics.length, isDiamondTier, isPaidTier, summary.batchCount, summary.draftCount, summary.recycleBinCount, summary.teamCount, ui.analyticsEvents, ui.analyticsEventsDesc, ui.batchProjects, ui.cloudDrafts, ui.cloudDraftsDesc, ui.outputDescShort, ui.restoreBin, ui.restoreDescShort, ui.teamDescShort, ui.teamMembers]);
+
+  const visibleTabs = useMemo(() => {
+    if (!isPaidTier) {
+      return [];
+    }
+
+    if (isDiamondTier) {
+      return [
+        { value: "drafts", label: ui.drafts, icon: Cloud },
+        { value: "batches", label: ui.batches, icon: FileStack },
+        { value: "analytics", label: ui.analytics, icon: Activity },
+        { value: "team", label: ui.team, icon: Users },
+        { value: "tools", label: ui.tools, icon: KeyRound },
+        { value: "restore", label: ui.restoreBin, icon: ArchiveRestore },
+      ];
+    }
+
+    return [
+      { value: "drafts", label: ui.drafts, icon: Cloud },
+      { value: "batches", label: ui.batches, icon: FileStack },
+      { value: "restore", label: ui.restoreBin, icon: ArchiveRestore },
+    ];
+  }, [isDiamondTier, isPaidTier, ui.analytics, ui.batches, ui.drafts, ui.restoreBin, ui.team, ui.tools]);
 
   const getRowSyncLabel = (updatedAt?: string, revokedAt?: string) => {
     if (revokedAt) {
