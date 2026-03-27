@@ -26,31 +26,43 @@ const ProtectedRoute = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     let isMounted = true;
+    let loadingTimeoutId: number | undefined;
 
-    const loadSession = async () => {
-      const { data } = await supabase.auth.getSession();
-
+    const finishLoading = (nextAuthenticated?: boolean) => {
       if (!isMounted) {
         return;
       }
 
-      setIsAuthenticated(Boolean(data.session));
+      if (typeof nextAuthenticated === "boolean") {
+        setIsAuthenticated(nextAuthenticated);
+      }
+
       setIsLoading(false);
     };
 
-    loadSession();
+    const loadSession = async () => {
+      try {
+        const { data } = await supabase.auth.getSession();
+        finishLoading(Boolean(data.session));
+      } catch {
+        finishLoading(false);
+      }
+    };
+
+    void loadSession();
+    loadingTimeoutId = window.setTimeout(() => {
+      finishLoading(false);
+    }, 1500);
 
     const { data: authListener } = supabase.auth.onAuthStateChange((_, session) => {
-      if (!isMounted) {
-        return;
-      }
-
-      setIsAuthenticated(Boolean(session));
-      setIsLoading(false);
+      finishLoading(Boolean(session));
     });
 
     return () => {
       isMounted = false;
+      if (loadingTimeoutId) {
+        window.clearTimeout(loadingTimeoutId);
+      }
       authListener?.subscription.unsubscribe();
     };
   }, []);

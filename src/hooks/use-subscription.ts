@@ -208,11 +208,15 @@ export const useSubscription = () => {
 
   useEffect(() => {
     const syncSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      setSession(data.session);
+      try {
+        const { data } = await supabase.auth.getSession();
+        setSession(data.session);
+      } catch {
+        setSession(null);
+      }
     };
 
-    syncSession();
+    void syncSession();
 
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       setSession(nextSession);
