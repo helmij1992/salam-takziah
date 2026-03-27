@@ -128,6 +128,8 @@ interface Translations {
   homeNavProduct: string;
   homeNavSupport: string;
   homeNavCompany: string;
+  homeLoginButton: string;
+  homeRegisterButton: string;
   homePlanPopularBadge: string;
   homePlans: HomePlanTranslation[];
   homeEnterpriseDialogTitle: string;
@@ -347,6 +349,8 @@ const translations: Record<Language, Translations> = {
     homeNavProduct: "Produk",
     homeNavSupport: "Sokongan",
     homeNavCompany: "Syarikat",
+    homeLoginButton: "Log Masuk",
+    homeRegisterButton: "Daftar",
 
     homePlanPopularBadge: "Paling Popular",
     homePlans: [
@@ -635,6 +639,8 @@ const translations: Record<Language, Translations> = {
     homeNavProduct: "Product",
     homeNavSupport: "Support",
     homeNavCompany: "Company",
+    homeLoginButton: "Login",
+    homeRegisterButton: "Register",
 
     homePlanPopularBadge: "Most Popular",
     homePlans: [

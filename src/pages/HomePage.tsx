@@ -190,10 +190,10 @@ const HomePage = () => {
               ) : (
                 <>
                   <Link to="/login">
-                    <Button variant="outline">Login</Button>
+                    <Button variant="outline">{t.homeLoginButton}</Button>
                   </Link>
                   <Link to="/register">
-                    <Button variant="secondary">Register</Button>
+                    <Button variant="secondary">{t.homeRegisterButton}</Button>
                   </Link>
                 </>
               )}
