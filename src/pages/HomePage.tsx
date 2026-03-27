@@ -1,9 +1,10 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, type To } from "react-router-dom";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check, Star, Crown, Sparkles, ArrowRight, Users, Zap } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Check, Star, Crown, Sparkles, ArrowRight, Users, Zap, Building2, ShieldCheck, Layers3 } from "lucide-react";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,6 +20,7 @@ const HomePage = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [isEnterpriseDialogOpen, setIsEnterpriseDialogOpen] = useState(false);
   const examplesSectionRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -109,6 +111,46 @@ const HomePage = () => {
   const handleStartCreating = () => {
     navigate(userEmail ? "/create" : "/login", {
       state: userEmail ? undefined : { redirectTo: "/create" },
+    });
+  };
+
+  const getPlanActionTarget = (planId: string): To => {
+    if (userEmail) {
+      return "/create";
+    }
+
+    return {
+      pathname: planId === "basic" ? "/register" : "/login",
+      state: {
+        redirectTo: "/create",
+        selectedPlan: planId,
+      },
+    };
+  };
+
+  const handleEnterprisePrimaryAction = () => {
+    setIsEnterpriseDialogOpen(false);
+    navigate(userEmail ? "/dashboard" : "/register", {
+      state: userEmail
+        ? undefined
+        : {
+            redirectTo: "/dashboard",
+            selectedPlan: "enterprise",
+            contactSales: true,
+          },
+    });
+  };
+
+  const handleEnterpriseSecondaryAction = () => {
+    setIsEnterpriseDialogOpen(false);
+    navigate(userEmail ? "/dashboard" : "/login", {
+      state: userEmail
+        ? undefined
+        : {
+            redirectTo: "/dashboard",
+            selectedPlan: "enterprise",
+            contactSales: true,
+          },
     });
   };
 
@@ -322,13 +364,27 @@ const HomePage = () => {
                     ))}
                   </ul>
 
-                  <Button
-                    className="w-full"
-                    variant={plan.buttonVariant}
-                    size="lg"
-                  >
-                    {plan.buttonText}
-                  </Button>
+                  {plan.id === "enterprise" ? (
+                    <Button
+                      className="w-full"
+                      variant={plan.buttonVariant}
+                      size="lg"
+                      onClick={() => setIsEnterpriseDialogOpen(true)}
+                    >
+                      {plan.buttonText}
+                    </Button>
+                  ) : (
+                    <Button
+                      asChild
+                      className="w-full"
+                      variant={plan.buttonVariant}
+                      size="lg"
+                    >
+                      <Link to={getPlanActionTarget(plan.id)}>
+                        {plan.buttonText}
+                      </Link>
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
             ))}
@@ -406,6 +462,58 @@ const HomePage = () => {
           </div>
         </div>
       </footer>
+
+      <Dialog open={isEnterpriseDialogOpen} onOpenChange={setIsEnterpriseDialogOpen}>
+        <DialogContent className="max-w-2xl overflow-hidden p-0">
+          <div className="border-b border-border bg-gradient-to-br from-slate-950 via-emerald-950 to-stone-900 px-6 py-8 text-white">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs uppercase tracking-[0.18em] text-white/80">
+              <Crown className="h-4 w-4" />
+              Diamond Enterprise
+            </div>
+            <DialogHeader className="space-y-3 text-left">
+              <DialogTitle className="text-2xl sm:text-3xl">{t.homeEnterpriseDialogTitle}</DialogTitle>
+              <DialogDescription className="max-w-2xl text-sm text-white/75 sm:text-base">
+                {t.homeEnterpriseDialogSubtitle}
+              </DialogDescription>
+            </DialogHeader>
+          </div>
+
+          <div className="grid gap-6 px-6 py-6 sm:grid-cols-[1.2fr_0.8fr]">
+            <div className="space-y-5">
+              <p className="text-sm leading-6 text-muted-foreground">{t.homeEnterpriseDialogIntro}</p>
+              <div className="grid gap-3">
+                {[
+                  { icon: Building2, text: t.homeEnterpriseDialogFeature1 },
+                  { icon: Layers3, text: t.homeEnterpriseDialogFeature2 },
+                  { icon: ShieldCheck, text: t.homeEnterpriseDialogFeature3 },
+                  { icon: Users, text: t.homeEnterpriseDialogFeature4 },
+                ].map((item) => (
+                  <div key={item.text} className="flex items-start gap-3 rounded-2xl border border-border/70 bg-card/70 px-4 py-3">
+                    <item.icon className="mt-0.5 h-5 w-5 text-primary" />
+                    <p className="text-sm text-foreground">{item.text}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-border/80 bg-muted/40 p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                {t.homeEnterpriseDialogResponseLabel}
+              </p>
+              <p className="mt-2 text-lg font-semibold text-foreground">{t.homeEnterpriseDialogResponseValue}</p>
+              <div className="mt-5 space-y-3">
+                <Button className="w-full" onClick={handleEnterprisePrimaryAction}>
+                  {t.homeEnterpriseDialogPrimary}
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+                <Button className="w-full" variant="outline" onClick={handleEnterpriseSecondaryAction}>
+                  {t.homeEnterpriseDialogSecondary}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

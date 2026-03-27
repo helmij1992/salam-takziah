@@ -130,6 +130,17 @@ interface Translations {
   homeNavCompany: string;
   homePlanPopularBadge: string;
   homePlans: HomePlanTranslation[];
+  homeEnterpriseDialogTitle: string;
+  homeEnterpriseDialogSubtitle: string;
+  homeEnterpriseDialogIntro: string;
+  homeEnterpriseDialogFeature1: string;
+  homeEnterpriseDialogFeature2: string;
+  homeEnterpriseDialogFeature3: string;
+  homeEnterpriseDialogFeature4: string;
+  homeEnterpriseDialogResponseLabel: string;
+  homeEnterpriseDialogResponseValue: string;
+  homeEnterpriseDialogPrimary: string;
+  homeEnterpriseDialogSecondary: string;
   freeTierNoticeTitle: string;
   freeTierNoticeDescription: string;
   freeTierRemaining: string;
@@ -405,10 +416,21 @@ const translations: Record<Language, Translations> = {
           "Kerjasama pasukan",
           "Ciri perkongsian lanjutan",
         ],
-        buttonText: "Hubungi Jualan",
+        buttonText: "Hubungi Penjual",
         popular: false,
       },
     ],
+    homeEnterpriseDialogTitle: "Pasukan Enterprise Salam Takziah",
+    homeEnterpriseDialogSubtitle: "Pakej Diamond sesuai untuk rumah pengebumian, organisasi besar, dan pasukan yang perlukan aliran kerja memorial yang lebih tersusun.",
+    homeEnterpriseDialogIntro: "Kami bantu anda merancang onboarding, white-label branding, templat organisasi, dan keperluan operasi sebelum pelan Enterprise diaktifkan.",
+    homeEnterpriseDialogFeature1: "Semakan keperluan organisasi dan aliran kerja semasa",
+    homeEnterpriseDialogFeature2: "Cadangan setup white-label, templat, dan struktur pasukan",
+    homeEnterpriseDialogFeature3: "Panduan migrasi dari proses manual ke dashboard memorial",
+    homeEnterpriseDialogFeature4: "Susun demo ringkas untuk pasukan anda sebelum langganan bermula",
+    homeEnterpriseDialogResponseLabel: "Jangkaan respons",
+    homeEnterpriseDialogResponseValue: "Biasanya dalam 1 hari bekerja",
+    homeEnterpriseDialogPrimary: "Daftar untuk Dihubungi",
+    homeEnterpriseDialogSecondary: "Saya Sudah Ada Akaun",
     freeTierNoticeTitle: "Akses Pelan Free",
     freeTierNoticeDescription: "Pelan Free dihadkan kepada 5 poster sebulan, format Classic, medan asas, dan muat turun bertanda air.",
     freeTierRemaining: "Baki poster bulan ini: {count}/5",
@@ -686,6 +708,17 @@ const translations: Record<Language, Translations> = {
         popular: false,
       },
     ],
+    homeEnterpriseDialogTitle: "Salam Takziah Enterprise Team",
+    homeEnterpriseDialogSubtitle: "The Diamond package is built for funeral homes, larger organizations, and teams that need a more structured memorial workflow.",
+    homeEnterpriseDialogIntro: "We’ll help you plan onboarding, white-label branding, organization templates, and operational needs before Enterprise access is activated.",
+    homeEnterpriseDialogFeature1: "Review your organization’s needs and current workflow",
+    homeEnterpriseDialogFeature2: "Recommend white-label setup, templates, and team structure",
+    homeEnterpriseDialogFeature3: "Guide your move from manual processes into the memorial dashboard",
+    homeEnterpriseDialogFeature4: "Arrange a short demo for your team before subscription starts",
+    homeEnterpriseDialogResponseLabel: "Expected response",
+    homeEnterpriseDialogResponseValue: "Usually within 1 business day",
+    homeEnterpriseDialogPrimary: "Register for Contact",
+    homeEnterpriseDialogSecondary: "I Already Have an Account",
     freeTierNoticeTitle: "Free Plan Access",
     freeTierNoticeDescription: "The Free plan is limited to 5 posters per month, Classic format, basic form fields, and watermarked downloads.",
     freeTierRemaining: "Posters remaining this month: {count}/5",
