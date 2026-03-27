@@ -27,7 +27,7 @@ const PosterPreview = ({ data, isFreeTier, isPaidTier, isDiamondTier }: PosterPr
     "instagram-landscape": { aspectRatio: "1.91/1", minHeight: "400px", maxHeight: "500px", photoSize: "w-20 h-20 md:w-28 md:h-28" },
     "instagram-portrait": { aspectRatio: "4/5", minHeight: "600px", maxHeight: "750px", photoSize: "w-28 h-28 md:w-36 md:h-36" },
     facebook: { aspectRatio: "1.91/1", minHeight: "400px", maxHeight: "500px", photoSize: "w-20 h-20 md:w-28 md:h-28" },
-    "instagram-story": { aspectRatio: "9/16", minHeight: "600px", maxHeight: "800px", photoSize: "w-24 h-24 md:w-32 md:h-32" },
+    "instagram-story": { aspectRatio: "9/16", minHeight: "820px", maxHeight: "1120px", photoSize: "w-40 h-40 md:w-56 md:h-56" },
   };
 
   const currentFormat = data?.format || "classic";
@@ -193,6 +193,7 @@ const PosterPreview = ({ data, isFreeTier, isPaidTier, isDiamondTier }: PosterPr
       ? "bg-[radial-gradient(circle_at_top,_rgba(212,175,55,0.22),_transparent_42%),linear-gradient(180deg,_#18120f_0%,_#090909_100%)]"
       : "bg-poster-bg";
   const showEnterpriseTemplate = isDiamondTier && Boolean(data.organization);
+  const isInstagramStory = currentFormat === "instagram-story";
 
   return (
     <Card>
@@ -212,7 +213,7 @@ const PosterPreview = ({ data, isFreeTier, isPaidTier, isDiamondTier }: PosterPr
           }}
         >
           {/* Header Section with Arabic Text */}
-          <div className="flex-shrink-0 pt-6 px-4 pb-3">
+          <div className={`flex-shrink-0 px-4 ${isInstagramStory ? "pt-12 pb-6 md:pt-14 md:pb-7" : "pt-6 pb-3"}`}>
             {showEnterpriseTemplate && (
               <div className="mb-4 flex justify-center">
                 <div className="rounded-full border border-poster-gold/40 bg-black/20 px-4 py-1 text-[11px] uppercase tracking-[0.24em] text-poster-white/85">
@@ -221,7 +222,7 @@ const PosterPreview = ({ data, isFreeTier, isPaidTier, isDiamondTier }: PosterPr
               </div>
             )}
             <p
-              className={`text-lg md:text-xl ${accentColor} font-arabic mb-1 leading-relaxed`}
+              className={`${isInstagramStory ? "text-3xl md:text-5xl" : "text-lg md:text-xl"} ${accentColor} font-arabic mb-1 leading-relaxed`}
               style={{
                 fontFamily: "Scheherazade New, serif",
                 fontWeight: 700,
@@ -230,34 +231,34 @@ const PosterPreview = ({ data, isFreeTier, isPaidTier, isDiamondTier }: PosterPr
             >
               إِنَّا لِلّٰهِ وَإِنَّا إِلَيْهِ رَاجِعُونَ
             </p>
-            <p className="text-xs md:text-sm text-poster-white/90 italic font-medium">
+            <p className={`${isInstagramStory ? "text-base md:text-xl" : "text-xs md:text-sm"} text-poster-white/90 italic font-medium`}>
               Innā lillāhi wa innā ilayhi rāji'ūn
             </p>
           </div>
 
           {/* Main Content Area - Flexible */}
-          <div className="flex-1 flex flex-col items-center justify-center px-4 py-2 min-h-0">
+          <div className={`flex-1 flex flex-col items-center justify-center px-4 min-h-0 ${isInstagramStory ? "py-8 md:py-10" : "py-2"}`}>
             {/* Photo */}
             {grayscalePhoto && (
-              <div className="mb-2 md:mb-3 flex-shrink-0">
+              <div className={`${isInstagramStory ? "mb-7 md:mb-8" : "mb-2 md:mb-3"} flex-shrink-0`}>
                 <img
                   src={grayscalePhoto}
                   alt={data.fullName}
-                  className={`${config.photoSize} object-cover rounded-full border-4 border-poster-white/20 shadow-2xl`}
+                  className={`${config.photoSize} object-cover rounded-full border-4 border-poster-white/20 shadow-2xl ${isInstagramStory ? "ring-4 ring-poster-white/5" : ""}`}
                 />
               </div>
             )}
 
             {/* Name and Title */}
-            <div className="mb-2 md:mb-3 flex-shrink-0">
-              <p className={`text-sm md:text-base ${accentColor} mb-1 font-medium`}>
+            <div className={`${isInstagramStory ? "mb-7 md:mb-8" : "mb-2 md:mb-3"} flex-shrink-0`}>
+              <p className={`${isInstagramStory ? "text-2xl md:text-3xl" : "text-sm md:text-base"} ${accentColor} mb-2 font-medium`}>
                 {genderTitle}
               </p>
-              <h2 className="text-lg md:text-xl font-bold text-poster-white mb-1">
+              <h2 className={`${isInstagramStory ? "text-4xl md:text-6xl leading-tight" : "text-lg md:text-xl"} font-bold text-poster-white mb-2`}>
                 {data.fullName}
               </h2>
               {data.organization && !showEnterpriseTemplate && (
-                <p className="text-xs md:text-sm italic text-poster-white/70">
+                <p className={`${isInstagramStory ? "text-base md:text-xl" : "text-xs md:text-sm"} italic text-poster-white/70`}>
                   {data.organization}
                 </p>
               )}
@@ -265,29 +266,29 @@ const PosterPreview = ({ data, isFreeTier, isPaidTier, isDiamondTier }: PosterPr
 
             {/* Dates */}
             {(data.birthDate && data.deathDate) && (
-              <p className="text-xs md:text-sm text-poster-white/60 mb-2 md:mb-3 flex-shrink-0">
+              <p className={`${isInstagramStory ? "text-base md:text-xl mb-6 md:mb-7" : "text-xs md:text-sm mb-2 md:mb-3"} text-poster-white/60 flex-shrink-0`}>
                 ({formatDate(data.birthDate)} – {formatDate(data.deathDate)})
               </p>
             )}
 
             {/* Prayer or Custom Message - Flexible */}
-            <div className="flex-1 flex flex-col justify-center max-w-2xl mb-2 overflow-hidden">
+            <div className={`flex-1 flex flex-col justify-center overflow-hidden ${isInstagramStory ? "mb-6 max-w-[30rem] px-4" : "mb-2 max-w-2xl"}`}>
               {data.message ? (
-                <p className="text-xs md:text-sm text-poster-white/90 leading-relaxed px-2">
+                <p className={`${isInstagramStory ? "text-lg md:text-2xl leading-relaxed" : "text-xs md:text-sm"} text-poster-white/90 px-2`}>
                   {data.message}
                 </p>
               ) : (
-                <div className="space-y-1">
+                <div className={`${isInstagramStory ? "space-y-4" : "space-y-1"}`}>
                   <p
-                    className={`text-xs md:text-sm ${accentColor} font-arabic`}
+                    className={`${isInstagramStory ? "text-xl md:text-3xl" : "text-xs md:text-sm"} ${accentColor} font-arabic`}
                     style={{ fontFamily: "Scheherazade New, serif" }}
                   >
                     بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ
                   </p>
-                  <p className="text-xs md:text-sm text-poster-white/90 leading-relaxed">
+                  <p className={`${isInstagramStory ? "text-lg md:text-2xl leading-relaxed" : "text-xs md:text-sm"} text-poster-white/90`}>
                     {defaultPrayerLineOne}
                   </p>
-                  <p className="text-xs md:text-sm text-poster-white/90 leading-relaxed">
+                  <p className={`${isInstagramStory ? "text-lg md:text-2xl leading-relaxed" : "text-xs md:text-sm"} text-poster-white/90`}>
                     {defaultPrayerLineTwo}
                   </p>
                 </div>
@@ -296,10 +297,10 @@ const PosterPreview = ({ data, isFreeTier, isPaidTier, isDiamondTier }: PosterPr
           </div>
 
           {/* Footer Section - Fixed at bottom */}
-          <div className="flex-shrink-0 px-4 pb-4">
+          <div className={`flex-shrink-0 px-4 ${isInstagramStory ? "pb-10 md:pb-12" : "pb-4"}`}>
             {/* Aamiin */}
-            <div className="mb-2">
-              <p className={`text-xs md:text-sm ${accentColor} italic font-medium`}>
+            <div className={`${isInstagramStory ? "mb-4" : "mb-2"}`}>
+              <p className={`${isInstagramStory ? "text-lg md:text-3xl" : "text-xs md:text-sm"} ${accentColor} italic font-medium`}>
                 {amenText}
               </p>
             </div>
@@ -307,7 +308,7 @@ const PosterPreview = ({ data, isFreeTier, isPaidTier, isDiamondTier }: PosterPr
             {/* From */}
             {data.from && (
               <div className="border-t border-poster-white/30 pt-2">
-                <p className="text-xs md:text-sm text-poster-white/90">
+                <p className={`${isInstagramStory ? "text-base md:text-xl" : "text-xs md:text-sm"} text-poster-white/90`}>
                   <span className={`${accentColor} font-semibold`}>{fromLabel}</span> {data.from}
                 </p>
               </div>
