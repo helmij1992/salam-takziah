@@ -187,13 +187,13 @@ const PosterPreview = ({ data, isFreeTier, isPaidTier, isDiamondTier }: PosterPr
     : `May the soul of ${genderTitle} be showered with mercy and placed among the righteous.`;
   const amenText = language === "ms" ? "Aamiin Ya Rabbal 'Alamin." : "Ameen, Lord of all worlds.";
   const fromLabel = language === "ms" ? "Daripada:" : "From:";
-  const enterpriseBadge = "Salam Takziah Enterprise";
   const posterBackgroundClass =
     data.theme === "premium"
       ? "bg-[radial-gradient(circle_at_top,_rgba(212,175,55,0.22),_transparent_42%),linear-gradient(180deg,_#18120f_0%,_#090909_100%)]"
       : "bg-poster-bg";
   const showEnterpriseTemplate = isDiamondTier && Boolean(data.organization);
   const isInstagramStory = currentFormat === "instagram-story";
+  const showBrandWatermark = isFreeTier || (isDiamondTier && !data.whiteLabel);
 
   return (
     <Card>
@@ -329,17 +329,11 @@ const PosterPreview = ({ data, isFreeTier, isPaidTier, isDiamondTier }: PosterPr
             </div>
           )}
 
-          {isFreeTier && (
+          {showBrandWatermark && (
             <div className="pointer-events-none absolute bottom-4 left-4">
               <div className="rounded-md border border-poster-white/15 bg-black/30 px-3 py-1 text-[10px] font-medium tracking-[0.18em] text-poster-white/70 shadow-sm backdrop-blur-sm">
                 ©SalamTakziah
               </div>
-            </div>
-          )}
-
-          {isDiamondTier && !data.whiteLabel && (
-            <div className="absolute right-4 top-4 rounded-full border border-poster-gold/30 bg-black/20 px-3 py-1 text-[10px] uppercase tracking-[0.28em] text-poster-white/80">
-              {enterpriseBadge}
             </div>
           )}
         </div>
