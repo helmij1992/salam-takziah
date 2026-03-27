@@ -18,7 +18,29 @@ const Register = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const redirectTo = (location.state as { redirectTo?: string } | null)?.redirectTo ?? "/dashboard";
+  const isSubmitting = isLoading || isGoogleLoading;
+
+  const handleGoogleRegister = async () => {
+    setIsGoogleLoading(true);
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}${redirectTo}`,
+      },
+    });
+
+    if (error) {
+      setIsGoogleLoading(false);
+      toast({
+        title: t.authGoogleErrorTitle,
+        description: error.message || t.authGoogleErrorDesc,
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -139,9 +161,25 @@ const Register = () => {
             {t.authRegisterPlanHint}
           </div>
 
-          <Button type="submit" className="h-12 w-full text-base" disabled={isLoading}>
+          <Button type="submit" className="h-12 w-full text-base" disabled={isSubmitting}>
             {isLoading ? t.authRegisterLoading : t.authRegisterButton}
             {!isLoading && <ArrowRight className="ml-2 h-4 w-4" />}
+          </Button>
+
+          <div className="relative py-1">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-border" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase tracking-[0.2em] text-muted-foreground">
+              <span className="bg-card px-3">{t.authOrDivider}</span>
+            </div>
+          </div>
+
+          <Button type="button" variant="outline" className="h-12 w-full text-base" disabled={isSubmitting} onClick={handleGoogleRegister}>
+            <span className="mr-3 inline-flex h-6 w-6 items-center justify-center rounded-full border border-border bg-background text-sm font-semibold text-foreground">
+              G
+            </span>
+            {isGoogleLoading ? t.authGoogleLoading : t.authGoogleButton}
           </Button>
         </form>
       )}

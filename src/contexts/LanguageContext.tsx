@@ -210,6 +210,11 @@ interface Translations {
   authRegisterLoading: string;
   authRegisterSwitchPrompt: string;
   authRegisterSwitchLabel: string;
+  authOrDivider: string;
+  authGoogleButton: string;
+  authGoogleLoading: string;
+  authGoogleErrorTitle: string;
+  authGoogleErrorDesc: string;
   authToastMissingLoginTitle: string;
   authToastMissingLoginDesc: string;
   authToastLoginFailedTitle: string;
@@ -502,6 +507,11 @@ const translations: Record<Language, Translations> = {
     authRegisterLoading: "Sedang mencipta akaun...",
     authRegisterSwitchPrompt: "Sudah ada akaun?",
     authRegisterSwitchLabel: "Log masuk di sini",
+    authOrDivider: "atau",
+    authGoogleButton: "Teruskan dengan Google",
+    authGoogleLoading: "Mengarahkan ke Google...",
+    authGoogleErrorTitle: "Google SSO gagal",
+    authGoogleErrorDesc: "Semak tetapan Google provider dan URL redirect di Supabase.",
     authToastMissingLoginTitle: "Sila isi emel dan kata laluan",
     authToastMissingLoginDesc: "Emel dan kata laluan diperlukan untuk log masuk.",
     authToastLoginFailedTitle: "Log masuk gagal",
@@ -792,6 +802,11 @@ const translations: Record<Language, Translations> = {
     authRegisterLoading: "Creating account...",
     authRegisterSwitchPrompt: "Already have an account?",
     authRegisterSwitchLabel: "Login instead",
+    authOrDivider: "or",
+    authGoogleButton: "Continue with Google",
+    authGoogleLoading: "Redirecting to Google...",
+    authGoogleErrorTitle: "Google SSO failed",
+    authGoogleErrorDesc: "Check your Google provider and redirect URL settings in Supabase.",
     authToastMissingLoginTitle: "Please enter your email and password",
     authToastMissingLoginDesc: "Email and password are required to sign in.",
     authToastLoginFailedTitle: "Login failed",
