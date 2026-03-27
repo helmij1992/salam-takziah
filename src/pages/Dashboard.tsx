@@ -192,6 +192,9 @@ const Dashboard = () => {
         ? homePlan.id === "pro"
         : homePlan.id === "basic",
   );
+  const freePosterHistory = analytics
+    .filter((event) => event.type === "poster_generated")
+    .slice(0, 10);
   const isInviteExpired = (inviteExpiresAt?: string) =>
     Boolean(inviteExpiresAt && new Date(inviteExpiresAt).getTime() < Date.now());
   const ui = {
@@ -246,6 +249,14 @@ const Dashboard = () => {
     currentPlanDetails: isMs ? "Butiran Pelan Semasa" : "Current Plan Details",
     freePlanAccessOnly: isMs ? "Akses Free Tier Sahaja" : "Free Tier Access Only",
     freePlanOnlyDesc: isMs ? "Dashboard ini hanya memaparkan ciri yang tersedia untuk pelan Basic Memorial." : "This dashboard only shows the features available on the Basic Memorial plan.",
+    posterHistory: isMs ? "Sejarah Poster" : "Poster History",
+    posterHistoryDesc: isMs ? "Jejak poster yang telah dijana dalam akaun Free anda." : "Track posters that have been generated in your Free account.",
+    noPosterHistory: isMs ? "Belum ada poster dijana. Gunakan pembina poster untuk mula mencipta memorial pertama anda." : "No posters have been generated yet. Use the poster builder to create your first memorial.",
+    generatedOn: isMs ? "Dijana pada" : "Generated on",
+    simplePlanSummary: isMs ? "Ringkasan pelan asas" : "Simple plan summary",
+    posterPerMonth: isMs ? "5 poster sebulan" : "5 posters per month",
+    classicOnly: isMs ? "Classic 4:3 sahaja" : "Classic 4:3 only",
+    watermarked: isMs ? "Muat turun bertanda air" : "Watermarked downloads",
     cloudSyncAttention: isMs ? "Penyegerakan awan memerlukan perhatian" : "Cloud sync needs attention",
     syncingWorkspace: isMs ? "Menyegerak ruang kerja ke Supabase..." : "Syncing workspace to Supabase...",
     workspaceConnected: isMs ? "Penyegerakan ruang kerja disambungkan" : "Workspace sync is connected",
@@ -930,45 +941,70 @@ const Dashboard = () => {
         )}
 
         {!isPaidTier && currentPlanDetails ? (
-          <Card>
-            <CardHeader className="space-y-4">
-              <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                <div className="space-y-2">
-                  <CardTitle className="text-2xl">{currentPlanDetails.name}</CardTitle>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant="outline">{currentPlanDetails.tier}</Badge>
-                    <span className="text-3xl font-semibold">
-                      {currentPlanDetails.price}
-                      <span className="ml-1 text-base font-normal text-muted-foreground">
-                        /{currentPlanDetails.period}
+          <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
+            <Card>
+              <CardHeader className="space-y-4">
+                <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                  <div className="space-y-2">
+                    <CardTitle className="text-2xl">{currentPlanDetails.name}</CardTitle>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge variant="outline">{currentPlanDetails.tier}</Badge>
+                      <span className="text-3xl font-semibold">
+                        {currentPlanDetails.price}
+                        <span className="ml-1 text-base font-normal text-muted-foreground">
+                          /{currentPlanDetails.period}
+                        </span>
                       </span>
-                    </span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">{currentPlanDetails.description}</p>
                   </div>
-                  <p className="text-sm text-muted-foreground">{currentPlanDetails.description}</p>
+                  <Badge variant="secondary">{ui.freePlanAccessOnly}</Badge>
                 </div>
-                <Badge variant="secondary">{ui.freePlanAccessOnly}</Badge>
-              </div>
-              <p className="text-sm text-muted-foreground">{ui.freePlanOnlyDesc}</p>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="rounded-2xl border border-border bg-muted/30 p-4">
-                <p className="text-sm font-medium">{t.freeTierNoticeTitle}</p>
-                <p className="mt-2 text-sm text-muted-foreground">{ui.freeWorkspaceDesc}</p>
-              </div>
-
-              <div className="space-y-3">
-                <p className="text-sm font-medium">{ui.currentPlanDetails}</p>
-                <ul className="grid gap-3 md:grid-cols-2">
-                  {currentPlanDetails.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-3 rounded-xl border border-border/70 p-3">
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="rounded-2xl border border-border bg-muted/30 p-4">
+                  <p className="text-sm font-medium">{ui.simplePlanSummary}</p>
+                  <p className="mt-2 text-sm text-muted-foreground">{ui.freeWorkspaceDesc}</p>
+                </div>
+                <div className="grid gap-3">
+                  {[ui.posterPerMonth, ui.classicOnly, ui.watermarked].map((item) => (
+                    <div key={item} className="flex items-start gap-3 rounded-xl border border-border/70 p-3">
                       <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
-                      <span className="text-sm">{feature}</span>
-                    </li>
+                      <span className="text-sm">{item}</span>
+                    </div>
                   ))}
-                </ul>
-              </div>
-            </CardContent>
-          </Card>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>{ui.posterHistory}</CardTitle>
+                <p className="text-sm text-muted-foreground">{ui.posterHistoryDesc}</p>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {freePosterHistory.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">{ui.noPosterHistory}</p>
+                ) : (
+                  freePosterHistory.map((event) => (
+                    <div key={event.id} className="rounded-xl border border-border/70 p-4">
+                      <p className="font-medium">
+                        {typeof event.meta?.fullName === "string" && event.meta.fullName.length > 0
+                          ? event.meta.fullName
+                          : ui.untitledMemorial}
+                      </p>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {ui.generatedOn} {new Date(event.createdAt).toLocaleString()}
+                      </p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {(typeof event.meta?.format === "string" ? event.meta.format : "classic")} • {typeof event.meta?.theme === "string" ? event.meta.theme : "classic"}
+                      </p>
+                    </div>
+                  ))
+                )}
+              </CardContent>
+            </Card>
+          </div>
         ) : (
         <>
         <div className="grid gap-4 md:grid-cols-4">

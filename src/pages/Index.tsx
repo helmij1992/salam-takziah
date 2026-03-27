@@ -119,6 +119,7 @@ const Index = () => {
     trackEvent({
       type: "poster_generated",
       meta: {
+        fullName: sanitizedData.fullName || "Untitled memorial",
         format: sanitizedData.format,
         theme: sanitizedData.theme,
       },
