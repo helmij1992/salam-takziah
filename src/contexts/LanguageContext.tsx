@@ -278,8 +278,8 @@ const translations: Record<Language, Translations> = {
     footerText: "© 2025 Penjana Poster Takziah Islam. Semoga Allah merahmati arwah yang telah pergi.",
 
     // Homepage translations
-    homeHeroTitle: "Cipta Poster Takziah sebagai Tanda Penghormatan",
-    homeHeroSubtitle: "Pemergian insan tersayang meninggalkan kenangan dan kerinduan yang mendalam. Iringi pemergiannya dengan doa yang tulus, semoga Allah mencucuri rahmat ke atas rohnya dan menempatkannya dalam kalangan orang beriman. Sebagai tanda kasih, ingatan dan penghormatan terakhir.",
+    homeHeroTitle: "Abadikan Kenangan, Ciptakan Penghormatan Terakhir",
+    homeHeroSubtitle: "Adapun pemergian insan yang dikasihi meninggalkan kenangan yang tiada terperi. Maka diiringi dengan doa yang tulus, moga Allah mencucuri rahmat ke atas rohnya. Sebagai tanda kasih dan ingatan yang akhir adanya.",
     homeHeroCreateButton: "Cipta Poster Anda",
     homeHeroExamplesButton: "Lihat Contoh",
     homeExamplesTitle: "Contoh Poster Yang Boleh Anda Mulakan",
@@ -336,7 +336,7 @@ const translations: Record<Language, Translations> = {
     homeCtaTitle: "Bersedia untuk Cipta Poster Pertama Anda?",
     homeCtaSubtitle: "Sertai beribu keluarga yang mempercayai Salam Takziah untuk keperluan memorial mereka",
     homeCtaButton: "Mulakan Mencipta Sekarang",
-    homeFooterTagline: "Mencipta memorial yang bermakna dengan teknologi dan belas kasihan.",
+    homeFooterTagline: "Maka tersebutlah kisah dan memori, diabadikan dengan daya cipta serta belas hati yang mendalam.",
     homeNavCreate: "Cipta Poster",
     homeNavTemplates: "Templat",
     homeNavPricing: "Harga",
