@@ -15,6 +15,18 @@ interface HomePlanTranslation {
   popular: boolean;
 }
 
+interface HomeExampleTranslation {
+  id: "family" | "community" | "corporate";
+  label: string;
+  title: string;
+  description: string;
+  fullName: string;
+  organization: string;
+  from: string;
+  theme: "classic" | "retro" | "premium";
+  format: "classic" | "instagram-square" | "facebook";
+}
+
 interface Translations {
   // Header
   mainTitle: string;
@@ -83,6 +95,11 @@ interface Translations {
   homeHeroSubtitle: string;
   homeHeroCreateButton: string;
   homeHeroExamplesButton: string;
+  homeExamplesTitle: string;
+  homeExamplesSubtitle: string;
+  homeExamplesUseButton: string;
+  homeExamplesPreviewLabel: string;
+  homeExamples: HomeExampleTranslation[];
   homeFeaturesTitle: string;
   homeFeaturesSubtitle: string;
   homeFeature1Title: string;
@@ -203,6 +220,45 @@ const translations: Record<Language, Translations> = {
     homeHeroSubtitle: "Pemergian insan tersayang meninggalkan kenangan dan kerinduan yang mendalam. Iringi pemergiannya dengan doa yang tulus, semoga Allah mencucuri rahmat ke atas rohnya dan menempatkannya dalam kalangan orang beriman. Sebagai tanda kasih, ingatan dan penghormatan terakhir.",
     homeHeroCreateButton: "Cipta Poster Anda",
     homeHeroExamplesButton: "Lihat Contoh",
+    homeExamplesTitle: "Contoh Poster Yang Boleh Anda Mulakan",
+    homeExamplesSubtitle: "Pilih gaya memorial yang sesuai dengan keluarga, komuniti, atau organisasi anda, kemudian terus sunting dalam pembina poster.",
+    homeExamplesUseButton: "Guna Contoh Ini",
+    homeExamplesPreviewLabel: "Pratonton gaya",
+    homeExamples: [
+      {
+        id: "family",
+        label: "Keluarga",
+        title: "Takziah Klasik Untuk Keluarga",
+        description: "Sesuai untuk waris terdekat yang mahukan susun atur tenang, kemas, dan penuh hormat.",
+        fullName: "Allahyarham Haji Abdul Rahman bin Ismail",
+        organization: "Kampung Seri Damai",
+        from: "Daripada seluruh ahli keluarga",
+        theme: "classic",
+        format: "classic",
+      },
+      {
+        id: "community",
+        label: "Komuniti",
+        title: "Memorial Retro Untuk Masjid & Komuniti",
+        description: "Pilihan yang lebih hangat untuk pengumuman jemaah, persatuan, dan komuniti setempat.",
+        fullName: "Almarhumah Puan Hajah Zainab binti Salleh",
+        organization: "Masjid Al-Ikhlas, Shah Alam",
+        from: "AJK Masjid dan komuniti setempat",
+        theme: "retro",
+        format: "instagram-square",
+      },
+      {
+        id: "corporate",
+        label: "Organisasi",
+        title: "Penghormatan Premium Untuk Organisasi",
+        description: "Untuk sekolah, syarikat, atau institusi yang perlukan pengumuman memorial yang lebih formal.",
+        fullName: "Allahyarham Professor Dato' Dr. Mohd Firdaus",
+        organization: "Universiti Wawasan Malaysia",
+        from: "Pejabat Naib Canselor",
+        theme: "premium",
+        format: "facebook",
+      },
+    ],
     homeFeaturesTitle: "Mengapa Pilih Salam Takziah?",
     homeFeaturesSubtitle: "Alat profesional yang direka khas untuk poster takziah Islam",
     homeFeature1Title: "Mudah Digunakan",
@@ -392,6 +448,45 @@ const translations: Record<Language, Translations> = {
     homeHeroSubtitle: "Honor loved ones with professionally designed Islamic condolence posters. Perfect for social media sharing and memorial services.",
     homeHeroCreateButton: "Create Your Poster",
     homeHeroExamplesButton: "View Examples",
+    homeExamplesTitle: "Sample Memorial Styles You Can Start From",
+    homeExamplesSubtitle: "Choose a family, community, or organization-ready example, then open it directly in the poster builder.",
+    homeExamplesUseButton: "Use This Example",
+    homeExamplesPreviewLabel: "Style preview",
+    homeExamples: [
+      {
+        id: "family",
+        label: "Family",
+        title: "Classic Family Memorial",
+        description: "A calm and respectful layout for close family announcements and private remembrance posts.",
+        fullName: "Allahyarham Haji Abdul Rahman bin Ismail",
+        organization: "Seri Damai Community",
+        from: "From the entire family",
+        theme: "classic",
+        format: "classic",
+      },
+      {
+        id: "community",
+        label: "Community",
+        title: "Warm Community Memorial",
+        description: "Well-suited for mosque notices, neighborhood groups, and community association tributes.",
+        fullName: "Almarhumah Puan Hajah Zainab binti Salleh",
+        organization: "Masjid Al-Ikhlas, Shah Alam",
+        from: "From the mosque committee and local community",
+        theme: "retro",
+        format: "instagram-square",
+      },
+      {
+        id: "corporate",
+        label: "Organization",
+        title: "Premium Organizational Tribute",
+        description: "A more formal memorial style for schools, companies, and institutional announcements.",
+        fullName: "Allahyarham Professor Dato' Dr. Mohd Firdaus",
+        organization: "Wawasan University Malaysia",
+        from: "Office of the Vice Chancellor",
+        theme: "premium",
+        format: "facebook",
+      },
+    ],
     homeFeaturesTitle: "Why Choose Salam Takziah?",
     homeFeaturesSubtitle: "Professional tools designed specifically for Islamic condolence posters",
     homeFeature1Title: "Easy to Use",

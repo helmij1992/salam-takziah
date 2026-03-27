@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
@@ -17,10 +17,29 @@ interface PosterFormProps {
   isDiamondTier: boolean;
   remainingFreePosters: number;
   canGeneratePoster: boolean;
+  initialData?: PosterData | null;
+  draftTitle?: string | null;
+  isDraftSaving?: boolean;
+  hasUnsavedChanges?: boolean;
   onGenerate: (data: PosterData) => boolean;
+  onSaveDraft?: (title: string, data: PosterData, mode?: "update" | "copy") => void;
+  onDataChange?: (data: PosterData) => void;
 }
 
-const PosterForm = ({ isFreeTier, isPaidTier, isDiamondTier, remainingFreePosters, canGeneratePoster, onGenerate }: PosterFormProps) => {
+const PosterForm = ({
+  isFreeTier,
+  isPaidTier,
+  isDiamondTier,
+  remainingFreePosters,
+  canGeneratePoster,
+  initialData,
+  draftTitle,
+  isDraftSaving = false,
+  hasUnsavedChanges = false,
+  onGenerate,
+  onSaveDraft,
+  onDataChange,
+}: PosterFormProps) => {
   const { t } = useLanguage();
   const [photo, setPhoto] = useState<string | null>(null);
   const [fullName, setFullName] = useState("");
@@ -33,6 +52,60 @@ const PosterForm = ({ isFreeTier, isPaidTier, isDiamondTier, remainingFreePoster
   const [theme, setTheme] = useState<PosterTheme>("classic");
   const [format, setFormat] = useState<PosterFormat>("classic");
   const [whiteLabel, setWhiteLabel] = useState(false);
+
+  useEffect(() => {
+    if (!initialData) {
+      return;
+    }
+
+    setPhoto(initialData.photo);
+    setFullName(initialData.fullName);
+    setGender(initialData.gender);
+    setBirthDate(initialData.birthDate);
+    setDeathDate(initialData.deathDate);
+    setOrganization(initialData.organization ?? "");
+    setMessage(initialData.message ?? "");
+    setFrom(initialData.from);
+    setTheme(initialData.theme);
+    setFormat(initialData.format);
+    setWhiteLabel(initialData.whiteLabel);
+  }, [initialData]);
+
+  const buildPosterData = useCallback((): PosterData => ({
+    photo,
+    fullName: fullName.trim(),
+    gender,
+    birthDate,
+    deathDate,
+    organization: isFreeTier ? "" : organization.trim(),
+    message: isFreeTier ? "" : message.trim(),
+    from: isFreeTier ? "" : from.trim(),
+    theme,
+    format: isFreeTier ? "classic" : format,
+    whiteLabel: isDiamondTier ? whiteLabel : false,
+  }), [
+    photo,
+    fullName,
+    gender,
+    birthDate,
+    deathDate,
+    organization,
+    message,
+    from,
+    theme,
+    format,
+    isFreeTier,
+    isDiamondTier,
+    whiteLabel,
+  ]);
+
+  useEffect(() => {
+    if (!onDataChange) {
+      return;
+    }
+
+    onDataChange(buildPosterData());
+  }, [buildPosterData, onDataChange]);
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -100,24 +173,31 @@ const PosterForm = ({ isFreeTier, isPaidTier, isDiamondTier, remainingFreePoster
       return;
     }
 
-    const nextData: PosterData = {
-      photo,
-      fullName: fullName.trim(),
-      gender,
-      birthDate,
-      deathDate,
-      organization: isFreeTier ? "" : organization.trim(),
-      message: isFreeTier ? "" : message.trim(),
-      from: isFreeTier ? "" : from.trim(),
-      theme,
-      format: isFreeTier ? "classic" : format,
-      whiteLabel: isDiamondTier ? whiteLabel : false,
-    };
-
+    const nextData = buildPosterData();
     const didGenerate = onGenerate(nextData);
     if (didGenerate) {
       toast.success(t.toastSuccess);
     }
+  };
+
+  const handleSaveDraft = () => {
+    if (!onSaveDraft) {
+      return;
+    }
+
+    const draftTitle = fullName.trim() || organization.trim() || "Poster draft";
+    onSaveDraft(draftTitle, buildPosterData(), "update");
+    toast.success("Draft saved");
+  };
+
+  const handleSaveDraftAs = () => {
+    if (!onSaveDraft) {
+      return;
+    }
+
+    const nextDraftTitle = fullName.trim() || organization.trim() || "Poster draft";
+    onSaveDraft(nextDraftTitle, buildPosterData(), "copy");
+    toast.success("Draft saved as a new copy");
   };
 
   return (
@@ -127,6 +207,19 @@ const PosterForm = ({ isFreeTier, isPaidTier, isDiamondTier, remainingFreePoster
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
+          {onSaveDraft && (
+            <div className="rounded-lg border border-border bg-card/60 p-4 space-y-2">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="font-medium">{draftTitle ?? "New draft"}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {isDraftSaving ? "Saving to cloud..." : hasUnsavedChanges ? "Unsaved changes" : "All changes saved"}
+                  </p>
+                </div>
+                {hasUnsavedChanges && <span className="text-xs font-medium text-amber-600">Pending</span>}
+              </div>
+            </div>
+          )}
           {isFreeTier && (
             <div className="rounded-lg border border-border bg-muted/40 p-4 space-y-2">
               <p className="font-medium">{t.freeTierNoticeTitle}</p>
@@ -374,9 +467,21 @@ const PosterForm = ({ isFreeTier, isPaidTier, isDiamondTier, remainingFreePoster
           </div>
 
           {/* Submit Button */}
-          <Button type="submit" className="w-full" size="lg">
-            {t.generateButton}
-          </Button>
+          <div className={`grid gap-2 ${onSaveDraft ? "sm:grid-cols-3" : "grid-cols-1"}`}>
+            <Button type="submit" className="w-full" size="lg">
+              {t.generateButton}
+            </Button>
+            {onSaveDraft && (
+              <Button type="button" variant="outline" className="w-full" size="lg" onClick={handleSaveDraft}>
+                Save Draft
+              </Button>
+            )}
+            {onSaveDraft && (
+              <Button type="button" variant="secondary" className="w-full" size="lg" onClick={handleSaveDraftAs}>
+                Save As Copy
+              </Button>
+            )}
+          </div>
         </form>
       </CardContent>
     </Card>

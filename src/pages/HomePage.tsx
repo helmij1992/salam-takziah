@@ -1,5 +1,5 @@
-import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,10 +7,19 @@ import { Check, Star, Crown, Sparkles, ArrowRight, Users, Zap } from "lucide-rea
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
+import { PosterData } from "@/types/poster";
+
+const exampleAccentMap = {
+  classic: "from-stone-100 via-zinc-100 to-amber-50",
+  retro: "from-amber-100 via-orange-50 to-rose-50",
+  premium: "from-slate-900 via-emerald-900 to-stone-800",
+} as const;
 
 const HomePage = () => {
+  const navigate = useNavigate();
   const { t } = useLanguage();
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const examplesSectionRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     const fetchSession = async () => {
@@ -66,6 +75,45 @@ const HomePage = () => {
     }
   ];
 
+  const examples = useMemo(
+    () =>
+      t.homeExamples.map((example) => ({
+        ...example,
+        poster: {
+          photo: null,
+          fullName: example.fullName,
+          gender: example.fullName.toLowerCase().includes("almarhumah") ? "almarhumah" : "allahyarham",
+          birthDate: "",
+          deathDate: "",
+          organization: example.organization,
+          message:
+            t.homeExamplesPreviewLabel === "Pratonton gaya"
+              ? "Semoga Allah SWT mengampuni segala dosa, merahmati rohnya, dan menempatkannya dalam kalangan orang beriman."
+              : "May Allah forgive their shortcomings, grant mercy upon their soul, and place them among the righteous.",
+          from: example.from,
+          theme: example.theme,
+          format: example.format,
+          whiteLabel: false,
+        } satisfies PosterData,
+        accentClassName: exampleAccentMap[example.theme],
+      })),
+    [t.homeExamples, t.homeExamplesPreviewLabel],
+  );
+
+  const handleScrollToExamples = () => {
+    examplesSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const handleUseExample = (poster: PosterData, title: string) => {
+    navigate("/create", {
+      state: {
+        draftPoster: poster,
+        sourceLabel: `example: ${title}`,
+        draftTitle: title,
+      },
+    });
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -119,7 +167,7 @@ const HomePage = () => {
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
             </Link>
-            <Button size="lg" variant="outline" className="text-lg px-8 py-6">
+            <Button size="lg" variant="outline" className="text-lg px-8 py-6" onClick={handleScrollToExamples}>
               {t.homeHeroExamplesButton}
             </Button>
           </div>
@@ -134,6 +182,60 @@ const HomePage = () => {
             <span className="inline-flex items-center gap-2 px-3 py-1 rounded bg-accent text-accent-foreground border border-accent">
               📱 Media Sosial Teroptimum
             </span>
+          </div>
+        </div>
+      </section>
+
+      <section ref={examplesSectionRef} className="py-16 px-4">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-4">{t.homeExamplesTitle}</h2>
+            <p className="text-muted-foreground text-lg max-w-3xl mx-auto">
+              {t.homeExamplesSubtitle}
+            </p>
+          </div>
+
+          <div className="grid gap-6 lg:grid-cols-3">
+            {examples.map((example) => (
+              <Card key={example.id} className="overflow-hidden border-border/80">
+                <div className={`border-b border-border/70 bg-gradient-to-br ${example.accentClassName} p-6 ${example.theme === "premium" ? "text-white" : "text-foreground"}`}>
+                  <div className="flex items-center justify-between gap-3 mb-4">
+                    <Badge variant={example.theme === "premium" ? "secondary" : "outline"}>
+                      {example.label}
+                    </Badge>
+                    <span className={`text-xs ${example.theme === "premium" ? "text-white/80" : "text-muted-foreground"}`}>
+                      {t.homeExamplesPreviewLabel}
+                    </span>
+                  </div>
+                  <div className="rounded-2xl border border-white/20 bg-white/10 p-5 backdrop-blur-sm">
+                    <p className={`text-xs uppercase tracking-[0.2em] ${example.theme === "premium" ? "text-white/70" : "text-muted-foreground"}`}>
+                      Salam Takziah
+                    </p>
+                    <p className="mt-3 text-lg font-semibold leading-snug">{example.poster.fullName}</p>
+                    <p className={`mt-2 text-sm ${example.theme === "premium" ? "text-white/80" : "text-muted-foreground"}`}>
+                      {example.poster.organization}
+                    </p>
+                    <div className={`mt-6 flex flex-wrap gap-2 text-xs ${example.theme === "premium" ? "text-white/80" : "text-muted-foreground"}`}>
+                      <span className="rounded-full border border-current/20 px-3 py-1">{example.theme}</span>
+                      <span className="rounded-full border border-current/20 px-3 py-1">{example.format}</span>
+                    </div>
+                  </div>
+                </div>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-xl">{example.title}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-sm text-muted-foreground">{example.description}</p>
+                  <div className="rounded-lg bg-muted/50 p-4 text-sm">
+                    <p className="font-medium">{example.poster.from}</p>
+                    <p className="mt-2 text-muted-foreground line-clamp-3">{example.poster.message}</p>
+                  </div>
+                  <Button className="w-full" onClick={() => handleUseExample(example.poster, example.title)}>
+                    {t.homeExamplesUseButton}
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </section>

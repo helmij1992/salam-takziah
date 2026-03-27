@@ -1,16 +1,102 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useLocation } from "react-router-dom";
 import PosterForm from "@/components/PosterForm";
 import PosterPreview from "@/components/PosterPreview";
 import InfoSections from "@/components/InfoSections";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { Card, CardContent } from "@/components/ui/card";
 import { PosterData } from "@/types/poster";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useSubscription } from "@/hooks/use-subscription";
+import { useWorkspace } from "@/hooks/use-workspace";
 
 const Index = () => {
+  const location = useLocation();
   const [posterData, setPosterData] = useState<PosterData | null>(null);
+  const [formDraftData, setFormDraftData] = useState<PosterData | null>(null);
+  const [currentDraftId, setCurrentDraftId] = useState<string | null>(null);
+  const [currentDraftTitle, setCurrentDraftTitle] = useState<string | null>(null);
+  const [lastSavedSnapshot, setLastSavedSnapshot] = useState<string | null>(null);
+  const [isDraftSaving, setIsDraftSaving] = useState(false);
   const { t } = useLanguage();
   const { isFreeTier, isPaidTier, isDiamondTier, remainingFreePosters, canGeneratePoster, recordPosterGeneration } = useSubscription();
+  const { saveDraft, trackEvent } = useWorkspace();
+
+  const locationPoster = useMemo(() => {
+    const state = location.state as { draftPoster?: PosterData; sourceLabel?: string; draftId?: string; draftTitle?: string } | null;
+    return state?.draftPoster ?? null;
+  }, [location.state]);
+
+  const sourceLabel = useMemo(() => {
+    const state = location.state as { draftPoster?: PosterData; sourceLabel?: string; draftId?: string; draftTitle?: string } | null;
+    return state?.sourceLabel ?? null;
+  }, [location.state]);
+
+  const locationDraftId = useMemo(() => {
+    const state = location.state as { draftPoster?: PosterData; sourceLabel?: string; draftId?: string; draftTitle?: string } | null;
+    return state?.draftId ?? null;
+  }, [location.state]);
+
+  const locationDraftTitle = useMemo(() => {
+    const state = location.state as { draftPoster?: PosterData; sourceLabel?: string; draftId?: string; draftTitle?: string } | null;
+    return state?.draftTitle ?? null;
+  }, [location.state]);
+
+  const currentSnapshot = useMemo(() => JSON.stringify(formDraftData), [formDraftData]);
+  const hasUnsavedChanges = Boolean(isPaidTier && formDraftData && lastSavedSnapshot && currentSnapshot !== lastSavedSnapshot);
+
+  useEffect(() => {
+    if (!locationPoster) {
+      return;
+    }
+
+    setPosterData(locationPoster);
+    setFormDraftData(locationPoster);
+    setCurrentDraftId(locationDraftId);
+    setCurrentDraftTitle(locationDraftTitle ?? sourceLabel ?? "Loaded draft");
+    setLastSavedSnapshot(JSON.stringify(locationPoster));
+    trackEvent({
+      type: "draft_loaded",
+      meta: {
+        source: sourceLabel ?? "workspace",
+      },
+    });
+  }, [locationPoster, locationDraftId, locationDraftTitle, sourceLabel, trackEvent]);
+
+  useEffect(() => {
+    if (!isPaidTier || !currentDraftId || !formDraftData || !hasUnsavedChanges) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setIsDraftSaving(true);
+      const savedDraft = saveDraft(currentDraftTitle ?? "Poster draft", formDraftData, currentDraftId);
+      setCurrentDraftId(savedDraft.id);
+      setCurrentDraftTitle(savedDraft.title);
+      setLastSavedSnapshot(JSON.stringify(savedDraft.poster));
+      setIsDraftSaving(false);
+    }, 1500);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [currentDraftId, currentDraftTitle, formDraftData, hasUnsavedChanges, isPaidTier, saveDraft]);
+
+  useEffect(() => {
+    if (!hasUnsavedChanges) {
+      return;
+    }
+
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [hasUnsavedChanges]);
 
   const handleGenerate = (data: PosterData) => {
     if (!canGeneratePoster) {
@@ -30,7 +116,25 @@ const Index = () => {
 
     setPosterData(sanitizedData);
     recordPosterGeneration();
+    trackEvent({
+      type: "poster_generated",
+      meta: {
+        format: sanitizedData.format,
+        theme: sanitizedData.theme,
+      },
+    });
     return true;
+  };
+
+  const handleSaveDraft = (title: string, data: PosterData, mode: "update" | "copy" = "update") => {
+    setIsDraftSaving(true);
+    const shouldUpdateExisting = mode === "update" && Boolean(currentDraftId);
+    const savedDraft = saveDraft(title, data, shouldUpdateExisting ? currentDraftId ?? undefined : undefined);
+    setCurrentDraftId(savedDraft.id);
+    setCurrentDraftTitle(savedDraft.title);
+    setLastSavedSnapshot(JSON.stringify(savedDraft.poster));
+    setFormDraftData(savedDraft.poster);
+    setIsDraftSaving(false);
   };
 
   return (
@@ -52,6 +156,13 @@ const Index = () => {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
+        {sourceLabel && (
+          <Card className="max-w-7xl mx-auto mb-6">
+            <CardContent className="py-4 text-sm text-muted-foreground">
+              Editing from {sourceLabel}
+            </CardContent>
+          </Card>
+        )}
         <div className="grid lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
           {/* Form Section */}
           <div>
@@ -61,7 +172,13 @@ const Index = () => {
               isDiamondTier={isDiamondTier}
               remainingFreePosters={remainingFreePosters}
               canGeneratePoster={canGeneratePoster}
+              initialData={locationPoster}
+              draftTitle={currentDraftTitle}
+              isDraftSaving={isDraftSaving}
+              hasUnsavedChanges={hasUnsavedChanges}
               onGenerate={handleGenerate}
+              onSaveDraft={isPaidTier ? handleSaveDraft : undefined}
+              onDataChange={isPaidTier ? setFormDraftData : undefined}
             />
           </div>
 

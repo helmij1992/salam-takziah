@@ -118,6 +118,8 @@ export const useSubscription = () => {
 
   return {
     plan,
+    identity,
+    userEmail: session?.user?.email ?? null,
     isFreeTier: plan === "free",
     isPremiumTier,
     isDiamondTier,

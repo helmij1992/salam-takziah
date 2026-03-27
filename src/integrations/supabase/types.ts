@@ -14,7 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      workspace_state: {
+        Row: {
+          api_credentials: Json
+          analytics: Json
+          batches: Json
+          created_at: string
+          drafts: Json
+          import_jobs: Json
+          recycle_bin: Json
+          team: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          api_credentials?: Json
+          analytics?: Json
+          batches?: Json
+          created_at?: string
+          drafts?: Json
+          import_jobs?: Json
+          recycle_bin?: Json
+          team?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          api_credentials?: Json
+          analytics?: Json
+          batches?: Json
+          created_at?: string
+          drafts?: Json
+          import_jobs?: Json
+          recycle_bin?: Json
+          team?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
