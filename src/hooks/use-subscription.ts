@@ -4,9 +4,11 @@ import { Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
 export type SubscriptionPlan = "free" | "premium" | "diamond";
+export type AppRole = "user" | "superadmin";
 
 const FREE_POSTER_LIMIT_PER_MONTH = 5;
 const FREE_POSTER_USAGE_KEY = "salam-takziah-free-usage";
+const SUPERADMIN_EMAILS = ["ai.helmij@gmail.com"];
 
 type UsageStore = Record<string, number>;
 type QuotaStatus = {
@@ -58,6 +60,28 @@ const normalizePlan = (value: unknown): SubscriptionPlan => {
   return "free";
 };
 
+const normalizeRole = (value: unknown): AppRole => {
+  const role = typeof value === "string" ? value.trim().toLowerCase() : "";
+
+  if (role === "superadmin") {
+    return "superadmin";
+  }
+
+  return "user";
+};
+
+const normalizeBooleanFlag = (value: unknown) => {
+  if (typeof value === "boolean") {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    return value.trim().toLowerCase() === "true";
+  }
+
+  return false;
+};
+
 const resolvePlanFromSession = (session: Session | null): SubscriptionPlan => {
   if (!session?.user) {
     return "free";
@@ -69,6 +93,37 @@ const resolvePlanFromSession = (session: Session | null): SubscriptionPlan => {
       session.user.app_metadata?.plan ??
       session.user.app_metadata?.tier,
   );
+};
+
+const resolveRoleFromSession = (session: Session | null): AppRole => {
+  if (!session?.user) {
+    return "user";
+  }
+
+  const metadataRole = normalizeRole(
+    session.user.user_metadata?.role ??
+      session.user.app_metadata?.role,
+  );
+
+  if (metadataRole === "superadmin") {
+    return "superadmin";
+  }
+
+  const isSuperadminFlag = normalizeBooleanFlag(
+    session.user.user_metadata?.is_superadmin ??
+      session.user.app_metadata?.is_superadmin,
+  );
+
+  if (isSuperadminFlag) {
+    return "superadmin";
+  }
+
+  const email = session.user.email?.trim().toLowerCase();
+  if (email && SUPERADMIN_EMAILS.includes(email)) {
+    return "superadmin";
+  }
+
+  return "user";
 };
 
 const getIdentityFromSession = (session: Session | null) => {
@@ -102,7 +157,12 @@ export const useSubscription = () => {
   const [isQuotaLoading, setIsQuotaLoading] = useState(false);
   const [quotaSource, setQuotaSource] = useState<"local" | "remote">("local");
 
-  const plan = useMemo(() => resolvePlanFromSession(session), [session]);
+  const subscriptionPlan = useMemo(() => resolvePlanFromSession(session), [session]);
+  const appRole = useMemo(() => resolveRoleFromSession(session), [session]);
+  const plan = useMemo<SubscriptionPlan>(
+    () => (appRole === "superadmin" ? "diamond" : subscriptionPlan),
+    [appRole, subscriptionPlan],
+  );
   const identity = useMemo(() => getIdentityFromSession(session), [session]);
 
   const refreshQuota = useCallback(async () => {
@@ -206,11 +266,15 @@ export const useSubscription = () => {
   const isPremiumTier = plan === "premium";
   const isDiamondTier = plan === "diamond";
   const isPaidTier = isPremiumTier || isDiamondTier;
+  const isSuperadmin = appRole === "superadmin";
 
   return {
     plan,
+    subscriptionPlan,
+    appRole,
     identity,
     userEmail: session?.user?.email ?? null,
+    isSuperadmin,
     isFreeTier: plan === "free",
     isPremiumTier,
     isDiamondTier,

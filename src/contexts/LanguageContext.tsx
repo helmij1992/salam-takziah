@@ -172,6 +172,7 @@ interface Translations {
   dashboardPlanFree: string;
   dashboardPlanPremium: string;
   dashboardPlanDiamond: string;
+  dashboardPlanSuperadmin: string;
   dashboardFeaturesLabel: string;
   dashboardEnterprisePendingLabel: string;
   authBrandTagline: string;
@@ -472,6 +473,7 @@ const translations: Record<Language, Translations> = {
     dashboardPlanFree: "Free",
     dashboardPlanPremium: "Premium",
     dashboardPlanDiamond: "Diamond",
+    dashboardPlanSuperadmin: "Superadmin",
     dashboardFeaturesLabel: "Ciri Aktif",
     dashboardEnterprisePendingLabel: "Ciri Enterprise Lanjutan",
     authBrandTagline: "Ruang kerja memorial",
@@ -770,6 +772,7 @@ const translations: Record<Language, Translations> = {
     dashboardPlanFree: "Free",
     dashboardPlanPremium: "Premium",
     dashboardPlanDiamond: "Diamond",
+    dashboardPlanSuperadmin: "Superadmin",
     dashboardFeaturesLabel: "Active Features",
     dashboardEnterprisePendingLabel: "Advanced Enterprise Features",
     authBrandTagline: "Memorial workspace",

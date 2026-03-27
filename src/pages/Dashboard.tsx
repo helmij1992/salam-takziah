@@ -108,6 +108,8 @@ const Dashboard = () => {
   const isMs = language === "ms";
   const {
     plan,
+    subscriptionPlan,
+    isSuperadmin,
     isPaidTier,
     isDiamondTier,
     userEmail,
@@ -192,11 +194,17 @@ const Dashboard = () => {
   const [batchItemFormat, setBatchItemFormat] = useState<PosterData["format"]>("classic");
   const [selectedRestoreIds, setSelectedRestoreIds] = useState<string[]>([]);
 
-  const planLabel = plan === "diamond" ? t.dashboardPlanDiamond : plan === "premium" ? t.dashboardPlanPremium : t.dashboardPlanFree;
-  const currentPlanDetails = t.homePlans.find((homePlan) =>
-    plan === "diamond"
-      ? homePlan.id === "enterprise"
+  const planLabel = isSuperadmin
+    ? t.dashboardPlanSuperadmin
+    : plan === "diamond"
+      ? t.dashboardPlanDiamond
       : plan === "premium"
+        ? t.dashboardPlanPremium
+        : t.dashboardPlanFree;
+  const currentPlanDetails = t.homePlans.find((homePlan) =>
+    subscriptionPlan === "diamond"
+      ? homePlan.id === "enterprise"
+      : subscriptionPlan === "premium"
         ? homePlan.id === "pro"
         : homePlan.id === "basic",
   );
