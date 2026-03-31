@@ -19,6 +19,7 @@ import { SubscriptionPlan } from "@/hooks/use-subscription";
 const STORAGE_PREFIX = "salam-takziah-workspace";
 const REMOTE_SYNC_DEBOUNCE_MS = 400;
 export const AUTH_PENDING_IDENTITY = "__auth_pending__";
+const DISABLE_REMOTE_WORKSPACE_SYNC = true;
 
 const createId = () => {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -227,6 +228,10 @@ const writeWorkspaceStateToStorage = (storageKey: string, nextState: WorkspaceSt
 };
 
 const fetchRemoteWorkspaceState = async (identity: string, userEmail: string | null) => {
+  if (DISABLE_REMOTE_WORKSPACE_SYNC) {
+    return null;
+  }
+
   const { data, error } = await supabase
     .from("workspace_state")
     .select("drafts, batches, analytics, team, api_credentials, import_jobs, recycle_bin")
@@ -241,6 +246,10 @@ const fetchRemoteWorkspaceState = async (identity: string, userEmail: string | n
 };
 
 const persistRemoteWorkspaceState = async (identity: string, nextState: WorkspaceState) => {
+  if (DISABLE_REMOTE_WORKSPACE_SYNC) {
+    return;
+  }
+
   const { error } = await supabase.from("workspace_state").upsert(
     {
       user_id: identity,
@@ -310,6 +319,16 @@ export const useWorkspace = ({ identity, userEmail, plan }: WorkspaceSessionCont
 
     const hydrateRemoteState = async () => {
       if (isWorkspaceIdentityDeferred(identity)) {
+        setIsRemoteReady(false);
+        remoteErrorRef.current = null;
+        isSyncingRef.current = false;
+        lastSyncedAtRef.current = null;
+        lastRemoteSnapshotRef.current = null;
+        lastRemoteUpdatedAtRef.current = null;
+        return;
+      }
+
+      if (DISABLE_REMOTE_WORKSPACE_SYNC) {
         setIsRemoteReady(false);
         remoteErrorRef.current = null;
         isSyncingRef.current = false;
@@ -401,7 +420,7 @@ export const useWorkspace = ({ identity, userEmail, plan }: WorkspaceSessionCont
   }, [identity, state, storageKey]);
 
   useEffect(() => {
-    if (isWorkspaceIdentityDeferred(identity) || identity === "guest" || !isRemoteReady) {
+    if (DISABLE_REMOTE_WORKSPACE_SYNC || isWorkspaceIdentityDeferred(identity) || identity === "guest" || !isRemoteReady) {
       return;
     }
 
