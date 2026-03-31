@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Session } from "@supabase/supabase-js";
 
+import { useAuthSession } from "@/contexts/AuthSessionContext";
 import { supabase } from "@/integrations/supabase/client";
 
 export type SubscriptionPlan = "free" | "premium" | "diamond";
@@ -89,31 +89,6 @@ const normalizeBooleanFlag = (value: unknown) => {
   return false;
 };
 
-const getAuthUserState = (session: Session | null): AuthUserState => {
-  if (!session?.user) {
-    return null;
-  }
-
-  return {
-    id: session.user.id,
-    email: session.user.email ?? null,
-    userMetadata: (session.user.user_metadata ?? {}) as Record<string, unknown>,
-    appMetadata: (session.user.app_metadata ?? {}) as Record<string, unknown>,
-  };
-};
-
-const isSameAuthUserState = (left: AuthUserState, right: AuthUserState) => {
-  if (left === right) {
-    return true;
-  }
-
-  if (!left || !right) {
-    return false;
-  }
-
-  return JSON.stringify(left) === JSON.stringify(right);
-};
-
 const resolvePlanFromAuthUser = (authUser: AuthUserState): SubscriptionPlan => {
   if (!authUser) {
     return "free";
@@ -158,14 +133,6 @@ const resolveRoleFromAuthUser = (authUser: AuthUserState): AppRole => {
   return "user";
 };
 
-const getIdentityFromAuthUser = (authUser: AuthUserState) => {
-  if (authUser?.id) {
-    return authUser.id;
-  }
-
-  return "guest";
-};
-
 const getLocalQuotaStatus = (identity: string): QuotaStatus => {
   const store = readUsageStore();
   const downloadCount = store[getUsageKey(identity)] ?? 0;
@@ -179,8 +146,7 @@ const getLocalQuotaStatus = (identity: string): QuotaStatus => {
 };
 
 export const useSubscription = () => {
-  const [authUser, setAuthUser] = useState<AuthUserState>(null);
-  const [isAuthResolved, setIsAuthResolved] = useState(false);
+  const { authUser, identity, isAuthResolved } = useAuthSession();
   const [quotaStatus, setQuotaStatus] = useState<QuotaStatus>({
     downloadCount: 0,
     remainingCount: FREE_POSTER_LIMIT_PER_MONTH,
@@ -195,7 +161,6 @@ export const useSubscription = () => {
     () => (appRole === "superadmin" ? "diamond" : subscriptionPlan),
     [appRole, subscriptionPlan],
   );
-  const identity = useMemo(() => getIdentityFromAuthUser(authUser), [authUser]);
 
   const refreshQuota = useCallback(async () => {
     if (!isAuthResolved) {
@@ -235,30 +200,6 @@ export const useSubscription = () => {
     });
     setQuotaSource("remote");
   }, [authUser, identity, isAuthResolved, plan]);
-
-  useEffect(() => {
-    const syncSession = async () => {
-      try {
-        const { data } = await supabase.auth.getSession();
-        const nextAuthUser = getAuthUserState(data.session);
-        setAuthUser((currentAuthUser) => (isSameAuthUserState(currentAuthUser, nextAuthUser) ? currentAuthUser : nextAuthUser));
-      } catch {
-        setAuthUser(null);
-      } finally {
-        setIsAuthResolved(true);
-      }
-    };
-
-    void syncSession();
-
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      const nextAuthUser = getAuthUserState(nextSession);
-      setAuthUser((currentAuthUser) => (isSameAuthUserState(currentAuthUser, nextAuthUser) ? currentAuthUser : nextAuthUser));
-      setIsAuthResolved(true);
-    });
-
-    return () => authListener.subscription.unsubscribe();
-  }, []);
 
   useEffect(() => {
     if (!isAuthResolved) {
