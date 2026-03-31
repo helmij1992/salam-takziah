@@ -61,6 +61,7 @@ interface Translations {
   premiumTemplateOfficial: string;
   premiumTemplateOfficialLight: string;
   premiumTemplateOfficialNight: string;
+  premiumTemplateOfficialEmerald: string;
   premiumTemplateHint: string;
   companyLogoLabel: string;
   companyLogoHint: string;
@@ -273,7 +274,8 @@ const translations: Record<Language, Translations> = {
     premiumTemplateOfficial: "Premium Rasmi Dengan Logo",
     premiumTemplateOfficialLight: "Rasmi Cerah",
     premiumTemplateOfficialNight: "Rasmi Gelap",
-    premiumTemplateHint: "Pilih gaya premium standard atau dua templat rasmi dengan logo organisasi di bahagian atas.",
+    premiumTemplateOfficialEmerald: "Rasmi Zamrud",
+    premiumTemplateHint: "Pilih gaya premium standard atau salah satu templat rasmi dengan logo organisasi di bahagian atas.",
     companyLogoLabel: "🏢 Logo Organisasi",
     companyLogoHint: "Logo ini akan dipaparkan di bahagian atas untuk templat rasmi Premium.",
     formatLabel: "📱 Format Poster",
@@ -556,7 +558,8 @@ const translations: Record<Language, Translations> = {
     premiumTemplateOfficial: "Official Premium With Logo",
     premiumTemplateOfficialLight: "Official Light",
     premiumTemplateOfficialNight: "Official Night",
-    premiumTemplateHint: "Choose the standard premium style or one of two official templates with your organization logo at the top.",
+    premiumTemplateOfficialEmerald: "Official Emerald",
+    premiumTemplateHint: "Choose the standard premium style or one of the official templates with your organization logo at the top.",
     companyLogoLabel: "🏢 Organization Logo",
     companyLogoHint: "This logo appears at the top when using the Premium official template.",
     formatLabel: "📱 Poster Format",

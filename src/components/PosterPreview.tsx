@@ -206,6 +206,7 @@ const PosterPreview = ({ data, isFreeTier, isPaidTier, isDiamondTier, onDownload
   const premiumTemplate = data.premiumTemplate === "official" ? "official-light" : data.premiumTemplate;
   const isOfficialPremiumTemplate = isPaidTier && data.theme === "premium" && premiumTemplate === "official-light";
   const isOfficialNightPremiumTemplate = isPaidTier && data.theme === "premium" && premiumTemplate === "official-night";
+  const isOfficialEmeraldPremiumTemplate = isPaidTier && data.theme === "premium" && premiumTemplate === "official-emerald";
   const isInstagramStory = currentFormat === "instagram-story";
   const showBrandWatermark = isFreeTier || (isDiamondTier && !data.whiteLabel);
 
@@ -379,6 +380,110 @@ const PosterPreview = ({ data, isFreeTier, isPaidTier, isDiamondTier, onDownload
                 <div className="mt-6 w-full max-w-2xl text-center text-white">
                   <p className="text-xs uppercase tracking-[0.24em] text-white/60 md:text-sm">{fromLabel}</p>
                   <p className="mt-3 text-sm font-semibold uppercase leading-relaxed md:text-lg">{data.from}</p>
+                </div>
+              )}
+            </div>
+
+            {showBrandWatermark && (
+              <div className="pointer-events-none absolute bottom-4 left-4">
+                <div className="rounded-md border border-white/10 bg-black/25 px-3 py-1 text-[10px] font-medium tracking-[0.18em] text-white/70 shadow-sm backdrop-blur-sm">
+                  ©SalamTakziah
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            {isFreeTier && <p className="text-xs text-muted-foreground">{t.freeTierDownloadNotice}</p>}
+            {isPaidTier && <p className="text-xs text-muted-foreground">{t.premiumTierExportNotice}</p>}
+            <div className={`grid gap-2 ${isPaidTier ? "sm:grid-cols-2" : "grid-cols-1"}`}>
+              <Button onClick={() => handleDownload("jpeg")} disabled={isDownloading} className="w-full" size="lg">
+                <Download className="mr-2 h-4 w-4" />
+                {isDownloading ? t.downloadingButton : t.downloadButton}
+              </Button>
+              {isPaidTier && (
+                <Button onClick={() => handleDownload("png")} disabled={isDownloading} className="w-full" size="lg" variant="secondary">
+                  <Download className="mr-2 h-4 w-4" />
+                  {isDownloading ? t.downloadingButton : t.downloadPngButton}
+                </Button>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (isOfficialEmeraldPremiumTemplate) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>{t.previewTitle}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div
+            ref={posterRef}
+            className="relative overflow-hidden rounded-lg shadow-lg"
+            style={{
+              aspectRatio: config.aspectRatio,
+              minHeight: config.minHeight,
+              maxHeight: config.maxHeight,
+              background:
+                "radial-gradient(circle at top, rgba(181, 223, 204, 0.95), rgba(18, 67, 57, 0.98) 42%, rgba(7, 26, 22, 1) 100%)",
+            }}
+          >
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.18),transparent_24%),radial-gradient(circle_at_bottom_right,rgba(188,242,221,0.16),transparent_24%)]" />
+
+            <div className="relative flex h-full flex-col items-center px-6 py-8 text-center text-white md:px-10">
+              {data.companyLogo && (
+                <div className="mb-4 flex justify-center">
+                  <img src={data.companyLogo} alt="Company logo" className="max-h-16 w-auto object-contain md:max-h-20" />
+                </div>
+              )}
+
+              <p
+                className="mb-2 text-2xl leading-relaxed text-[#f8f3d8] md:text-4xl"
+                style={{ fontFamily: "Scheherazade New, serif", fontWeight: 700, direction: "rtl" }}
+              >
+                إِنَّا لِلّٰهِ وَإِنَّا إِلَيْهِ رَاجِعُونَ
+              </p>
+
+              <div className="mt-5 flex flex-1 flex-col items-center justify-center">
+                {grayscalePhoto && (
+                  <div className="mb-6">
+                    <img
+                      src={grayscalePhoto}
+                      alt={data.fullName}
+                      className="h-40 w-40 rounded-[2rem] border-4 border-white/60 object-cover shadow-2xl md:h-56 md:w-56"
+                    />
+                  </div>
+                )}
+
+                <p className="text-sm uppercase tracking-[0.28em] text-emerald-100/80 md:text-base">
+                  Salam Takziah
+                </p>
+                <h2 className="mt-3 text-2xl font-bold uppercase tracking-tight text-white md:text-4xl">
+                  {data.fullName}
+                </h2>
+                {data.organization && (
+                  <p className="mt-2 text-base font-medium text-emerald-50/80 md:text-xl">
+                    {data.organization}
+                  </p>
+                )}
+                {(data.birthDate || data.deathDate) && (
+                  <p className="mt-3 text-lg font-semibold text-emerald-100/80 md:text-2xl">
+                    {[data.birthDate ? new Date(data.birthDate).getFullYear() : null, data.deathDate ? new Date(data.deathDate).getFullYear() : null].filter(Boolean).join(" - ")}
+                  </p>
+                )}
+                <p className="mt-6 max-w-2xl text-sm leading-relaxed text-white/90 md:text-lg">
+                  {data.message || defaultPrayerLineTwo}
+                </p>
+              </div>
+
+              {data.from && (
+                <div className="mt-6 w-full max-w-2xl rounded-[1.75rem] border border-white/20 bg-white/10 px-5 py-4 text-center backdrop-blur-sm">
+                  <p className="text-xs uppercase tracking-[0.24em] text-emerald-100/70 md:text-sm">{fromLabel}</p>
+                  <p className="mt-3 text-sm font-semibold uppercase leading-relaxed text-white md:text-lg">{data.from}</p>
                 </div>
               )}
             </div>

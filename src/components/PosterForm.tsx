@@ -370,6 +370,12 @@ const PosterForm = ({
                       {t.premiumTemplateOfficialNight}
                     </Label>
                   </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="official-emerald" id="premium-template-official-emerald" />
+                    <Label htmlFor="premium-template-official-emerald" className="font-normal cursor-pointer">
+                      {t.premiumTemplateOfficialEmerald}
+                    </Label>
+                  </div>
                 </RadioGroup>
                   <p className="text-xs text-muted-foreground">{t.premiumTemplateHint}</p>
                 </div>
