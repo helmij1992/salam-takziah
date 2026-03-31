@@ -351,7 +351,8 @@ const Dashboard = () => {
               <div className="grid gap-0 lg:grid-cols-[1.25fr_0.75fr]">
                 <div className="space-y-5 p-6 md:p-8">
                   <div className="flex flex-wrap items-center gap-3">
-                    <Badge variant="secondary">{planLabel}</Badge>
+                    <Badge variant="secondary">{isMs ? "Basic Memorial" : "Basic Memorial"}</Badge>
+                    <Badge variant="outline">{isMs ? "Free" : "Free"}</Badge>
                     <Badge variant="outline">
                       <Download className="mr-2 h-3.5 w-3.5" />
                       {isMs ? `${remainingFreePosters} baki bulan ini` : `${remainingFreePosters} left this month`}
@@ -359,10 +360,11 @@ const Dashboard = () => {
                   </div>
                   <div className="space-y-3">
                     <h1 className="text-3xl font-bold tracking-tight md:text-4xl">{ui.title}</h1>
+                    <p className="text-sm font-medium text-primary">{isMs ? "RM 0 / selamanya" : "RM 0 / forever"}</p>
                     <p className="max-w-2xl text-muted-foreground">
                       {isMs
-                        ? "Semua yang penting untuk pengguna free tier, disusun supaya anda boleh cipta poster, simpan draf, dan sambung kerja dengan cepat."
-                        : "Everything a free-tier user needs, arranged so you can create posters, save drafts, and continue your work quickly."}
+                        ? "Sesuai untuk pengguna kasual dan pencipta kali pertama. Semua yang penting disusun supaya anda boleh cipta poster, simpan draf, dan sambung kerja dengan cepat."
+                        : "Ideal for casual users and first-time creators. Everything important is arranged so you can create posters, save drafts, and continue your work quickly."}
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-3">
@@ -445,6 +447,66 @@ const Dashboard = () => {
                 {ui.signOut}
               </Button>
             </div>
+          </section>
+
+          <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+            <Card className="shadow-sm">
+              <CardHeader>
+                <CardTitle>{isMs ? "Apa yang termasuk dalam Free" : "What is included in Free"}</CardTitle>
+                <CardDescription>
+                  {isMs
+                    ? "Pakej ini mengikuti akses asas untuk pencipta memorial yang mahu bermula dengan mudah."
+                    : "This plan follows the core access for memorial creators who want a simple starting point."}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="grid gap-3 sm:grid-cols-2">
+                {[
+                  isMs ? "5 poster sebulan" : "5 posters per month",
+                  isMs ? "Classic (4:3) & Instagram Story (9:16)" : "Classic (4:3) & Instagram Story (9:16)",
+                  isMs ? "Tema asas: Classic & Retro" : "Basic themes: Classic & Retro",
+                  isMs ? "Resolusi standard 1080p" : "Standard resolution 1080p",
+                  isMs ? "Muat naik foto & grayscale" : "Photo upload & grayscale",
+                  isMs ? "Medan borang asas" : "Basic form fields",
+                  isMs ? "Doa Islamik standard" : "Standard Islamic prayer",
+                  isMs ? "Muat turun dengan watermark" : "Watermarked downloads",
+                ].map((feature) => (
+                  <div key={feature} className="rounded-xl border bg-muted/20 px-4 py-3 text-sm">
+                    {feature}
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            <Card className="shadow-sm">
+              <CardHeader>
+                <CardTitle>{isMs ? "Ringkasan had pelan" : "Plan limit summary"}</CardTitle>
+                <CardDescription>
+                  {isMs
+                    ? "Perkara utama yang perlu diketahui sebelum anda mula mencipta."
+                    : "The key things to know before you start creating."}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4 text-sm">
+                <div className="rounded-2xl border bg-background p-4">
+                  <p className="font-medium">{isMs ? "Sokongan" : "Support"}</p>
+                  <p className="mt-1 text-muted-foreground">{isMs ? "Sokongan asas melalui FAQ" : "Basic support through FAQ"}</p>
+                </div>
+                <div className="rounded-2xl border bg-background p-4">
+                  <p className="font-medium">{isMs ? "Format tersedia" : "Available formats"}</p>
+                  <p className="mt-1 text-muted-foreground">
+                    {isMs ? "Classic (4:3) dan Instagram Story (9:16)" : "Classic (4:3) and Instagram Story (9:16)"}
+                  </p>
+                </div>
+                <div className="rounded-2xl border bg-background p-4">
+                  <p className="font-medium">{isMs ? "Catatan penting" : "Important note"}</p>
+                  <p className="mt-1 text-muted-foreground">
+                    {isMs
+                      ? "Pelan Free direka untuk penggunaan ringan. Untuk kawalan lebih luas, pengguna boleh naik taraf kemudian."
+                      : "The Free plan is designed for light usage. Users can upgrade later for broader control."}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
           </section>
 
           {(remoteError || !isRemoteReady || isSyncing) && (
