@@ -10,9 +10,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useSubscription } from "@/hooks/use-subscription";
 import { AUTH_PENDING_IDENTITY, useWorkspaceActions } from "@/hooks/use-workspace";
 
-const ISOLATE_CREATE_PAGE_RENDER = false;
-const ISOLATE_CREATE_PREVIEW = true;
-
 const Index = () => {
   const location = useLocation();
   const [posterData, setPosterData] = useState<PosterData | null>(null);
@@ -172,32 +169,6 @@ const Index = () => {
     return <main className="min-h-screen bg-background flex items-center justify-center">Loading...</main>;
   }
 
-  if (ISOLATE_CREATE_PAGE_RENDER) {
-    return (
-      <main className="min-h-screen bg-background">
-        <div className="container mx-auto flex min-h-screen max-w-4xl items-center justify-center px-4 py-12">
-          <Card className="w-full">
-            <CardContent className="space-y-4 py-10 text-center">
-              <h1 className="text-3xl font-semibold">{t.mainTitle}</h1>
-              <p className="text-muted-foreground">{t.mainSubtitle}</p>
-              <p className="text-sm text-muted-foreground">
-                Create page isolation mode is active.
-              </p>
-              <div className="flex justify-center">
-                <Link
-                  to="/dashboard"
-                  className="inline-flex items-center rounded-md border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
-                >
-                  {t.backToDashboard}
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </main>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -251,21 +222,13 @@ const Index = () => {
 
           {/* Preview Section */}
           <div className="lg:sticky lg:top-8 h-fit">
-            {ISOLATE_CREATE_PREVIEW ? (
-              <Card>
-                <CardContent className="py-10 text-center text-sm text-muted-foreground">
-                  Poster preview isolation is active.
-                </CardContent>
-              </Card>
-            ) : (
-              <PosterPreview
-                data={posterData}
-                isFreeTier={isFreeTier}
-                isPaidTier={isPaidTier}
-                isDiamondTier={isDiamondTier}
-                onDownload={handlePosterDownload}
-              />
-            )}
+            <PosterPreview
+              data={posterData}
+              isFreeTier={isFreeTier}
+              isPaidTier={isPaidTier}
+              isDiamondTier={isDiamondTier}
+              onDownload={handlePosterDownload}
+            />
           </div>
         </div>
 

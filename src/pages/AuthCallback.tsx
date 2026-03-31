@@ -4,8 +4,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { sanitizeRedirectPath } from "@/lib/auth";
 
-const DISABLE_AUTH_RUNTIME_LISTENERS = true;
-
 const AuthCallback = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -64,17 +62,6 @@ const AuthCallback = () => {
     };
 
     void resolveSession();
-
-    if (DISABLE_AUTH_RUNTIME_LISTENERS) {
-      const timeoutId = window.setTimeout(() => {
-        finish("/login");
-      }, 6000);
-
-      return () => {
-        isActive = false;
-        window.clearTimeout(timeoutId);
-      };
-    }
 
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {

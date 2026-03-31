@@ -28,7 +28,6 @@ import { WorkspaceRole } from "@/types/workspace";
 
 type PendingDeleteKind = "draft" | "batch" | "member" | "api";
 const ENTERPRISE_REQUEST_STORAGE_KEY = "salam-takziah-enterprise-request";
-const ISOLATE_DASHBOARD_RENDER = true;
 
 interface AdminUserSummary {
   user_id: string;
@@ -1034,30 +1033,6 @@ const Dashboard = () => {
 
   if (!isAuthResolved) {
     return <main className="min-h-screen bg-background flex items-center justify-center">{ui.loading}</main>;
-  }
-
-  if (ISOLATE_DASHBOARD_RENDER) {
-    return (
-      <Card className="mx-auto mt-8 w-full max-w-4xl">
-        <CardContent className="space-y-4 py-10 text-center">
-          <h1 className="text-3xl font-semibold">{ui.workspaceDashboard}</h1>
-          <p className="text-muted-foreground">
-            {userEmail ? `${ui.signedInAs} ${userEmail}` : ui.noSession}
-          </p>
-          <p className="text-sm text-muted-foreground">
-            Dashboard isolation mode is active.
-          </p>
-          <div className="flex flex-wrap justify-center gap-2">
-            <Button variant="secondary" onClick={() => navigate("/create")}>
-              {ui.openBuilder}
-            </Button>
-            <Button variant="destructive" onClick={signOut}>
-              {ui.signOut}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    );
   }
 
   return (
