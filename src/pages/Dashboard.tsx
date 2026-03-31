@@ -151,9 +151,12 @@ const Dashboard = () => {
     plan,
     subscriptionPlan,
     isAuthResolved,
+    isFreeTier,
     isSuperadmin,
     isDiamondTier,
     isPaidTier,
+    monthlyPosterCount,
+    remainingFreePosters,
     userEmail,
   } = useSubscription();
   const workspaceIdentity = isAuthResolved ? identity : AUTH_PENDING_IDENTITY;
@@ -337,6 +340,206 @@ const Dashboard = () => {
 
   if (!isAuthResolved) {
     return <main className="flex min-h-screen items-center justify-center bg-background">Loading...</main>;
+  }
+
+  if (isFreeTier) {
+    return (
+      <main className="min-h-screen bg-background p-4 md:p-6">
+        <div className="mx-auto max-w-5xl space-y-6">
+          <Card>
+            <CardContent className="flex flex-col gap-4 p-6 lg:flex-row lg:items-center lg:justify-between">
+              <div className="space-y-2">
+                <div className="flex flex-wrap items-center gap-3">
+                  <h1 className="text-3xl font-bold tracking-tight">{ui.title}</h1>
+                  <Badge variant="secondary">{planLabel}</Badge>
+                </div>
+                <p className="text-muted-foreground">
+                  {isMs
+                    ? "Akses pantas untuk cipta poster, semak draf, dan pantau baki muat turun bulanan."
+                    : "A simple workspace to create posters, review drafts, and track monthly downloads."}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {isMs ? "Log masuk sebagai" : "Signed in as"} {userEmail ?? "-"}
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-3">
+                <LanguageSwitcher />
+                <Button asChild>
+                  <Link to="/create">
+                    <FolderOpen className="mr-2 h-4 w-4" />
+                    {ui.openBuilder}
+                  </Link>
+                </Button>
+                <Button variant="destructive" onClick={() => void handleLogout()}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  {ui.signOut}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {(remoteError || !isRemoteReady || isSyncing) && (
+            <Card>
+              <CardContent className="flex flex-col gap-3 p-4 text-sm md:flex-row md:items-center md:justify-between">
+                <div>
+                  <p className="font-medium">
+                    {remoteError ? ui.remoteError : isSyncing ? ui.syncPending : ui.syncReady}
+                  </p>
+                  {remoteError && <p className="text-muted-foreground">{remoteError}</p>}
+                </div>
+                {remoteError && (
+                  <Button variant="outline" onClick={retryRemoteSync}>
+                    <RefreshCw className="mr-2 h-4 w-4" />
+                    {ui.retrySync}
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          <section className="grid gap-4 md:grid-cols-3">
+            <Card>
+              <CardContent className="p-6">
+                <p className="text-sm text-muted-foreground">{ui.draftCount}</p>
+                <p className="mt-2 text-3xl font-semibold">{summary.draftCount}</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-6">
+                <p className="text-sm text-muted-foreground">
+                  {isMs ? "Muat turun bulan ini" : "Downloads this month"}
+                </p>
+                <p className="mt-2 text-3xl font-semibold">{monthlyPosterCount}</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-6">
+                <p className="text-sm text-muted-foreground">
+                  {isMs ? "Baki muat turun" : "Remaining downloads"}
+                </p>
+                <p className="mt-2 text-3xl font-semibold">{remainingFreePosters}</p>
+              </CardContent>
+            </Card>
+          </section>
+
+          <section className="grid gap-6 xl:grid-cols-[1.3fr_0.7fr]">
+            <Card>
+              <CardHeader>
+                <CardTitle>{ui.drafts}</CardTitle>
+                <CardDescription>
+                  {isMs
+                    ? "Buka semula, namakan semula, padam, atau pilih draf untuk batch ringkas."
+                    : "Reopen, rename, delete, or pick drafts for a simple batch."}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Input
+                  placeholder={ui.searchDrafts}
+                  value={draftSearch}
+                  onChange={(event) => setDraftSearch(event.target.value)}
+                />
+                <div className="space-y-3">
+                  {filteredDrafts.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">{ui.noDrafts}</p>
+                  ) : (
+                    filteredDrafts.map((draft) => (
+                      <div
+                        key={draft.id}
+                        className="flex flex-col gap-3 rounded-xl border border-border p-4 md:flex-row md:items-center md:justify-between"
+                      >
+                        <div className="flex items-start gap-3">
+                          <input
+                            type="checkbox"
+                            className="mt-1"
+                            checked={selectedDraftIds.includes(draft.id)}
+                            onChange={() => handleToggleDraft(draft.id)}
+                          />
+                          <div>
+                            <p className="font-medium">{draft.title}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {draft.poster.fullName || "-"} • {draft.poster.format}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {ui.updated}: {formatDate(draft.updatedAt, locale)}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          <Button variant="outline" size="sm" onClick={() => handleOpenDraft(draft.id)}>
+                            {ui.open}
+                          </Button>
+                          <Button variant="outline" size="sm" onClick={() => handleRenameDraft(draft.id, draft.title)}>
+                            {ui.rename}
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => deleteDraft(draft.id)}>
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            {ui.delete}
+                          </Button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+                <div className="grid gap-3 md:grid-cols-[1fr_auto]">
+                  <Input
+                    placeholder={ui.batchName}
+                    value={batchName}
+                    onChange={(event) => setBatchName(event.target.value)}
+                  />
+                  <Button onClick={handleCreateBatch}>{ui.createBatch}</Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>{ui.batches}</CardTitle>
+                  <CardDescription>
+                    {isMs
+                      ? "Kumpulan poster yang anda hasilkan daripada draf."
+                      : "Poster groups you created from your drafts."}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {batches.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">{ui.noBatches}</p>
+                  ) : (
+                    batches.slice(0, 5).map((batch) => (
+                      <div key={batch.id} className="rounded-xl border border-border p-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <p className="font-medium">{batch.name}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {batch.items.length} {ui.itemCount}
+                            </p>
+                          </div>
+                          <Button variant="ghost" size="sm" onClick={() => deleteBatch(batch.id)}>
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            {ui.delete}
+                          </Button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>{isMs ? "Cara paling mudah guna" : "The easiest way to use it"}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3 text-sm text-muted-foreground">
+                  <p>{isMs ? "1. Klik Buka Pembina Poster" : "1. Click Open Poster Builder"}</p>
+                  <p>{isMs ? "2. Jana poster dan simpan sebagai draf" : "2. Generate a poster and save it as a draft"}</p>
+                  <p>{isMs ? "3. Kembali ke sini untuk buka semula draf bila perlu" : "3. Come back here to reopen your drafts anytime"}</p>
+                </CardContent>
+              </Card>
+            </div>
+          </section>
+        </div>
+      </main>
+    );
   }
 
   return (
