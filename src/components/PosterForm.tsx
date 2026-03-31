@@ -343,50 +343,47 @@ const PosterForm = ({
             />
           </div>
 
-          {/* Organization (Optional) */}
-          <div className="space-y-2">
-            <Label htmlFor="organization">{t.organizationLabel}</Label>
-            <Input
-              id="organization"
-              placeholder={t.organizationPlaceholder}
-              value={organization}
-              onChange={(e) => setOrganization(e.target.value)}
-              disabled={isFreeTier}
-            />
-            {isFreeTier && <p className="text-xs text-muted-foreground">{t.freeTierOrganizationLocked}</p>}
-            {isDiamondTier && <p className="text-xs text-muted-foreground">{t.diamondTierOrgTemplateNotice}</p>}
-          </div>
+          {!isFreeTier && (
+            <>
+              {/* Organization (Optional) */}
+              <div className="space-y-2">
+                <Label htmlFor="organization">{t.organizationLabel}</Label>
+                <Input
+                  id="organization"
+                  placeholder={t.organizationPlaceholder}
+                  value={organization}
+                  onChange={(e) => setOrganization(e.target.value)}
+                />
+                {isDiamondTier && <p className="text-xs text-muted-foreground">{t.diamondTierOrgTemplateNotice}</p>}
+              </div>
 
-          {/* Message (Optional) */}
-          <div className="space-y-2">
-            <Label htmlFor="message">{t.messageLabel}</Label>
-            <Textarea
-              id="message"
-              placeholder={t.messagePlaceholder}
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              rows={3}
-              disabled={isFreeTier}
-            />
-            <p className="text-xs text-muted-foreground">
-              {isFreeTier ? t.freeTierMessageLocked : `${message.length}/500 aksara`}
-            </p>
-          </div>
+              {/* Message (Optional) */}
+              <div className="space-y-2">
+                <Label htmlFor="message">{t.messageLabel}</Label>
+                <Textarea
+                  id="message"
+                  placeholder={t.messagePlaceholder}
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  rows={3}
+                />
+                <p className="text-xs text-muted-foreground">{`${message.length}/500 aksara`}</p>
+              </div>
 
-          {/* From */}
-          <div className="space-y-2">
-            <Label htmlFor="from">
-              {t.fromLabel}
-            </Label>
-            <Input
-              id="from"
-              placeholder={t.fromPlaceholder}
-              value={from}
-              onChange={(e) => setFrom(e.target.value)}
-              disabled={isFreeTier}
-            />
-            {isFreeTier && <p className="text-xs text-muted-foreground">{t.freeTierFromLocked}</p>}
-          </div>
+              {/* From */}
+              <div className="space-y-2">
+                <Label htmlFor="from">
+                  {t.fromLabel}
+                </Label>
+                <Input
+                  id="from"
+                  placeholder={t.fromPlaceholder}
+                  value={from}
+                  onChange={(e) => setFrom(e.target.value)}
+                />
+              </div>
+            </>
+          )}
 
           {/* Theme Selection */}
           <div className="space-y-2">
@@ -404,12 +401,14 @@ const PosterForm = ({
                   {t.themeRetro}
                 </Label>
               </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="premium" id="premium" disabled={!isPaidTier} />
-                <Label htmlFor="premium" className={`font-normal ${isPaidTier ? "cursor-pointer" : "cursor-not-allowed text-muted-foreground"}`}>
-                  {t.themePremium}
-                </Label>
-              </div>
+              {!isFreeTier && (
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="premium" id="premium" disabled={!isPaidTier} />
+                  <Label htmlFor="premium" className={`font-normal ${isPaidTier ? "cursor-pointer" : "cursor-not-allowed text-muted-foreground"}`}>
+                    {t.themePremium}
+                  </Label>
+                </div>
+              )}
             </RadioGroup>
             {isPaidTier && <p className="text-xs text-muted-foreground">{t.premiumTierThemeNotice}</p>}
           </div>
@@ -440,30 +439,34 @@ const PosterForm = ({
                   {t.formatClassic}
                 </Label>
               </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="instagram-square" id="format-ig-square" disabled={isFreeTier} />
-                <Label htmlFor="format-ig-square" className={`font-normal text-sm ${isFreeTier ? "cursor-not-allowed text-muted-foreground" : "cursor-pointer"}`}>
-                  {t.formatInstagramSquare}
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="instagram-landscape" id="format-ig-landscape" disabled={isFreeTier} />
-                <Label htmlFor="format-ig-landscape" className={`font-normal text-sm ${isFreeTier ? "cursor-not-allowed text-muted-foreground" : "cursor-pointer"}`}>
-                  {t.formatInstagramLandscape}
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="instagram-portrait" id="format-ig-portrait" disabled={isFreeTier} />
-                <Label htmlFor="format-ig-portrait" className={`font-normal text-sm ${isFreeTier ? "cursor-not-allowed text-muted-foreground" : "cursor-pointer"}`}>
-                  {t.formatInstagramPortrait}
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="facebook" id="format-facebook" disabled={isFreeTier} />
-                <Label htmlFor="format-facebook" className={`font-normal text-sm ${isFreeTier ? "cursor-not-allowed text-muted-foreground" : "cursor-pointer"}`}>
-                  {t.formatFacebook}
-                </Label>
-              </div>
+              {!isFreeTier && (
+                <>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="instagram-square" id="format-ig-square" />
+                    <Label htmlFor="format-ig-square" className="font-normal text-sm cursor-pointer">
+                      {t.formatInstagramSquare}
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="instagram-landscape" id="format-ig-landscape" />
+                    <Label htmlFor="format-ig-landscape" className="font-normal text-sm cursor-pointer">
+                      {t.formatInstagramLandscape}
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="instagram-portrait" id="format-ig-portrait" />
+                    <Label htmlFor="format-ig-portrait" className="font-normal text-sm cursor-pointer">
+                      {t.formatInstagramPortrait}
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="facebook" id="format-facebook" />
+                    <Label htmlFor="format-facebook" className="font-normal text-sm cursor-pointer">
+                      {t.formatFacebook}
+                    </Label>
+                  </div>
+                </>
+              )}
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="instagram-story" id="format-ig-story" />
                 <Label htmlFor="format-ig-story" className="font-normal cursor-pointer text-sm">
@@ -472,10 +475,7 @@ const PosterForm = ({
               </div>
             </RadioGroup>
             {isFreeTier && (
-              <>
-                <p className="text-xs text-muted-foreground">{t.freeTierClassicOnly}</p>
-                <p className="text-xs text-muted-foreground">{t.freeTierBasicFieldsOnly}</p>
-              </>
+              <p className="text-xs text-muted-foreground">{t.freeTierClassicOnly}</p>
             )}
           </div>
 
