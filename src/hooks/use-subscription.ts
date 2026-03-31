@@ -61,7 +61,7 @@ const normalizePlan = (value: unknown): SubscriptionPlan => {
   }
 
   if (plan === "diamond" || plan === "enterprise") {
-    return "diamond";
+    return "premium";
   }
 
   return "free";
@@ -158,7 +158,7 @@ export const useSubscription = () => {
   const subscriptionPlan = useMemo(() => resolvePlanFromAuthUser(authUser), [authUser]);
   const appRole = useMemo(() => resolveRoleFromAuthUser(authUser), [authUser]);
   const plan = useMemo<SubscriptionPlan>(
-    () => (appRole === "superadmin" ? "diamond" : subscriptionPlan),
+    () => (appRole === "superadmin" ? "premium" : subscriptionPlan),
     [appRole, subscriptionPlan],
   );
 

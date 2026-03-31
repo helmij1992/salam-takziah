@@ -280,7 +280,7 @@ const Dashboard = () => {
   const planLabel = isSuperadmin
     ? "Superadmin"
     : subscriptionPlan === "diamond"
-      ? "Diamond"
+      ? "Premium"
       : subscriptionPlan === "premium"
         ? "Premium"
         : "Free";

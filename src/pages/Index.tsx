@@ -174,7 +174,7 @@ const Index = () => {
   };
 
   const planLabel = isDiamondTier
-    ? "Diamond"
+    ? "Premium"
     : isPaidTier
       ? "Premium"
       : "Free";
