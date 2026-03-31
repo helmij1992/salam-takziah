@@ -1038,29 +1038,25 @@ const Dashboard = () => {
 
   if (ISOLATE_DASHBOARD_RENDER) {
     return (
-      <main className="min-h-screen bg-background p-4 md:p-6">
-        <div className="mx-auto flex min-h-[80vh] max-w-4xl items-center justify-center">
-          <Card className="w-full">
-            <CardContent className="space-y-4 py-10 text-center">
-              <h1 className="text-3xl font-semibold">{ui.workspaceDashboard}</h1>
-              <p className="text-muted-foreground">
-                {userEmail ? `${ui.signedInAs} ${userEmail}` : ui.noSession}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Dashboard isolation mode is active.
-              </p>
-              <div className="flex flex-wrap justify-center gap-2">
-                <Button variant="secondary" onClick={() => navigate("/create")}>
-                  {ui.openBuilder}
-                </Button>
-                <Button variant="destructive" onClick={signOut}>
-                  {ui.signOut}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </main>
+      <Card className="mx-auto mt-8 w-full max-w-4xl">
+        <CardContent className="space-y-4 py-10 text-center">
+          <h1 className="text-3xl font-semibold">{ui.workspaceDashboard}</h1>
+          <p className="text-muted-foreground">
+            {userEmail ? `${ui.signedInAs} ${userEmail}` : ui.noSession}
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Dashboard isolation mode is active.
+          </p>
+          <div className="flex flex-wrap justify-center gap-2">
+            <Button variant="secondary" onClick={() => navigate("/create")}>
+              {ui.openBuilder}
+            </Button>
+            <Button variant="destructive" onClick={signOut}>
+              {ui.signOut}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     );
   }
 
