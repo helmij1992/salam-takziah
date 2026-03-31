@@ -330,39 +330,42 @@ const PosterForm = ({
                 <p className="text-xs text-muted-foreground">{t.premiumTemplateHint}</p>
               </div>
 
-              {premiumTemplate === "official" && (
-                <div className="space-y-2">
-                  <Label htmlFor="companyLogo">{t.companyLogoLabel}</Label>
-                  <div className="flex items-center justify-center w-full">
-                    <label
-                      htmlFor="companyLogo"
-                      className="flex h-32 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-border transition-colors hover:bg-muted/50"
-                    >
-                      {companyLogo ? (
-                        <img src={companyLogo} alt="Company logo preview" className="max-h-24 max-w-full object-contain" />
-                      ) : (
-                        <div className="flex flex-col items-center justify-center py-4">
-                          <Upload className="mb-2 h-8 w-8 text-muted-foreground" />
-                          <p className="text-sm text-muted-foreground">{t.companyLogoLabel}</p>
-                          <p className="mt-1 text-xs text-muted-foreground">{t.companyLogoHint}</p>
-                        </div>
-                      )}
-                      <Input
-                        id="companyLogo"
-                        type="file"
-                        accept="image/png,image/jpeg,image/webp,image/svg+xml"
-                        className="hidden"
-                        onChange={handleCompanyLogoUpload}
-                      />
-                    </label>
-                  </div>
-                  {companyLogo && (
-                    <Button type="button" variant="outline" size="sm" onClick={() => setCompanyLogo(null)}>
-                      Remove Logo
-                    </Button>
-                  )}
+              <div className="space-y-2">
+                <Label htmlFor="companyLogo">{t.companyLogoLabel}</Label>
+                <div className="flex items-center justify-center w-full">
+                  <label
+                    htmlFor="companyLogo"
+                    className="flex h-32 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-border transition-colors hover:bg-muted/50"
+                  >
+                    {companyLogo ? (
+                      <img src={companyLogo} alt="Company logo preview" className="max-h-24 max-w-full object-contain" />
+                    ) : (
+                      <div className="flex flex-col items-center justify-center py-4">
+                        <Upload className="mb-2 h-8 w-8 text-muted-foreground" />
+                        <p className="text-sm text-muted-foreground">{t.companyLogoLabel}</p>
+                        <p className="mt-1 text-xs text-muted-foreground">{t.companyLogoHint}</p>
+                      </div>
+                    )}
+                    <Input
+                      id="companyLogo"
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                      className="hidden"
+                      onChange={handleCompanyLogoUpload}
+                    />
+                  </label>
                 </div>
-              )}
+                {premiumTemplate !== "official" && (
+                  <p className="text-xs text-muted-foreground">
+                    {t.companyLogoHint}
+                  </p>
+                )}
+                {companyLogo && (
+                  <Button type="button" variant="outline" size="sm" onClick={() => setCompanyLogo(null)}>
+                    Remove Logo
+                  </Button>
+                )}
+              </div>
             </div>
           )}
 

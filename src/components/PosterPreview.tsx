@@ -325,8 +325,20 @@ const PosterPreview = ({ data, isFreeTier, isPaidTier, isDiamondTier, onDownload
             maxHeight: config.maxHeight,
           }}
         >
+          {isPaidTier && data.companyLogo && (
+            <div className={`flex-shrink-0 px-4 ${isInstagramStory ? "pt-6 md:pt-8" : "pt-4"}`}>
+              <div className="flex justify-center">
+                <img
+                  src={data.companyLogo}
+                  alt="Company logo"
+                  className={`${isInstagramStory ? "max-h-16 md:max-h-20" : "max-h-10 md:max-h-14"} w-auto object-contain opacity-95`}
+                />
+              </div>
+            </div>
+          )}
+
           {/* Header Section with Arabic Text */}
-          <div className={`flex-shrink-0 px-4 ${isInstagramStory ? "pt-12 pb-6 md:pt-14 md:pb-7" : "pt-6 pb-3"}`}>
+          <div className={`flex-shrink-0 px-4 ${isInstagramStory ? "pt-6 pb-6 md:pt-8 md:pb-7" : "pt-4 pb-3"}`}>
             <p
               className={`${isInstagramStory ? "text-3xl md:text-5xl" : "text-lg md:text-xl"} ${accentColor} font-arabic mb-1 leading-relaxed`}
               style={{
