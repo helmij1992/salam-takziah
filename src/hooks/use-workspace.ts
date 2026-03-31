@@ -280,28 +280,33 @@ export const useWorkspace = ({ identity, userEmail, plan }: WorkspaceSessionCont
 
     const nextState = parseWorkspaceState(window.localStorage.getItem(storageKey), userEmail);
     setState((currentState) => {
-      if (nextState.team.length > 0 || !userEmail) {
-        return nextState;
+      const hydratedState =
+        nextState.team.length > 0 || !userEmail
+          ? nextState
+          : {
+              ...nextState,
+              team:
+                currentState.team.length > 0
+                  ? currentState.team
+                  : [
+                      {
+                        id: createId(),
+                        name: userEmail.split("@")[0],
+                        email: userEmail,
+                        role: "owner",
+                        status: "accepted",
+                        acceptedAt: nowIso(),
+                        createdAt: nowIso(),
+                        updatedAt: nowIso(),
+                      },
+                    ],
+            };
+
+      if (serializeWorkspaceState(currentState) === serializeWorkspaceState(hydratedState)) {
+        return currentState;
       }
 
-      return {
-        ...nextState,
-        team:
-          currentState.team.length > 0
-            ? currentState.team
-            : [
-                {
-                  id: createId(),
-                  name: userEmail.split("@")[0],
-                  email: userEmail,
-                  role: "owner",
-                  status: "accepted",
-                  acceptedAt: nowIso(),
-                  createdAt: nowIso(),
-                  updatedAt: nowIso(),
-                },
-              ],
-      };
+      return hydratedState;
     });
   }, [identity, storageKey, userEmail]);
 

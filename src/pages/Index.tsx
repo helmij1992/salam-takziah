@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -62,6 +62,7 @@ const Index = () => {
     loadedDraft.poster ? JSON.stringify(loadedDraft.poster) : null,
   );
   const [isDraftSaving, setIsDraftSaving] = useState(false);
+  const appliedDraftSignatureRef = useRef<string | null>(null);
 
   const hasUnsavedChanges = useMemo(() => {
     if (!isPaidTier || !formDraftData || !lastSavedSnapshot) {
@@ -71,11 +72,25 @@ const Index = () => {
     return JSON.stringify(formDraftData) !== lastSavedSnapshot;
   }, [formDraftData, isPaidTier, lastSavedSnapshot]);
 
-  useEffect(() => {
+  const loadedDraftSignature = useMemo(() => {
     if (!loadedDraft.poster) {
+      return null;
+    }
+
+    return JSON.stringify({
+      poster: loadedDraft.poster,
+      draftId: loadedDraft.draftId,
+      draftTitle: loadedDraft.draftTitle,
+      sourceLabel: loadedDraft.sourceLabel,
+    });
+  }, [loadedDraft]);
+
+  useEffect(() => {
+    if (!loadedDraft.poster || !loadedDraftSignature || appliedDraftSignatureRef.current === loadedDraftSignature) {
       return;
     }
 
+    appliedDraftSignatureRef.current = loadedDraftSignature;
     setPosterData(loadedDraft.poster);
     setFormDraftData(loadedDraft.poster);
     setCurrentDraftId(loadedDraft.draftId);
@@ -87,7 +102,7 @@ const Index = () => {
         source: loadedDraft.sourceLabel ?? "workspace",
       },
     });
-  }, [loadedDraft, trackEvent]);
+  }, [loadedDraft, loadedDraftSignature, trackEvent]);
 
   const handleGenerate = async (data: PosterData) => {
     if (!canGeneratePoster) {
