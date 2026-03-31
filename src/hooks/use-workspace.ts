@@ -18,6 +18,7 @@ import { SubscriptionPlan } from "@/hooks/use-subscription";
 
 const STORAGE_PREFIX = "salam-takziah-workspace";
 const REMOTE_SYNC_DEBOUNCE_MS = 400;
+export const AUTH_PENDING_IDENTITY = "__auth_pending__";
 
 const createId = () => {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -201,6 +202,7 @@ const createRemoteWorkspacePayload = (state: WorkspaceState) => ({
 });
 
 const serializeWorkspaceState = (state: WorkspaceState) => JSON.stringify(createRemoteWorkspacePayload(state));
+const isWorkspaceIdentityDeferred = (identity: string) => identity === AUTH_PENDING_IDENTITY;
 
 type WorkspaceSessionContext = {
   identity: string;
@@ -272,6 +274,10 @@ export const useWorkspace = ({ identity, userEmail, plan }: WorkspaceSessionCont
       return;
     }
 
+    if (isWorkspaceIdentityDeferred(identity)) {
+      return;
+    }
+
     const nextState = parseWorkspaceState(window.localStorage.getItem(storageKey), userEmail);
     setState((currentState) => {
       if (nextState.team.length > 0 || !userEmail) {
@@ -297,12 +303,21 @@ export const useWorkspace = ({ identity, userEmail, plan }: WorkspaceSessionCont
               ],
       };
     });
-  }, [storageKey, userEmail]);
+  }, [identity, storageKey, userEmail]);
 
   useEffect(() => {
     let isActive = true;
 
     const hydrateRemoteState = async () => {
+      if (isWorkspaceIdentityDeferred(identity)) {
+        setIsRemoteReady(false);
+        setRemoteError(null);
+        setIsSyncing(false);
+        lastRemoteSnapshotRef.current = null;
+        lastRemoteUpdatedAtRef.current = null;
+        return;
+      }
+
       if (identity === "guest") {
         setIsRemoteReady(false);
         setRemoteError(null);
@@ -375,11 +390,15 @@ export const useWorkspace = ({ identity, userEmail, plan }: WorkspaceSessionCont
       return;
     }
 
+    if (isWorkspaceIdentityDeferred(identity)) {
+      return;
+    }
+
     window.localStorage.setItem(storageKey, JSON.stringify(state));
-  }, [state, storageKey]);
+  }, [identity, state, storageKey]);
 
   useEffect(() => {
-    if (identity === "guest" || !isRemoteReady) {
+    if (isWorkspaceIdentityDeferred(identity) || identity === "guest" || !isRemoteReady) {
       return;
     }
 
@@ -1102,6 +1121,10 @@ export const useWorkspaceActions = ({ identity, userEmail, plan }: WorkspaceSess
   const storageKey = useMemo(() => `${STORAGE_PREFIX}:${identity}`, [identity]);
 
   const getCurrentWorkspaceState = useCallback(async () => {
+    if (isWorkspaceIdentityDeferred(identity)) {
+      return createEmptyState(userEmail);
+    }
+
     const localState = readWorkspaceStateFromStorage(storageKey, userEmail);
 
     if (identity === "guest") {
@@ -1113,6 +1136,10 @@ export const useWorkspaceActions = ({ identity, userEmail, plan }: WorkspaceSess
   }, [identity, storageKey, userEmail]);
 
   const persistWorkspaceState = useCallback(async (nextState: WorkspaceState) => {
+    if (isWorkspaceIdentityDeferred(identity)) {
+      return;
+    }
+
     writeWorkspaceStateToStorage(storageKey, nextState);
 
     if (identity === "guest") {

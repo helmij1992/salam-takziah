@@ -22,7 +22,7 @@ import { toast } from "@/components/ui/use-toast";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useSubscription } from "@/hooks/use-subscription";
-import { createEmptyPoster, useWorkspace } from "@/hooks/use-workspace";
+import { AUTH_PENDING_IDENTITY, createEmptyPoster, useWorkspace } from "@/hooks/use-workspace";
 import { PosterData } from "@/types/poster";
 import { WorkspaceRole } from "@/types/workspace";
 
@@ -133,11 +133,14 @@ const Dashboard = () => {
     identity,
     plan,
     subscriptionPlan,
+    isAuthResolved,
     isSuperadmin,
     isPaidTier,
     isDiamondTier,
     userEmail,
   } = useSubscription();
+  const workspaceIdentity = isAuthResolved ? identity : AUTH_PENDING_IDENTITY;
+  const workspaceEmail = isAuthResolved ? userEmail : null;
   const {
     drafts,
     batches,
@@ -179,8 +182,7 @@ const Dashboard = () => {
     clearDeletedItems,
     createImportJob,
     trackEvent,
-  } = useWorkspace({ identity, userEmail, plan });
-  const [loading, setLoading] = useState(true);
+  } = useWorkspace({ identity: workspaceIdentity, userEmail: workspaceEmail, plan });
   const [selectedDraftIds, setSelectedDraftIds] = useState<string[]>([]);
   const [batchName, setBatchName] = useState("");
   const [memberName, setMemberName] = useState("");
@@ -564,45 +566,6 @@ const Dashboard = () => {
   useEffect(() => {
     setSelectedRestoreIds((current) => current.filter((id) => recycleBin.some((item) => item.id === id)));
   }, [recycleBin]);
-
-  useEffect(() => {
-    let isActive = true;
-
-    const finishLoading = () => {
-      if (isActive) {
-        setLoading(false);
-      }
-    };
-
-    const loadSession = async () => {
-      try {
-        await supabase.auth.getSession();
-      } catch {
-        // Let the dashboard continue rendering even if the browser session check fails.
-      } finally {
-        finishLoading();
-      }
-    };
-
-    void loadSession();
-
-    const loadingTimeout = window.setTimeout(() => {
-      finishLoading();
-    }, 1500);
-
-    const { data: authListener } = supabase.auth.onAuthStateChange((event) => {
-      finishLoading();
-      if (event === "SIGNED_OUT") {
-        navigate("/");
-      }
-    });
-
-    return () => {
-      isActive = false;
-      window.clearTimeout(loadingTimeout);
-      authListener?.subscription.unsubscribe();
-    };
-  }, [navigate]);
 
   useEffect(() => {
     if (typeof window === "undefined" || !userEmail) {
@@ -1085,7 +1048,7 @@ const Dashboard = () => {
     setSelectedRestoreIds([]);
   };
 
-  if (loading) {
+  if (!isAuthResolved) {
     return <main className="min-h-screen bg-background flex items-center justify-center">{ui.loading}</main>;
   }
 

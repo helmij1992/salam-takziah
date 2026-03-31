@@ -180,6 +180,7 @@ const getLocalQuotaStatus = (identity: string): QuotaStatus => {
 
 export const useSubscription = () => {
   const [authUser, setAuthUser] = useState<AuthUserState>(null);
+  const [isAuthResolved, setIsAuthResolved] = useState(false);
   const [quotaStatus, setQuotaStatus] = useState<QuotaStatus>({
     downloadCount: 0,
     remainingCount: FREE_POSTER_LIMIT_PER_MONTH,
@@ -246,6 +247,8 @@ export const useSubscription = () => {
         setAuthUser((currentAuthUser) => (isSameAuthUserState(currentAuthUser, nextAuthUser) ? currentAuthUser : nextAuthUser));
       } catch {
         setAuthUser(null);
+      } finally {
+        setIsAuthResolved(true);
       }
     };
 
@@ -254,6 +257,7 @@ export const useSubscription = () => {
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       const nextAuthUser = getAuthUserState(nextSession);
       setAuthUser((currentAuthUser) => (isSameAuthUserState(currentAuthUser, nextAuthUser) ? currentAuthUser : nextAuthUser));
+      setIsAuthResolved(true);
     });
 
     return () => authListener.subscription.unsubscribe();
@@ -311,6 +315,7 @@ export const useSubscription = () => {
     plan,
     subscriptionPlan,
     appRole,
+    isAuthResolved,
     identity,
     userEmail: authUser?.email ?? null,
     isSuperadmin,
