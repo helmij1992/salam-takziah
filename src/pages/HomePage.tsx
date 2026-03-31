@@ -8,6 +8,7 @@ import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { PosterData } from "@/types/poster";
+import { resolvePlanMetadataValue } from "@/lib/auth";
 
 const exampleAccentMap = {
   classic: "from-stone-100 via-zinc-100 to-amber-50",
@@ -115,9 +116,13 @@ const HomePage = () => {
     });
   };
 
+  const getPlanRedirectTarget = (planId: string) => {
+    return planId === "pro" ? "/dashboard" : "/create";
+  };
+
   const getPlanActionTarget = (planId: string): To => {
     if (userEmail) {
-      return "/create";
+      return getPlanRedirectTarget(planId);
     }
 
     return "/register";
@@ -127,7 +132,26 @@ const HomePage = () => {
     if (userEmail) {
       return undefined;
     }
-    return { redirectTo: "/create", selectedPlan: planId };
+    return { redirectTo: getPlanRedirectTarget(planId), selectedPlan: planId };
+  };
+
+  const handlePlanAction = async (planId: string) => {
+    if (!userEmail) {
+      navigate(getPlanActionTarget(planId), {
+        state: getPlanActionState(planId),
+      });
+      return;
+    }
+
+    if (planId === "pro") {
+      await supabase.auth.updateUser({
+        data: {
+          plan: resolvePlanMetadataValue(planId),
+        },
+      });
+    }
+
+    navigate(getPlanRedirectTarget(planId));
   };
 
   const handleUseExample = (poster: PosterData, title: string) => {
@@ -392,14 +416,14 @@ const HomePage = () => {
                     </ul>
 
                     <Button
-                      asChild
                       className="w-full"
                       variant={plan.buttonVariant}
                       size="lg"
+                      onClick={() => {
+                        void handlePlanAction(plan.id);
+                      }}
                     >
-                      <Link to={getPlanActionTarget(plan.id)} state={getPlanActionState(plan.id)}>
-                        {plan.buttonText}
-                      </Link>
+                      {plan.buttonText}
                     </Button>
                   </CardContent>
                 </Card>

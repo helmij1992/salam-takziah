@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { buildOAuthRedirectUrl, sanitizeRedirectPath } from "@/lib/auth";
+import { buildOAuthRedirectUrl, resolvePlanMetadataValue, sanitizeRedirectPath, sanitizeSelectedPlan } from "@/lib/auth";
 import { clearRateLimit, consumeRateLimit, formatRetryWindow } from "@/lib/rate-limit";
 import { toast } from "@/components/ui/use-toast";
 
@@ -24,7 +24,9 @@ const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const redirectTo = sanitizeRedirectPath((location.state as { redirectTo?: string } | null)?.redirectTo, "/dashboard");
+  const authState = (location.state as { redirectTo?: string; selectedPlan?: string } | null) ?? null;
+  const selectedPlan = sanitizeSelectedPlan(authState?.selectedPlan);
+  const redirectTo = sanitizeRedirectPath(authState?.redirectTo, "/dashboard");
   const isSubmitting = isLoading || isGoogleLoading;
   const rateLimitKey = `register:${email.trim().toLowerCase() || "anonymous"}`;
 
@@ -80,7 +82,7 @@ const Register = () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: buildOAuthRedirectUrl(redirectTo),
+        redirectTo: buildOAuthRedirectUrl(redirectTo, selectedPlan),
       },
     });
 
@@ -128,7 +130,7 @@ const Register = () => {
       password,
       options: {
         data: {
-          plan: "free",
+          plan: resolvePlanMetadataValue(selectedPlan),
         },
       },
     });
@@ -152,7 +154,7 @@ const Register = () => {
     if (data.session) {
       navigate(redirectTo);
     } else {
-      navigate("/login", { state: { redirectTo } });
+      navigate("/login", { state: { redirectTo, selectedPlan } });
     }
   };
 
@@ -164,7 +166,7 @@ const Register = () => {
       switchPrompt={t.authRegisterSwitchPrompt}
       switchLabel={t.authRegisterSwitchLabel}
       switchTo="/login"
-      switchState={{ redirectTo }}
+      switchState={{ redirectTo, selectedPlan }}
       form={(
         <form className="space-y-5" onSubmit={handleSubmit}>
           <div className="space-y-2">

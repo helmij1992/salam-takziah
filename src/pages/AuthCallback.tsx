@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { supabase } from "@/integrations/supabase/client";
-import { sanitizeRedirectPath } from "@/lib/auth";
+import { resolvePlanMetadataValue, sanitizeRedirectPath, sanitizeSelectedPlan } from "@/lib/auth";
 
 const AuthCallback = () => {
   const navigate = useNavigate();
@@ -15,6 +15,9 @@ const AuthCallback = () => {
       new URLSearchParams(location.search).get("redirectTo"),
       "/dashboard",
     );
+    const selectedPlan = sanitizeSelectedPlan(
+      new URLSearchParams(location.search).get("selectedPlan"),
+    );
 
     const finish = (target: string) => {
       if (!isActive) {
@@ -26,6 +29,20 @@ const AuthCallback = () => {
 
     const resolveSession = async () => {
       try {
+        const applySelectedPlan = async () => {
+          if (selectedPlan !== "pro") {
+            return true;
+          }
+
+          const { error } = await supabase.auth.updateUser({
+            data: {
+              plan: resolvePlanMetadataValue(selectedPlan),
+            },
+          });
+
+          return !error;
+        };
+
         const hashParams = new URLSearchParams(location.hash.replace(/^#/, ""));
         const accessToken = hashParams.get("access_token");
         const refreshToken = hashParams.get("refresh_token");
@@ -37,7 +54,7 @@ const AuthCallback = () => {
             refresh_token: refreshToken,
           });
 
-          if (!error) {
+          if (!error && await applySelectedPlan()) {
             finish(redirectTarget);
             return;
           }
@@ -45,14 +62,14 @@ const AuthCallback = () => {
 
         if (authCode) {
           const { error } = await supabase.auth.exchangeCodeForSession(authCode);
-          if (!error) {
+          if (!error && await applySelectedPlan()) {
             finish(redirectTarget);
             return;
           }
         }
 
         const { data } = await supabase.auth.getSession();
-        if (data.session) {
+        if (data.session && await applySelectedPlan()) {
           finish(redirectTarget);
           return;
         }

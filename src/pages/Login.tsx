@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { buildOAuthRedirectUrl, sanitizeRedirectPath } from "@/lib/auth";
+import { buildOAuthRedirectUrl, resolvePlanMetadataValue, sanitizeRedirectPath, sanitizeSelectedPlan } from "@/lib/auth";
 import { clearRateLimit, consumeRateLimit, formatRetryWindow } from "@/lib/rate-limit";
 import { toast } from "@/components/ui/use-toast";
 
@@ -23,7 +23,9 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const redirectTo = sanitizeRedirectPath((location.state as { redirectTo?: string } | null)?.redirectTo, "/dashboard");
+  const authState = (location.state as { redirectTo?: string; selectedPlan?: string } | null) ?? null;
+  const selectedPlan = sanitizeSelectedPlan(authState?.selectedPlan);
+  const redirectTo = sanitizeRedirectPath(authState?.redirectTo, "/dashboard");
   const isSubmitting = isLoading || isGoogleLoading;
   const rateLimitKey = `login:${email.trim().toLowerCase() || "anonymous"}`;
 
@@ -79,7 +81,7 @@ const Login = () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: buildOAuthRedirectUrl(redirectTo),
+        redirectTo: buildOAuthRedirectUrl(redirectTo, selectedPlan),
       },
     });
 
@@ -126,6 +128,24 @@ const Login = () => {
     }
 
     clearRateLimit(rateLimitKey);
+
+    if (selectedPlan === "pro") {
+      const { error: updateError } = await supabase.auth.updateUser({
+        data: {
+          plan: resolvePlanMetadataValue(selectedPlan),
+        },
+      });
+
+      if (updateError) {
+        toast({
+          title: t.authToastLoginFailedTitle,
+          description: updateError.message,
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
     toast({
       title: t.authToastLoginSuccessTitle,
       description: t.authToastLoginSuccessDesc.replace("{email}", data.user?.email ?? "user"),
@@ -142,7 +162,7 @@ const Login = () => {
       switchPrompt={t.authLoginSwitchPrompt}
       switchLabel={t.authLoginSwitchLabel}
       switchTo="/register"
-      switchState={{ redirectTo }}
+      switchState={{ redirectTo, selectedPlan }}
       form={(
         <form className="space-y-5" onSubmit={handleSubmit}>
           <div className="space-y-2">
