@@ -14,6 +14,7 @@ interface AuthShellProps {
   switchPrompt: string;
   switchLabel: string;
   switchTo: To;
+  switchState?: Record<string, unknown>;
 }
 
 const AuthShell = ({
