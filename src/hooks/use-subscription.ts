@@ -16,6 +16,7 @@ type AuthUserState = {
 const FREE_POSTER_LIMIT_PER_MONTH = 5;
 const FREE_POSTER_USAGE_KEY = "salam-takziah-free-usage";
 const SUPERADMIN_EMAILS = ["ai.helmij@gmail.com", "superadmin.test@salamtakziah.com"];
+const DISABLE_QUOTA_REFRESH = true;
 
 type UsageStore = Record<string, number>;
 type QuotaStatus = {
@@ -199,6 +200,29 @@ export const useSubscription = () => {
 
   const refreshQuota = useCallback(async () => {
     if (!isAuthResolved) {
+      return;
+    }
+
+    if (DISABLE_QUOTA_REFRESH) {
+      if (!authUser) {
+        setQuotaStatus(getLocalQuotaStatus(identity));
+        setQuotaSource("local");
+        return;
+      }
+
+      if (plan !== "free") {
+        setQuotaStatus({
+          downloadCount: 0,
+          remainingCount: FREE_POSTER_LIMIT_PER_MONTH,
+          monthlyLimit: FREE_POSTER_LIMIT_PER_MONTH,
+          periodKey: getCurrentMonthKey(),
+        });
+        setQuotaSource("local");
+        return;
+      }
+
+      setQuotaStatus(getLocalQuotaStatus(identity));
+      setQuotaSource("local");
       return;
     }
 
