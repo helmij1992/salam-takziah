@@ -190,6 +190,18 @@ const createDeletedItem = (
   payload,
 });
 
+const createRemoteWorkspacePayload = (state: WorkspaceState) => ({
+  drafts: state.drafts as unknown as Json,
+  batches: state.batches as unknown as Json,
+  analytics: state.analytics as unknown as Json,
+  team: state.team as unknown as Json,
+  api_credentials: state.apiCredentials as unknown as Json,
+  import_jobs: state.importJobs as unknown as Json,
+  recycle_bin: state.recycleBin as unknown as Json,
+});
+
+const serializeWorkspaceState = (state: WorkspaceState) => JSON.stringify(createRemoteWorkspacePayload(state));
+
 export const useWorkspace = () => {
   const { identity, userEmail, plan } = useSubscription();
   const [state, setState] = useState<WorkspaceState>(() => createEmptyState(userEmail));
@@ -199,6 +211,7 @@ export const useWorkspace = () => {
   const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
   const [syncAttempt, setSyncAttempt] = useState(0);
   const skipNextRemoteSyncRef = useRef(false);
+  const lastRemoteSnapshotRef = useRef<string | null>(null);
 
   const storageKey = useMemo(() => `${STORAGE_PREFIX}:${identity}`, [identity]);
 
@@ -242,6 +255,7 @@ export const useWorkspace = () => {
         setIsRemoteReady(false);
         setRemoteError(null);
         setIsSyncing(false);
+        lastRemoteSnapshotRef.current = null;
         return;
       }
 
@@ -267,12 +281,25 @@ export const useWorkspace = () => {
         setRemoteError(null);
         setIsRemoteReady(true);
         setIsSyncing(false);
+        lastRemoteSnapshotRef.current = null;
         return;
       }
 
       const remoteState = toWorkspaceState(data, userEmail);
       skipNextRemoteSyncRef.current = true;
-      setState((currentState) => mergeWorkspaceState(currentState, remoteState));
+      setState((currentState) => {
+        const mergedState = mergeWorkspaceState(currentState, remoteState);
+        const currentSnapshot = serializeWorkspaceState(currentState);
+        const mergedSnapshot = serializeWorkspaceState(mergedState);
+
+        lastRemoteSnapshotRef.current = mergedSnapshot;
+
+        if (mergedSnapshot === currentSnapshot) {
+          return currentState;
+        }
+
+        return mergedState;
+      });
       setRemoteError(null);
       setIsRemoteReady(true);
       setLastSyncedAt(nowIso());
@@ -299,6 +326,12 @@ export const useWorkspace = () => {
       return;
     }
 
+    const stateSnapshot = serializeWorkspaceState(state);
+
+    if (lastRemoteSnapshotRef.current === stateSnapshot) {
+      return;
+    }
+
     if (skipNextRemoteSyncRef.current) {
       skipNextRemoteSyncRef.current = false;
       return;
@@ -309,13 +342,7 @@ export const useWorkspace = () => {
       const { error } = await supabase.from("workspace_state").upsert(
         {
           user_id: identity,
-          drafts: state.drafts as unknown as Json,
-          batches: state.batches as unknown as Json,
-          analytics: state.analytics as unknown as Json,
-          team: state.team as unknown as Json,
-          api_credentials: state.apiCredentials as unknown as Json,
-          import_jobs: state.importJobs as unknown as Json,
-          recycle_bin: state.recycleBin as unknown as Json,
+          ...createRemoteWorkspacePayload(state),
         },
         {
           onConflict: "user_id",
@@ -325,6 +352,7 @@ export const useWorkspace = () => {
       if (error) {
         setRemoteError(error.message);
       } else {
+        lastRemoteSnapshotRef.current = stateSnapshot;
         setRemoteError(null);
         setLastSyncedAt(nowIso());
       }

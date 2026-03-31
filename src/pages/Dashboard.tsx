@@ -34,6 +34,8 @@ interface AdminUserSummary {
   email: string;
   subscription_plan: string;
   app_role: string;
+  generated_posters: number;
+  downloaded_posters: number;
   created_at: string;
   last_sign_in_at: string | null;
 }
@@ -364,6 +366,7 @@ const Dashboard = () => {
     analyticsDiamondTitle: isMs ? "Analitik lanjutan dibuka pada Diamond" : "Advanced analytics unlock on Diamond",
     analyticsDiamondDesc: isMs ? "Ruang kerja Diamond boleh menyemak trend penjanaan, penggunaan draf, import, dan aktiviti pasukan di satu tempat." : "Diamond workspaces can review generation trends, draft usage, imports, and team activity in one place.",
     generated: isMs ? "Dijana" : "Generated",
+    downloaded: isMs ? "Dimuat Turun" : "Downloaded",
     draftSaves: isMs ? "Simpanan Draf" : "Draft Saves",
     csvImports: isMs ? "Import CSV" : "CSV Imports",
     apiKeys: isMs ? "Kunci API" : "API Keys",
@@ -421,6 +424,8 @@ const Dashboard = () => {
     removePermanently: isMs ? "Buang Secara Kekal" : "Remove Permanently",
     pricingDetails: isMs ? "Perlu lihat butiran harga?" : "Need pricing details?",
     backHome: isMs ? "Kembali ke Halaman Utama" : "Back to Home",
+    superadminUsageOverview: isMs ? "Ringkasan Aktiviti Pengguna" : "User Activity Overview",
+    superadminUsageDesc: isMs ? "Jumlah keseluruhan poster yang dijana dan dimuat turun di seluruh platform." : "Overall generated and downloaded poster totals across the platform.",
     allUsers: isMs ? "Semua Pengguna" : "All Users",
     allUsersDesc: isMs ? "Senarai akaun yang berdaftar dalam platform untuk semakan superadmin." : "Registered platform accounts available to the superadmin.",
     enterpriseRequests: isMs ? "Permintaan Enterprise Memorial" : "Enterprise Memorial Requests",
@@ -514,11 +519,19 @@ const Dashboard = () => {
   const analyticsSummary = useMemo(
     () => ({
       generated: analytics.filter((event) => event.type === "poster_generated").length,
+      downloaded: analytics.filter((event) => event.type === "poster_downloaded").length,
       savedDrafts: analytics.filter((event) => event.type === "draft_saved").length,
       imports: analytics.filter((event) => event.type === "csv_imported").length,
       apiKeys: analytics.filter((event) => event.type === "api_key_created").length,
     }),
     [analytics],
+  );
+  const adminUsageSummary = useMemo(
+    () => ({
+      generated: adminUsers.reduce((total, user) => total + (user.generated_posters ?? 0), 0),
+      downloaded: adminUsers.reduce((total, user) => total + (user.downloaded_posters ?? 0), 0),
+    }),
+    [adminUsers],
   );
   const filteredDrafts = useMemo(
     () =>
@@ -1111,16 +1124,18 @@ const Dashboard = () => {
               <p className="text-sm font-medium">
                 {remoteError
                   ? ui.cloudSyncAttention
-                  : isSyncing
-                    ? ui.syncingWorkspace
-                    : isRemoteReady
-                      ? ui.workspaceConnected
+                  : isRemoteReady
+                    ? ui.workspaceConnected
+                    : isSyncing
+                      ? ui.syncingWorkspace
                       : ui.localWorkspaceMode}
               </p>
               <p className="text-sm text-muted-foreground">
                 {remoteError
                   ? remoteError
-                  : lastSyncedAt
+                  : isSyncing && isRemoteReady
+                    ? ui.syncingWorkspace
+                    : lastSyncedAt
                     ? `${ui.lastSynced} ${new Date(lastSyncedAt).toLocaleString()}`
                     : ui.cloudSyncLater}
               </p>
@@ -1156,8 +1171,28 @@ const Dashboard = () => {
         )}
 
         {isSuperadmin && (
-          <div className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
-            <Card>
+          <div className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle>{ui.superadminUsageOverview}</CardTitle>
+                  <p className="text-sm text-muted-foreground">{ui.superadminUsageDesc}</p>
+                </CardHeader>
+                <CardContent className="grid gap-4 sm:grid-cols-2">
+                  <div className="rounded-xl border border-border/70 p-4">
+                    <p className="text-xs text-muted-foreground">{ui.generated}</p>
+                    <p className="mt-2 text-3xl font-semibold">{adminUsageSummary.generated}</p>
+                  </div>
+                  <div className="rounded-xl border border-border/70 p-4">
+                    <p className="text-xs text-muted-foreground">{ui.downloaded}</p>
+                    <p className="mt-2 text-3xl font-semibold">{adminUsageSummary.downloaded}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
+              <Card>
               <CardHeader>
                 <CardTitle>{ui.allUsers}</CardTitle>
                 <p className="text-sm text-muted-foreground">{ui.allUsersDesc}</p>
@@ -1186,6 +1221,8 @@ const Dashboard = () => {
                         <div className="flex flex-wrap gap-2">
                           <Badge variant="outline">{user.subscription_plan}</Badge>
                           <Badge>{user.app_role}</Badge>
+                          <Badge variant="secondary">{ui.generated}: {user.generated_posters ?? 0}</Badge>
+                          <Badge variant="secondary">{ui.downloaded}: {user.downloaded_posters ?? 0}</Badge>
                         </div>
                       </div>
                     </div>
@@ -1229,6 +1266,7 @@ const Dashboard = () => {
                 )}
               </CardContent>
             </Card>
+            </div>
           </div>
         )}
 
@@ -1727,8 +1765,9 @@ const Dashboard = () => {
               />
             ) : (
               <>
-                <div className="grid gap-4 md:grid-cols-4">
+                <div className="grid gap-4 md:grid-cols-5">
                   <Card><CardContent className="pt-6"><p className="text-xs text-muted-foreground">{ui.generated}</p><p className="text-3xl font-semibold">{analyticsSummary.generated}</p></CardContent></Card>
+                  <Card><CardContent className="pt-6"><p className="text-xs text-muted-foreground">{ui.downloaded}</p><p className="text-3xl font-semibold">{analyticsSummary.downloaded}</p></CardContent></Card>
                   <Card><CardContent className="pt-6"><p className="text-xs text-muted-foreground">{ui.draftSaves}</p><p className="text-3xl font-semibold">{analyticsSummary.savedDrafts}</p></CardContent></Card>
                   <Card><CardContent className="pt-6"><p className="text-xs text-muted-foreground">{ui.csvImports}</p><p className="text-3xl font-semibold">{analyticsSummary.imports}</p></CardContent></Card>
                   <Card><CardContent className="pt-6"><p className="text-xs text-muted-foreground">{ui.apiKeys}</p><p className="text-3xl font-semibold">{analyticsSummary.apiKeys}</p></CardContent></Card>

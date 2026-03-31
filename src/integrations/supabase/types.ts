@@ -17,6 +17,7 @@ export type Database = {
       free_tier_usage: {
         Row: {
           created_at: string
+          download_count: number
           generation_count: number
           period_key: string
           updated_at: string
@@ -24,6 +25,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          download_count?: number
           generation_count?: number
           period_key: string
           updated_at?: string
@@ -31,6 +33,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          download_count?: number
           generation_count?: number
           period_key?: string
           updated_at?: string
@@ -86,7 +89,7 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: {
           allowed: boolean
-          generation_count: number
+          download_count: number
           monthly_limit: number
           period_key: string
           plan: string
@@ -97,7 +100,7 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: {
           allowed: boolean
-          generation_count: number
+          download_count: number
           monthly_limit: number
           period_key: string
           plan: string

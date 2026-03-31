@@ -12,7 +12,7 @@ const SUPERADMIN_EMAILS = ["ai.helmij@gmail.com", "superadmin.test@salamtakziah.
 
 type UsageStore = Record<string, number>;
 type QuotaStatus = {
-  generationCount: number;
+  downloadCount: number;
   remainingCount: number;
   monthlyLimit: number;
   periodKey: string | null;
@@ -136,11 +136,11 @@ const getIdentityFromSession = (session: Session | null) => {
 
 const getLocalQuotaStatus = (identity: string): QuotaStatus => {
   const store = readUsageStore();
-  const generationCount = store[getUsageKey(identity)] ?? 0;
+  const downloadCount = store[getUsageKey(identity)] ?? 0;
 
   return {
-    generationCount,
-    remainingCount: Math.max(0, FREE_POSTER_LIMIT_PER_MONTH - generationCount),
+    downloadCount,
+    remainingCount: Math.max(0, FREE_POSTER_LIMIT_PER_MONTH - downloadCount),
     monthlyLimit: FREE_POSTER_LIMIT_PER_MONTH,
     periodKey: getCurrentMonthKey(),
   };
@@ -149,7 +149,7 @@ const getLocalQuotaStatus = (identity: string): QuotaStatus => {
 export const useSubscription = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [quotaStatus, setQuotaStatus] = useState<QuotaStatus>({
-    generationCount: 0,
+    downloadCount: 0,
     remainingCount: FREE_POSTER_LIMIT_PER_MONTH,
     monthlyLimit: FREE_POSTER_LIMIT_PER_MONTH,
     periodKey: null,
@@ -175,7 +175,7 @@ export const useSubscription = () => {
 
     if (plan !== "free") {
       setQuotaStatus({
-        generationCount: 0,
+        downloadCount: 0,
         remainingCount: FREE_POSTER_LIMIT_PER_MONTH,
         monthlyLimit: FREE_POSTER_LIMIT_PER_MONTH,
         periodKey: getCurrentMonthKey(),
@@ -197,7 +197,7 @@ export const useSubscription = () => {
 
     const nextStatus = data[0];
     setQuotaStatus({
-      generationCount: nextStatus.generation_count,
+      downloadCount: nextStatus.download_count,
       remainingCount: nextStatus.remaining_count,
       monthlyLimit: nextStatus.monthly_limit,
       periodKey: nextStatus.period_key,
@@ -229,7 +229,7 @@ export const useSubscription = () => {
     void refreshQuota();
   }, [identity, plan, refreshQuota]);
 
-  const recordPosterGeneration = useCallback(async () => {
+  const recordPosterDownload = useCallback(async () => {
     if (plan !== "free" || !session?.user) {
       return true;
     }
@@ -256,7 +256,7 @@ export const useSubscription = () => {
 
     const nextStatus = data[0];
     setQuotaStatus({
-      generationCount: nextStatus.generation_count,
+      downloadCount: nextStatus.download_count,
       remainingCount: nextStatus.remaining_count,
       monthlyLimit: nextStatus.monthly_limit,
       periodKey: nextStatus.period_key,
@@ -266,7 +266,8 @@ export const useSubscription = () => {
   }, [identity, plan, session?.user]);
 
   const remainingFreePosters = Math.max(0, quotaStatus.remainingCount);
-  const canGeneratePoster = plan !== "free" || remainingFreePosters > 0;
+  const canGeneratePoster = true;
+  const canDownloadPoster = plan !== "free" || remainingFreePosters > 0;
   const isPremiumTier = plan === "premium";
   const isDiamondTier = plan === "diamond";
   const isPaidTier = isPremiumTier || isDiamondTier;
@@ -283,12 +284,13 @@ export const useSubscription = () => {
     isPremiumTier,
     isDiamondTier,
     isPaidTier,
-    monthlyPosterCount: quotaStatus.generationCount,
+    monthlyPosterCount: quotaStatus.downloadCount,
     remainingFreePosters,
     canGeneratePoster,
+    canDownloadPoster,
     isQuotaLoading,
     quotaSource,
     refreshQuota,
-    recordPosterGeneration,
+    recordPosterDownload,
   };
 };

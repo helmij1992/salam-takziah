@@ -19,7 +19,7 @@ const Index = () => {
   const [lastSavedSnapshot, setLastSavedSnapshot] = useState<string | null>(null);
   const [isDraftSaving, setIsDraftSaving] = useState(false);
   const { t } = useLanguage();
-  const { isFreeTier, isPaidTier, isDiamondTier, remainingFreePosters, canGeneratePoster, recordPosterGeneration } = useSubscription();
+  const { isFreeTier, isPaidTier, isDiamondTier, remainingFreePosters, canGeneratePoster, canDownloadPoster, recordPosterDownload } = useSubscription();
   const { saveDraft, trackEvent } = useWorkspace();
 
   const locationPoster = useMemo(() => {
@@ -114,11 +114,6 @@ const Index = () => {
         }
       : data;
 
-    const didConsumeQuota = await recordPosterGeneration();
-    if (!didConsumeQuota) {
-      return false;
-    }
-
     setPosterData(sanitizedData);
     trackEvent({
       type: "poster_generated",
@@ -126,6 +121,28 @@ const Index = () => {
         fullName: sanitizedData.fullName || "Untitled memorial",
         format: sanitizedData.format,
         theme: sanitizedData.theme,
+      },
+    });
+    return true;
+  };
+
+  const handlePosterDownload = async (data: PosterData, fileType: "jpeg" | "png") => {
+    if (!canDownloadPoster) {
+      return false;
+    }
+
+    const didConsumeQuota = await recordPosterDownload();
+    if (!didConsumeQuota) {
+      return false;
+    }
+
+    trackEvent({
+      type: "poster_downloaded",
+      meta: {
+        fullName: data.fullName || "Untitled memorial",
+        format: data.format,
+        theme: data.theme,
+        fileType,
       },
     });
     return true;
@@ -195,7 +212,13 @@ const Index = () => {
 
           {/* Preview Section */}
           <div className="lg:sticky lg:top-8 h-fit">
-            <PosterPreview data={posterData} isFreeTier={isFreeTier} isPaidTier={isPaidTier} isDiamondTier={isDiamondTier} />
+            <PosterPreview
+              data={posterData}
+              isFreeTier={isFreeTier}
+              isPaidTier={isPaidTier}
+              isDiamondTier={isDiamondTier}
+              onDownload={handlePosterDownload}
+            />
           </div>
         </div>
 

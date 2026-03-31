@@ -32,6 +32,7 @@ export interface AnalyticsEvent {
   id: string;
   type:
     | "poster_generated"
+    | "poster_downloaded"
     | "draft_saved"
     | "draft_loaded"
     | "batch_created"

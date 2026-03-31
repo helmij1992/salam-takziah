@@ -12,9 +12,10 @@ interface PosterPreviewProps {
   isFreeTier: boolean;
   isPaidTier: boolean;
   isDiamondTier: boolean;
+  onDownload?: (data: PosterData, fileType: "jpeg" | "png") => boolean | Promise<boolean>;
 }
 
-const PosterPreview = ({ data, isFreeTier, isPaidTier, isDiamondTier }: PosterPreviewProps) => {
+const PosterPreview = ({ data, isFreeTier, isPaidTier, isDiamondTier, onDownload }: PosterPreviewProps) => {
   const { t, language } = useLanguage();
   const posterRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -78,21 +79,32 @@ const PosterPreview = ({ data, isFreeTier, isPaidTier, isDiamondTier }: PosterPr
         logging: false,
       });
 
-      canvas.toBlob((blob) => {
-        if (!blob) {
-          toast.error(language === "ms" ? "Gagal menjana poster." : "Failed to generate poster.");
+      const blob = await new Promise<Blob | null>((resolve) => {
+        canvas.toBlob(resolve, type === "png" ? "image/png" : "image/jpeg", type === "png" ? undefined : 0.95);
+      });
+
+      if (!blob) {
+        toast.error(language === "ms" ? "Gagal menjana poster." : "Failed to generate poster.");
+        return;
+      }
+
+      if (onDownload) {
+        const canProceed = await onDownload(data, type);
+        if (!canProceed) {
+          toast.error(language === "ms" ? "Had muat turun bulanan untuk pelan Free telah digunakan." : "The Free plan monthly download limit has been reached.");
           return;
         }
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `Takziah-${data.fullName.replace(/\s+/g, "-")}-${data.format}.${type === "png" ? "png" : "jpg"}`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
-        toast.success(language === "ms" ? "Poster berjaya dimuat turun!" : "Poster downloaded successfully!");
-      }, type === "png" ? "image/png" : "image/jpeg", type === "png" ? undefined : 0.95);
+      }
+
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `Takziah-${data.fullName.replace(/\s+/g, "-")}-${data.format}.${type === "png" ? "png" : "jpg"}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      toast.success(language === "ms" ? "Poster berjaya dimuat turun!" : "Poster downloaded successfully!");
     } catch (error) {
       console.error("Error downloading poster:", error);
       toast.error(language === "ms" ? "Gagal memuat turun poster. Sila cuba lagi." : "Failed to download poster. Please try again.");
