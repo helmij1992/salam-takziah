@@ -28,7 +28,7 @@ import { WorkspaceRole } from "@/types/workspace";
 
 type PendingDeleteKind = "draft" | "batch" | "member" | "api";
 const ENTERPRISE_REQUEST_STORAGE_KEY = "salam-takziah-enterprise-request";
-const ISOLATE_DASHBOARD_RENDER = false;
+const ISOLATE_DASHBOARD_RENDER = true;
 
 interface AdminUserSummary {
   user_id: string;
