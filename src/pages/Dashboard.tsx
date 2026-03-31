@@ -1119,39 +1119,6 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <Card className={remoteError ? "border-destructive/40" : undefined}>
-          <CardContent className="flex flex-col gap-3 py-4 md:flex-row md:items-center md:justify-between">
-            <div className="space-y-1">
-              <p className="text-sm font-medium">
-                {remoteError
-                  ? ui.cloudSyncAttention
-                  : isRemoteReady
-                    ? ui.workspaceConnected
-                    : isSyncing
-                      ? ui.syncingWorkspace
-                      : ui.localWorkspaceMode}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                {remoteError
-                  ? remoteError
-                  : lastSyncedAt
-                    ? `${ui.lastSynced} ${new Date(lastSyncedAt).toLocaleString()}`
-                    : ui.cloudSyncLater}
-              </p>
-            </div>
-            <div className="flex gap-2">
-              {remoteError && (
-                <Button variant="outline" onClick={retryRemoteSync}>
-                  {ui.retrySync}
-                </Button>
-              )}
-              <Button variant="ghost" onClick={() => navigate("/create")}>
-                {ui.openBuilderShort}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
         {pendingDeletes.length > 0 && (
           <Card>
             <CardContent className="space-y-3 py-4">
