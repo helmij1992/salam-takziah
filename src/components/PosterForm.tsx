@@ -309,27 +309,8 @@ const PosterForm = ({
             </p>
           </div>
 
-          {isPaidTier && theme === "premium" && (
+          {isPaidTier && (
             <div className="space-y-4 rounded-lg border border-border bg-muted/20 p-4">
-              <div className="space-y-2">
-                <Label>{t.premiumTemplateLabel}</Label>
-                <RadioGroup value={premiumTemplate} onValueChange={(value) => setPremiumTemplate(value as PremiumTemplate)}>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="signature" id="premium-template-signature" />
-                    <Label htmlFor="premium-template-signature" className="font-normal cursor-pointer">
-                      {t.premiumTemplateSignature}
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="official" id="premium-template-official" />
-                    <Label htmlFor="premium-template-official" className="font-normal cursor-pointer">
-                      {t.premiumTemplateOfficial}
-                    </Label>
-                  </div>
-                </RadioGroup>
-                <p className="text-xs text-muted-foreground">{t.premiumTemplateHint}</p>
-              </div>
-
               <div className="space-y-2">
                 <Label htmlFor="companyLogo">{t.companyLogoLabel}</Label>
                 <div className="flex items-center justify-center w-full">
@@ -366,6 +347,27 @@ const PosterForm = ({
                   </Button>
                 )}
               </div>
+
+              {theme === "premium" && (
+                <div className="space-y-2">
+                  <Label>{t.premiumTemplateLabel}</Label>
+                  <RadioGroup value={premiumTemplate} onValueChange={(value) => setPremiumTemplate(value as PremiumTemplate)}>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="signature" id="premium-template-signature" />
+                      <Label htmlFor="premium-template-signature" className="font-normal cursor-pointer">
+                        {t.premiumTemplateSignature}
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="official" id="premium-template-official" />
+                      <Label htmlFor="premium-template-official" className="font-normal cursor-pointer">
+                        {t.premiumTemplateOfficial}
+                      </Label>
+                    </div>
+                  </RadioGroup>
+                  <p className="text-xs text-muted-foreground">{t.premiumTemplateHint}</p>
+                </div>
+              )}
             </div>
           )}
 
