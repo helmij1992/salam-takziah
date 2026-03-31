@@ -243,18 +243,18 @@ const HomePage = () => {
               <Card className="border-border/70 bg-card/90 shadow-sm sm:col-span-2">
                 <CardContent className="grid gap-4 p-6 sm:grid-cols-3">
                   <div>
-                    <p className="text-sm text-muted-foreground">{t.homePlanPopularBadge}</p>
-                    <p className="mt-2 text-2xl font-semibold">2</p>
+                    <p className="text-sm text-muted-foreground">{t.homePricingSummaryLabel}</p>
+                    <p className="mt-2 text-2xl font-semibold">{t.homePricingSummaryValue}</p>
                     <p className="text-sm text-muted-foreground">{t.homeNavPricing}</p>
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">{t.homeExamplesPreviewLabel}</p>
-                    <p className="mt-2 text-2xl font-semibold">3</p>
+                    <p className="mt-2 text-2xl font-semibold">{t.homeExamplesSummaryValue}</p>
                     <p className="text-sm text-muted-foreground">{t.homeExamplesTitle}</p>
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">{t.homeFeature3Title}</p>
-                    <p className="mt-2 text-2xl font-semibold">1080p+</p>
+                    <p className="mt-2 text-2xl font-semibold">{t.homeQualitySummaryValue}</p>
                     <p className="text-sm text-muted-foreground">{t.homeFeature3Desc}</p>
                   </div>
                 </CardContent>

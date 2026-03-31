@@ -109,6 +109,10 @@ interface Translations {
   homeExamplesSubtitle: string;
   homeExamplesUseButton: string;
   homeExamplesPreviewLabel: string;
+  homePricingSummaryLabel: string;
+  homePricingSummaryValue: string;
+  homeExamplesSummaryValue: string;
+  homeQualitySummaryValue: string;
   homeExamples: HomeExampleTranslation[];
   homeFeaturesTitle: string;
   homeFeaturesSubtitle: string;
@@ -349,14 +353,18 @@ const translations: Record<Language, Translations> = {
         format: "facebook",
       },
     ],
+    homePricingSummaryLabel: "Pelan tersedia",
+    homePricingSummaryValue: "2 pelan",
+    homeExamplesSummaryValue: "3 gaya",
+    homeQualitySummaryValue: "HD hingga 4K",
     homeFeaturesTitle: "Mengapa Pilih Salam Takziah?",
     homeFeaturesSubtitle: "Alat profesional yang direka khas untuk poster takziah Islam",
     homeFeature1Title: "Mudah Digunakan",
     homeFeature1Desc: "Cipta poster takziah yang cantik dalam beberapa minit dengan antara muka intuitif kami",
     homeFeature2Title: "Ciri Malaysia & Islamik",
     homeFeature2Desc: "Termasuk elemen batik, motif Melayu dan reka bentuk khat bagi gaya lokal yang berkarakter",
-    homeFeature3Title: "Kualiti Tinggi",
-    homeFeature3Desc: "Poster gred profesional dengan resolusi 4K dan tema premium",
+    homeFeature3Title: "Resolusi Tinggi",
+    homeFeature3Desc: "Poster berkualiti profesional dengan resolusi tinggi dan tema premium",
     homePricingTitle: "Pilih Pelan Anda",
     homePricingSubtitle: "Mulakan secara percuma dan naik taraf mengikut keperluan anda. Semua pelan termasuk ciri teras kami.",
     homeTrialText: "Pelan Premium termasuk percubaan percuma 14 hari",
@@ -594,10 +602,14 @@ const translations: Record<Language, Translations> = {
     homeHeroSubtitle: "Honor loved ones with professionally designed Islamic condolence posters. Perfect for social media sharing and memorial services.",
     homeHeroCreateButton: "Create Your Poster",
     homeHeroExamplesButton: "View Examples",
-    homeExamplesTitle: "Sample Memorial Styles You Can Start From",
+    homeExamplesTitle: "Sample Memorial Poster Styles You Can Start With",
     homeExamplesSubtitle: "Choose a family, community, or organization-ready example, then open it directly in the poster builder.",
     homeExamplesUseButton: "Use This Example",
-    homeExamplesPreviewLabel: "Style preview",
+    homeExamplesPreviewLabel: "Style gallery",
+    homePricingSummaryLabel: "Available plans",
+    homePricingSummaryValue: "2 plans",
+    homeExamplesSummaryValue: "3 styles",
+    homeQualitySummaryValue: "HD to 4K",
     homeExamples: [
       {
         id: "family",
@@ -639,8 +651,8 @@ const translations: Record<Language, Translations> = {
     homeFeature1Desc: "Create beautiful condolence posters in minutes with our intuitive interface",
     homeFeature2Title: "Malaysia & Islamic Style",
     homeFeature2Desc: "Includes batik accents, Malay motifs and Arabic calligraphy-ready layouts",
-    homeFeature3Title: "High Quality",
-    homeFeature3Desc: "Professional-grade posters with 4K resolution and premium themes",
+    homeFeature3Title: "High Resolution",
+    homeFeature3Desc: "Professional-quality posters with high-resolution output and premium themes",
     homePricingTitle: "Choose Your Plan",
     homePricingSubtitle: "Start free and upgrade as your needs grow. All plans include our core features.",
     homeTrialText: "Premium includes a 14-day free trial",
