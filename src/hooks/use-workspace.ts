@@ -217,6 +217,7 @@ export const useWorkspace = ({ identity, userEmail, plan }: WorkspaceSessionCont
   const [syncAttempt, setSyncAttempt] = useState(0);
   const skipNextRemoteSyncRef = useRef(false);
   const lastRemoteSnapshotRef = useRef<string | null>(null);
+  const lastRemoteUpdatedAtRef = useRef<string | null>(null);
 
   const storageKey = useMemo(() => `${STORAGE_PREFIX}:${identity}`, [identity]);
 
@@ -261,13 +262,14 @@ export const useWorkspace = ({ identity, userEmail, plan }: WorkspaceSessionCont
         setRemoteError(null);
         setIsSyncing(false);
         lastRemoteSnapshotRef.current = null;
+        lastRemoteUpdatedAtRef.current = null;
         return;
       }
 
       setIsSyncing(true);
       const { data, error } = await supabase
         .from("workspace_state")
-        .select("drafts, batches, analytics, team, api_credentials, import_jobs, recycle_bin")
+        .select("drafts, batches, analytics, team, api_credentials, import_jobs, recycle_bin, updated_at")
         .eq("user_id", identity)
         .maybeSingle();
 
@@ -287,6 +289,7 @@ export const useWorkspace = ({ identity, userEmail, plan }: WorkspaceSessionCont
         setIsRemoteReady(true);
         setIsSyncing(false);
         lastRemoteSnapshotRef.current = null;
+        lastRemoteUpdatedAtRef.current = null;
         return;
       }
 
@@ -307,7 +310,10 @@ export const useWorkspace = ({ identity, userEmail, plan }: WorkspaceSessionCont
       });
       setRemoteError(null);
       setIsRemoteReady(true);
-      setLastSyncedAt(nowIso());
+      if (lastRemoteUpdatedAtRef.current !== data.updated_at) {
+        lastRemoteUpdatedAtRef.current = data.updated_at;
+        setLastSyncedAt(data.updated_at);
+      }
       setIsSyncing(false);
     };
 
@@ -344,22 +350,29 @@ export const useWorkspace = ({ identity, userEmail, plan }: WorkspaceSessionCont
 
     const timeoutId = window.setTimeout(async () => {
       setIsSyncing(true);
-      const { error } = await supabase.from("workspace_state").upsert(
-        {
-          user_id: identity,
-          ...createRemoteWorkspacePayload(state),
-        },
-        {
-          onConflict: "user_id",
-        },
-      );
+      const { data, error } = await supabase
+        .from("workspace_state")
+        .upsert(
+          {
+            user_id: identity,
+            ...createRemoteWorkspacePayload(state),
+          },
+          {
+            onConflict: "user_id",
+          },
+        )
+        .select("updated_at")
+        .single();
 
       if (error) {
         setRemoteError(error.message);
       } else {
         lastRemoteSnapshotRef.current = stateSnapshot;
         setRemoteError(null);
-        setLastSyncedAt(nowIso());
+        if (lastRemoteUpdatedAtRef.current !== data.updated_at) {
+          lastRemoteUpdatedAtRef.current = data.updated_at;
+          setLastSyncedAt(data.updated_at);
+        }
       }
       setIsSyncing(false);
     }, REMOTE_SYNC_DEBOUNCE_MS);
