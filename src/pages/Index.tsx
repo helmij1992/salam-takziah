@@ -11,6 +11,7 @@ import { useSubscription } from "@/hooks/use-subscription";
 import { AUTH_PENDING_IDENTITY, useWorkspaceActions } from "@/hooks/use-workspace";
 
 const ISOLATE_CREATE_PAGE_RENDER = false;
+const ISOLATE_CREATE_PREVIEW = true;
 
 const Index = () => {
   const location = useLocation();
@@ -250,13 +251,21 @@ const Index = () => {
 
           {/* Preview Section */}
           <div className="lg:sticky lg:top-8 h-fit">
-            <PosterPreview
-              data={posterData}
-              isFreeTier={isFreeTier}
-              isPaidTier={isPaidTier}
-              isDiamondTier={isDiamondTier}
-              onDownload={handlePosterDownload}
-            />
+            {ISOLATE_CREATE_PREVIEW ? (
+              <Card>
+                <CardContent className="py-10 text-center text-sm text-muted-foreground">
+                  Poster preview isolation is active.
+                </CardContent>
+              </Card>
+            ) : (
+              <PosterPreview
+                data={posterData}
+                isFreeTier={isFreeTier}
+                isPaidTier={isPaidTier}
+                isDiamondTier={isDiamondTier}
+                onDownload={handlePosterDownload}
+              />
+            )}
           </div>
         </div>
 
