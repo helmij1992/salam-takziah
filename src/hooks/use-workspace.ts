@@ -14,7 +14,7 @@ import {
   WorkspaceRole,
   WorkspaceState,
 } from "@/types/workspace";
-import { useSubscription } from "@/hooks/use-subscription";
+import { SubscriptionPlan } from "@/hooks/use-subscription";
 
 const STORAGE_PREFIX = "salam-takziah-workspace";
 const REMOTE_SYNC_DEBOUNCE_MS = 400;
@@ -202,8 +202,13 @@ const createRemoteWorkspacePayload = (state: WorkspaceState) => ({
 
 const serializeWorkspaceState = (state: WorkspaceState) => JSON.stringify(createRemoteWorkspacePayload(state));
 
-export const useWorkspace = () => {
-  const { identity, userEmail, plan } = useSubscription();
+type WorkspaceSessionContext = {
+  identity: string;
+  userEmail: string | null;
+  plan: SubscriptionPlan;
+};
+
+export const useWorkspace = ({ identity, userEmail, plan }: WorkspaceSessionContext) => {
   const [state, setState] = useState<WorkspaceState>(() => createEmptyState(userEmail));
   const [isRemoteReady, setIsRemoteReady] = useState(false);
   const [remoteError, setRemoteError] = useState<string | null>(null);

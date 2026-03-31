@@ -130,6 +130,7 @@ const Dashboard = () => {
   const { language, t } = useLanguage();
   const isMs = language === "ms";
   const {
+    identity,
     plan,
     subscriptionPlan,
     isSuperadmin,
@@ -178,7 +179,7 @@ const Dashboard = () => {
     clearDeletedItems,
     createImportJob,
     trackEvent,
-  } = useWorkspace();
+  } = useWorkspace({ identity, userEmail, plan });
   const [loading, setLoading] = useState(true);
   const [selectedDraftIds, setSelectedDraftIds] = useState<string[]>([]);
   const [batchName, setBatchName] = useState("");
@@ -1133,9 +1134,7 @@ const Dashboard = () => {
               <p className="text-sm text-muted-foreground">
                 {remoteError
                   ? remoteError
-                  : isSyncing && isRemoteReady
-                    ? ui.syncingWorkspace
-                    : lastSyncedAt
+                  : lastSyncedAt
                     ? `${ui.lastSynced} ${new Date(lastSyncedAt).toLocaleString()}`
                     : ui.cloudSyncLater}
               </p>

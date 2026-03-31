@@ -19,8 +19,8 @@ const Index = () => {
   const [lastSavedSnapshot, setLastSavedSnapshot] = useState<string | null>(null);
   const [isDraftSaving, setIsDraftSaving] = useState(false);
   const { t } = useLanguage();
-  const { isFreeTier, isPaidTier, isDiamondTier, remainingFreePosters, canGeneratePoster, canDownloadPoster, recordPosterDownload } = useSubscription();
-  const { saveDraft, trackEvent } = useWorkspace();
+  const { identity, plan, userEmail, isFreeTier, isPaidTier, isDiamondTier, remainingFreePosters, canGeneratePoster, canDownloadPoster, recordPosterDownload } = useSubscription();
+  const { saveDraft, trackEvent } = useWorkspace({ identity, userEmail, plan });
 
   const locationPoster = useMemo(() => {
     const state = location.state as { draftPoster?: PosterData; sourceLabel?: string; draftId?: string; draftTitle?: string } | null;
