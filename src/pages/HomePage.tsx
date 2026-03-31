@@ -122,13 +122,14 @@ const HomePage = () => {
       return "/create";
     }
 
-    return {
-      pathname: planId === "basic" ? "/register" : "/login",
-      state: {
-        redirectTo: "/create",
-        selectedPlan: planId,
-      },
-    };
+    return "/register";
+  };
+
+  const getPlanActionState = (planId: string): Record<string, unknown> | undefined => {
+    if (userEmail) {
+      return undefined;
+    }
+    return { redirectTo: "/create", selectedPlan: planId };
   };
 
   const handleEnterprisePrimaryAction = async () => {
