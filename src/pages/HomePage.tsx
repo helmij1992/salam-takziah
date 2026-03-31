@@ -355,54 +355,55 @@ const HomePage = () => {
 
           <div className="grid gap-8 max-w-5xl mx-auto md:grid-cols-2">
             {plans.map((plan, index) => (
-              <Card
-                key={index}
-                className={`relative overflow-hidden border-border/80 shadow-sm ${plan.popular ? 'border-primary shadow-xl md:-translate-y-2' : ''}`}
-              >
-                <div className={`absolute inset-x-0 top-0 h-1 ${plan.popular ? "bg-primary" : "bg-border"}`} />
-                {plan.popular && (
-                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                    <Badge className="bg-primary text-primary-foreground px-4 py-1">
-                      {t.homePlanPopularBadge}
-                    </Badge>
-                  </div>
-                )}
+              <div key={index} className={plan.popular ? "pt-5" : ""}>
+                <Card
+                  className={`relative border-border/80 shadow-sm ${plan.popular ? 'border-primary shadow-xl md:-translate-y-2' : ''}`}
+                >
+                  <div className={`absolute inset-x-0 top-0 h-1 ${plan.popular ? "bg-primary" : "bg-border"}`} />
+                  {plan.popular && (
+                    <div className="absolute left-1/2 top-0 z-10 -translate-x-1/2 -translate-y-1/2">
+                      <Badge className="whitespace-nowrap bg-primary px-4 py-1 text-primary-foreground shadow-sm">
+                        {t.homePlanPopularBadge}
+                      </Badge>
+                    </div>
+                  )}
 
-                <CardHeader className="pb-4 text-center">
-                  <plan.icon className="w-12 h-12 text-primary mx-auto mb-4" />
-                  <CardTitle className="text-2xl">{plan.name}</CardTitle>
-                  <div className="text-sm text-muted-foreground mb-2">{plan.tier}</div>
-                  <div className="text-4xl font-bold">
-                    {plan.price}
-                    <span className="text-lg font-normal text-muted-foreground">
-                      /{plan.period}
-                    </span>
-                  </div>
-                  <p className="text-muted-foreground mt-2">{plan.description}</p>
-                </CardHeader>
+                  <CardHeader className="pb-4 pt-8 text-center">
+                    <plan.icon className="mx-auto mb-4 h-12 w-12 text-primary" />
+                    <CardTitle className="text-2xl leading-tight">{plan.name}</CardTitle>
+                    <div className="mb-2 text-sm text-muted-foreground">{plan.tier}</div>
+                    <div className="flex flex-col items-center justify-center gap-1 sm:flex-row sm:items-end">
+                      <span className="text-4xl font-bold leading-none">{plan.price}</span>
+                      <span className="text-base font-medium text-muted-foreground sm:pb-1">
+                        /{plan.period}
+                      </span>
+                    </div>
+                    <p className="mt-3 text-balance text-muted-foreground">{plan.description}</p>
+                  </CardHeader>
 
-                <CardContent>
-                  <ul className="mb-6 space-y-3">
-                    {plan.features.map((feature, featureIndex) => (
-                      <li key={featureIndex} className="flex items-start">
-                        <Check className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                        <span className="text-sm">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  <CardContent>
+                    <ul className="mb-6 space-y-3">
+                      {plan.features.map((feature, featureIndex) => (
+                        <li key={featureIndex} className="flex items-start">
+                          <Check className="mr-3 mt-0.5 h-5 w-5 flex-shrink-0 text-green-500" />
+                          <span className="text-sm leading-6">{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
 
-                  <Button
-                    asChild
-                    className="w-full"
-                    variant={plan.buttonVariant}
-                    size="lg"
-                  >
-                    <Link to={getPlanActionTarget(plan.id)} state={getPlanActionState(plan.id)}>
-                      {plan.buttonText}
-                    </Link>
-                  </Button>
-                </CardContent>
-              </Card>
+                    <Button
+                      asChild
+                      className="w-full"
+                      variant={plan.buttonVariant}
+                      size="lg"
+                    >
+                      <Link to={getPlanActionTarget(plan.id)} state={getPlanActionState(plan.id)}>
+                        {plan.buttonText}
+                      </Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
             ))}
           </div>
 
