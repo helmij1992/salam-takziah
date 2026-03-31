@@ -6,6 +6,13 @@ import { supabase } from "@/integrations/supabase/client";
 export type SubscriptionPlan = "free" | "premium" | "diamond";
 export type AppRole = "user" | "superadmin";
 
+type AuthUserState = {
+  id: string;
+  email: string | null;
+  userMetadata: Record<string, unknown>;
+  appMetadata: Record<string, unknown>;
+} | null;
+
 const FREE_POSTER_LIMIT_PER_MONTH = 5;
 const FREE_POSTER_USAGE_KEY = "salam-takziah-free-usage";
 const SUPERADMIN_EMAILS = ["ai.helmij@gmail.com", "superadmin.test@salamtakziah.com"];
@@ -82,27 +89,52 @@ const normalizeBooleanFlag = (value: unknown) => {
   return false;
 };
 
-const resolvePlanFromSession = (session: Session | null): SubscriptionPlan => {
+const getAuthUserState = (session: Session | null): AuthUserState => {
   if (!session?.user) {
+    return null;
+  }
+
+  return {
+    id: session.user.id,
+    email: session.user.email ?? null,
+    userMetadata: (session.user.user_metadata ?? {}) as Record<string, unknown>,
+    appMetadata: (session.user.app_metadata ?? {}) as Record<string, unknown>,
+  };
+};
+
+const isSameAuthUserState = (left: AuthUserState, right: AuthUserState) => {
+  if (left === right) {
+    return true;
+  }
+
+  if (!left || !right) {
+    return false;
+  }
+
+  return JSON.stringify(left) === JSON.stringify(right);
+};
+
+const resolvePlanFromAuthUser = (authUser: AuthUserState): SubscriptionPlan => {
+  if (!authUser) {
     return "free";
   }
 
   return normalizePlan(
-    session.user.user_metadata?.plan ??
-      session.user.user_metadata?.tier ??
-      session.user.app_metadata?.plan ??
-      session.user.app_metadata?.tier,
+    authUser.userMetadata.plan ??
+      authUser.userMetadata.tier ??
+      authUser.appMetadata.plan ??
+      authUser.appMetadata.tier,
   );
 };
 
-const resolveRoleFromSession = (session: Session | null): AppRole => {
-  if (!session?.user) {
+const resolveRoleFromAuthUser = (authUser: AuthUserState): AppRole => {
+  if (!authUser) {
     return "user";
   }
 
   const metadataRole = normalizeRole(
-    session.user.user_metadata?.role ??
-      session.user.app_metadata?.role,
+    authUser.userMetadata.role ??
+      authUser.appMetadata.role,
   );
 
   if (metadataRole === "superadmin") {
@@ -110,15 +142,15 @@ const resolveRoleFromSession = (session: Session | null): AppRole => {
   }
 
   const isSuperadminFlag = normalizeBooleanFlag(
-    session.user.user_metadata?.is_superadmin ??
-      session.user.app_metadata?.is_superadmin,
+    authUser.userMetadata.is_superadmin ??
+      authUser.appMetadata.is_superadmin,
   );
 
   if (isSuperadminFlag) {
     return "superadmin";
   }
 
-  const email = session.user.email?.trim().toLowerCase();
+  const email = authUser.email?.trim().toLowerCase();
   if (email && SUPERADMIN_EMAILS.includes(email)) {
     return "superadmin";
   }
@@ -126,9 +158,9 @@ const resolveRoleFromSession = (session: Session | null): AppRole => {
   return "user";
 };
 
-const getIdentityFromSession = (session: Session | null) => {
-  if (session?.user?.id) {
-    return session.user.id;
+const getIdentityFromAuthUser = (authUser: AuthUserState) => {
+  if (authUser?.id) {
+    return authUser.id;
   }
 
   return "guest";
@@ -147,7 +179,7 @@ const getLocalQuotaStatus = (identity: string): QuotaStatus => {
 };
 
 export const useSubscription = () => {
-  const [session, setSession] = useState<Session | null>(null);
+  const [authUser, setAuthUser] = useState<AuthUserState>(null);
   const [quotaStatus, setQuotaStatus] = useState<QuotaStatus>({
     downloadCount: 0,
     remainingCount: FREE_POSTER_LIMIT_PER_MONTH,
@@ -157,16 +189,16 @@ export const useSubscription = () => {
   const [isQuotaLoading, setIsQuotaLoading] = useState(false);
   const [quotaSource, setQuotaSource] = useState<"local" | "remote">("local");
 
-  const subscriptionPlan = useMemo(() => resolvePlanFromSession(session), [session]);
-  const appRole = useMemo(() => resolveRoleFromSession(session), [session]);
+  const subscriptionPlan = useMemo(() => resolvePlanFromAuthUser(authUser), [authUser]);
+  const appRole = useMemo(() => resolveRoleFromAuthUser(authUser), [authUser]);
   const plan = useMemo<SubscriptionPlan>(
     () => (appRole === "superadmin" ? "diamond" : subscriptionPlan),
     [appRole, subscriptionPlan],
   );
-  const identity = useMemo(() => getIdentityFromSession(session), [session]);
+  const identity = useMemo(() => getIdentityFromAuthUser(authUser), [authUser]);
 
   const refreshQuota = useCallback(async () => {
-    if (!session?.user) {
+    if (!authUser) {
       setQuotaStatus(getLocalQuotaStatus(identity));
       setQuotaSource("local");
       setIsQuotaLoading(false);
@@ -204,22 +236,24 @@ export const useSubscription = () => {
     });
     setQuotaSource("remote");
     setIsQuotaLoading(false);
-  }, [identity, plan, session?.user]);
+  }, [authUser, identity, plan]);
 
   useEffect(() => {
     const syncSession = async () => {
       try {
         const { data } = await supabase.auth.getSession();
-        setSession(data.session);
+        const nextAuthUser = getAuthUserState(data.session);
+        setAuthUser((currentAuthUser) => (isSameAuthUserState(currentAuthUser, nextAuthUser) ? currentAuthUser : nextAuthUser));
       } catch {
-        setSession(null);
+        setAuthUser(null);
       }
     };
 
     void syncSession();
 
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      setSession(nextSession);
+      const nextAuthUser = getAuthUserState(nextSession);
+      setAuthUser((currentAuthUser) => (isSameAuthUserState(currentAuthUser, nextAuthUser) ? currentAuthUser : nextAuthUser));
     });
 
     return () => authListener.subscription.unsubscribe();
@@ -230,7 +264,7 @@ export const useSubscription = () => {
   }, [identity, plan, refreshQuota]);
 
   const recordPosterDownload = useCallback(async () => {
-    if (plan !== "free" || !session?.user) {
+    if (plan !== "free" || !authUser) {
       return true;
     }
 
@@ -263,7 +297,7 @@ export const useSubscription = () => {
     });
     setQuotaSource("remote");
     return nextStatus.allowed;
-  }, [identity, plan, session?.user]);
+  }, [authUser, identity, plan]);
 
   const remainingFreePosters = Math.max(0, quotaStatus.remainingCount);
   const canGeneratePoster = true;
@@ -278,7 +312,7 @@ export const useSubscription = () => {
     subscriptionPlan,
     appRole,
     identity,
-    userEmail: session?.user?.email ?? null,
+    userEmail: authUser?.email ?? null,
     isSuperadmin,
     isFreeTier: plan === "free",
     isPremiumTier,
