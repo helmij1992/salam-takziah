@@ -4,6 +4,8 @@ add column if not exists download_count integer not null default 0 check (downlo
 update public.free_tier_usage
 set download_count = greatest(download_count, generation_count);
 
+drop function if exists public.get_free_poster_quota_status();
+
 create or replace function public.get_free_poster_quota_status()
 returns table (
   allowed boolean,
@@ -52,6 +54,8 @@ begin
     resolved_plan;
 end;
 $$;
+
+drop function if exists public.consume_free_poster_quota();
 
 create or replace function public.consume_free_poster_quota()
 returns table (
@@ -113,6 +117,8 @@ begin
     resolved_plan;
 end;
 $$;
+
+drop function if exists public.admin_list_users();
 
 create or replace function public.admin_list_users()
 returns table (
