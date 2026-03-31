@@ -344,42 +344,111 @@ const Dashboard = () => {
 
   if (isFreeTier) {
     return (
-      <main className="min-h-screen bg-background p-4 md:p-6">
+      <main className="min-h-screen bg-gradient-to-b from-background via-background to-muted/30 p-4 md:p-6">
         <div className="mx-auto max-w-5xl space-y-6">
-          <Card>
-            <CardContent className="flex flex-col gap-4 p-6 lg:flex-row lg:items-center lg:justify-between">
-              <div className="space-y-2">
-                <div className="flex flex-wrap items-center gap-3">
-                  <h1 className="text-3xl font-bold tracking-tight">{ui.title}</h1>
-                  <Badge variant="secondary">{planLabel}</Badge>
+          <Card className="overflow-hidden border-border/60 shadow-sm">
+            <CardContent className="p-0">
+              <div className="grid gap-0 lg:grid-cols-[1.25fr_0.75fr]">
+                <div className="space-y-5 p-6 md:p-8">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <Badge variant="secondary">{planLabel}</Badge>
+                    <Badge variant="outline">
+                      <Download className="mr-2 h-3.5 w-3.5" />
+                      {isMs ? `${remainingFreePosters} baki bulan ini` : `${remainingFreePosters} left this month`}
+                    </Badge>
+                  </div>
+                  <div className="space-y-3">
+                    <h1 className="text-3xl font-bold tracking-tight md:text-4xl">{ui.title}</h1>
+                    <p className="max-w-2xl text-muted-foreground">
+                      {isMs
+                        ? "Semua yang penting untuk pengguna free tier, disusun supaya anda boleh cipta poster, simpan draf, dan sambung kerja dengan cepat."
+                        : "Everything a free-tier user needs, arranged so you can create posters, save drafts, and continue your work quickly."}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-3">
+                    <Button asChild size="lg">
+                      <Link to="/create">
+                        <FolderOpen className="mr-2 h-4 w-4" />
+                        {ui.openBuilder}
+                      </Link>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      onClick={() => {
+                        const firstDraft = drafts[0];
+                        if (firstDraft) {
+                          handleOpenDraft(firstDraft.id);
+                          return;
+                        }
+                        navigate("/create");
+                      }}
+                    >
+                      {isMs ? "Sambung Draf Terakhir" : "Resume Latest Draft"}
+                    </Button>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {isMs ? "Log masuk sebagai" : "Signed in as"} {userEmail ?? "-"}
+                  </p>
                 </div>
-                <p className="text-muted-foreground">
-                  {isMs
-                    ? "Akses pantas untuk cipta poster, semak draf, dan pantau baki muat turun bulanan."
-                    : "A simple workspace to create posters, review drafts, and track monthly downloads."}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {isMs ? "Log masuk sebagai" : "Signed in as"} {userEmail ?? "-"}
-                </p>
-              </div>
-              <div className="flex flex-wrap items-center gap-3">
-                <LanguageSwitcher />
-                <Button asChild>
-                  <Link to="/create">
-                    <FolderOpen className="mr-2 h-4 w-4" />
-                    {ui.openBuilder}
-                  </Link>
-                </Button>
-                <Button variant="destructive" onClick={() => void handleLogout()}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  {ui.signOut}
-                </Button>
+
+                <div className="grid gap-3 border-t bg-muted/40 p-6 md:grid-cols-3 lg:border-l lg:border-t-0 lg:grid-cols-1 lg:p-8">
+                  {[
+                    {
+                      label: ui.draftCount,
+                      value: summary.draftCount,
+                      hint: isMs ? "Sedia untuk dibuka semula" : "Ready to reopen",
+                    },
+                    {
+                      label: isMs ? "Muat turun bulan ini" : "Downloads this month",
+                      value: monthlyPosterCount,
+                      hint: isMs ? "Kuota yang sudah digunakan" : "Quota already used",
+                    },
+                    {
+                      label: isMs ? "Baki muat turun" : "Remaining downloads",
+                      value: remainingFreePosters,
+                      hint: isMs ? "Masih boleh dimuat turun" : "Still available to download",
+                    },
+                  ].map((item) => (
+                    <div key={item.label} className="rounded-2xl border bg-background p-4">
+                      <p className="text-sm text-muted-foreground">{item.label}</p>
+                      <p className="mt-2 text-3xl font-semibold">{item.value}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">{item.hint}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
             </CardContent>
           </Card>
 
+          <section className="grid gap-4 md:grid-cols-[1fr_auto] md:items-center">
+            <div className="rounded-2xl border bg-background p-4 shadow-sm">
+              <p className="text-sm font-medium">
+                {selectedDraftIds.length > 0
+                  ? isMs
+                    ? `${selectedDraftIds.length} draf dipilih untuk batch`
+                    : `${selectedDraftIds.length} drafts selected for batching`
+                  : isMs
+                    ? "Pilih beberapa draf untuk gabungkan menjadi satu batch"
+                    : "Select a few drafts to combine into one batch"}
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {isMs
+                  ? "Aliran terbaik: cipta poster, simpan draf, kemudian pilih draf yang mahu digabungkan."
+                  : "Best flow: create posters, save drafts, then select the ones you want to group together."}
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-3">
+              <LanguageSwitcher />
+              <Button variant="destructive" onClick={() => void handleLogout()}>
+                <LogOut className="mr-2 h-4 w-4" />
+                {ui.signOut}
+              </Button>
+            </div>
+          </section>
+
           {(remoteError || !isRemoteReady || isSyncing) && (
-            <Card>
+            <Card className="border-amber-200/60 bg-amber-50/50 dark:border-amber-900/60 dark:bg-amber-950/20">
               <CardContent className="flex flex-col gap-3 p-4 text-sm md:flex-row md:items-center md:justify-between">
                 <div>
                   <p className="font-medium">
@@ -397,40 +466,22 @@ const Dashboard = () => {
             </Card>
           )}
 
-          <section className="grid gap-4 md:grid-cols-3">
-            <Card>
-              <CardContent className="p-6">
-                <p className="text-sm text-muted-foreground">{ui.draftCount}</p>
-                <p className="mt-2 text-3xl font-semibold">{summary.draftCount}</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-6">
-                <p className="text-sm text-muted-foreground">
-                  {isMs ? "Muat turun bulan ini" : "Downloads this month"}
-                </p>
-                <p className="mt-2 text-3xl font-semibold">{monthlyPosterCount}</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-6">
-                <p className="text-sm text-muted-foreground">
-                  {isMs ? "Baki muat turun" : "Remaining downloads"}
-                </p>
-                <p className="mt-2 text-3xl font-semibold">{remainingFreePosters}</p>
-              </CardContent>
-            </Card>
-          </section>
-
-          <section className="grid gap-6 xl:grid-cols-[1.3fr_0.7fr]">
-            <Card>
-              <CardHeader>
-                <CardTitle>{ui.drafts}</CardTitle>
-                <CardDescription>
-                  {isMs
-                    ? "Buka semula, namakan semula, padam, atau pilih draf untuk batch ringkas."
-                    : "Reopen, rename, delete, or pick drafts for a simple batch."}
-                </CardDescription>
+          <section className="grid gap-6 xl:grid-cols-[1.35fr_0.65fr]">
+            <Card className="shadow-sm">
+              <CardHeader className="gap-3">
+                <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                  <div>
+                    <CardTitle>{ui.drafts}</CardTitle>
+                    <CardDescription>
+                      {isMs
+                        ? "Fokus pada draf yang sedang anda siapkan. Buka semula, namakan semula, padam, atau pilih untuk batch."
+                        : "Focus on the drafts you are actively working on. Reopen, rename, delete, or select them for a batch."}
+                    </CardDescription>
+                  </div>
+                  <div className="rounded-xl border bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
+                    {isMs ? `${filteredDrafts.length} draf dipaparkan` : `${filteredDrafts.length} drafts shown`}
+                  </div>
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <Input
@@ -440,12 +491,22 @@ const Dashboard = () => {
                 />
                 <div className="space-y-3">
                   {filteredDrafts.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">{ui.noDrafts}</p>
+                    <div className="rounded-2xl border border-dashed p-8 text-center">
+                      <p className="font-medium">{ui.noDrafts}</p>
+                      <p className="mt-2 text-sm text-muted-foreground">
+                        {isMs
+                          ? "Mula dengan satu poster baru. Draf yang anda simpan akan muncul di sini."
+                          : "Start with a new poster. Drafts you save will appear here."}
+                      </p>
+                      <Button asChild className="mt-4">
+                        <Link to="/create">{ui.openBuilder}</Link>
+                      </Button>
+                    </div>
                   ) : (
                     filteredDrafts.map((draft) => (
                       <div
                         key={draft.id}
-                        className="flex flex-col gap-3 rounded-xl border border-border p-4 md:flex-row md:items-center md:justify-between"
+                        className="flex flex-col gap-3 rounded-2xl border border-border/70 bg-background p-4 transition-colors hover:bg-muted/30 md:flex-row md:items-center md:justify-between"
                       >
                         <div className="flex items-start gap-3">
                           <input
@@ -454,7 +515,7 @@ const Dashboard = () => {
                             checked={selectedDraftIds.includes(draft.id)}
                             onChange={() => handleToggleDraft(draft.id)}
                           />
-                          <div>
+                          <div className="space-y-1">
                             <p className="font-medium">{draft.title}</p>
                             <p className="text-sm text-muted-foreground">
                               {draft.poster.fullName || "-"} • {draft.poster.format}
@@ -480,19 +541,21 @@ const Dashboard = () => {
                     ))
                   )}
                 </div>
-                <div className="grid gap-3 md:grid-cols-[1fr_auto]">
-                  <Input
-                    placeholder={ui.batchName}
-                    value={batchName}
-                    onChange={(event) => setBatchName(event.target.value)}
-                  />
-                  <Button onClick={handleCreateBatch}>{ui.createBatch}</Button>
+                <div className="rounded-2xl border bg-muted/30 p-4">
+                  <div className="grid gap-3 md:grid-cols-[1fr_auto]">
+                    <Input
+                      placeholder={ui.batchName}
+                      value={batchName}
+                      onChange={(event) => setBatchName(event.target.value)}
+                    />
+                    <Button onClick={handleCreateBatch}>{ui.createBatch}</Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
 
             <div className="space-y-6">
-              <Card>
+              <Card className="shadow-sm">
                 <CardHeader>
                   <CardTitle>{ui.batches}</CardTitle>
                   <CardDescription>
@@ -503,10 +566,17 @@ const Dashboard = () => {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {batches.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">{ui.noBatches}</p>
+                    <div className="rounded-2xl border border-dashed p-6 text-center">
+                      <p className="font-medium">{ui.noBatches}</p>
+                      <p className="mt-2 text-sm text-muted-foreground">
+                        {isMs
+                          ? "Pilih beberapa draf dan cipta batch bila anda mahu urus poster secara berkumpulan."
+                          : "Select a few drafts and create a batch when you want to manage posters together."}
+                      </p>
+                    </div>
                   ) : (
                     batches.slice(0, 5).map((batch) => (
-                      <div key={batch.id} className="rounded-xl border border-border p-4">
+                      <div key={batch.id} className="rounded-2xl border border-border/70 p-4">
                         <div className="flex items-start justify-between gap-3">
                           <div>
                             <p className="font-medium">{batch.name}</p>
@@ -525,14 +595,23 @@ const Dashboard = () => {
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="shadow-sm">
                 <CardHeader>
                   <CardTitle>{isMs ? "Cara paling mudah guna" : "The easiest way to use it"}</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3 text-sm text-muted-foreground">
-                  <p>{isMs ? "1. Klik Buka Pembina Poster" : "1. Click Open Poster Builder"}</p>
-                  <p>{isMs ? "2. Jana poster dan simpan sebagai draf" : "2. Generate a poster and save it as a draft"}</p>
-                  <p>{isMs ? "3. Kembali ke sini untuk buka semula draf bila perlu" : "3. Come back here to reopen your drafts anytime"}</p>
+                <CardContent className="space-y-4 text-sm">
+                  {[
+                    isMs ? "Klik Buka Pembina Poster" : "Click Open Poster Builder",
+                    isMs ? "Jana poster dan simpan sebagai draf" : "Generate a poster and save it as a draft",
+                    isMs ? "Kembali ke sini untuk buka semula atau batch-kan draf" : "Come back here to reopen or batch your drafts",
+                  ].map((step, index) => (
+                    <div key={step} className="flex items-start gap-3">
+                      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
+                        {index + 1}
+                      </div>
+                      <p className="pt-1 text-muted-foreground">{step}</p>
+                    </div>
+                  ))}
                 </CardContent>
               </Card>
             </div>
