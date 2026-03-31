@@ -14,11 +14,12 @@ export type Database = {
   }
   public: {
     Tables: {
-      free_tier_usage: {
+      poster_quota: {
         Row: {
           created_at: string
           download_count: number
-          generation_count: number
+          id: string
+          monthly_limit: number
           period_key: string
           updated_at: string
           user_id: string
@@ -26,7 +27,8 @@ export type Database = {
         Insert: {
           created_at?: string
           download_count?: number
-          generation_count?: number
+          id?: string
+          monthly_limit?: number
           period_key: string
           updated_at?: string
           user_id: string
@@ -34,7 +36,8 @@ export type Database = {
         Update: {
           created_at?: string
           download_count?: number
-          generation_count?: number
+          id?: string
+          monthly_limit?: number
           period_key?: string
           updated_at?: string
           user_id?: string
@@ -43,8 +46,8 @@ export type Database = {
       }
       workspace_state: {
         Row: {
-          api_credentials: Json
           analytics: Json
+          api_credentials: Json
           batches: Json
           created_at: string
           drafts: Json
@@ -55,8 +58,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          api_credentials?: Json
           analytics?: Json
+          api_credentials?: Json
           batches?: Json
           created_at?: string
           drafts?: Json
@@ -67,8 +70,8 @@ export type Database = {
           user_id: string
         }
         Update: {
-          api_credentials?: Json
           analytics?: Json
+          api_credentials?: Json
           batches?: Json
           created_at?: string
           drafts?: Json
@@ -86,26 +89,27 @@ export type Database = {
     }
     Functions: {
       consume_free_poster_quota: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           allowed: boolean
           download_count: number
           monthly_limit: number
           period_key: string
-          plan: string
           remaining_count: number
         }[]
       }
       get_free_poster_quota_status: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
-          allowed: boolean
           download_count: number
           monthly_limit: number
           period_key: string
-          plan: string
           remaining_count: number
         }[]
+      }
+      submit_enterprise_request: {
+        Args: { request_source?: string }
+        Returns: undefined
       }
     }
     Enums: {

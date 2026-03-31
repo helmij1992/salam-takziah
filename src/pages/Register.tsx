@@ -163,7 +163,8 @@ const Register = () => {
       subtitle={t.authRegisterSubtitle}
       switchPrompt={t.authRegisterSwitchPrompt}
       switchLabel={t.authRegisterSwitchLabel}
-      switchTo={{ pathname: "/login", state: { redirectTo } }}
+      switchTo="/login"
+      switchState={{ redirectTo }}
       form={(
         <form className="space-y-5" onSubmit={handleSubmit}>
           <div className="space-y-2">

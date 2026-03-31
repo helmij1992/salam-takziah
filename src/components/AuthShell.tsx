@@ -14,6 +14,7 @@ interface AuthShellProps {
   switchPrompt: string;
   switchLabel: string;
   switchTo: To;
+  switchState?: Record<string, unknown>;
 }
 
 const AuthShell = ({
@@ -24,6 +25,7 @@ const AuthShell = ({
   switchPrompt,
   switchLabel,
   switchTo,
+  switchState,
 }: AuthShellProps) => {
   const { t } = useLanguage();
   const authHighlights = [
@@ -103,7 +105,7 @@ const AuthShell = ({
 
           <div className="mt-6 rounded-2xl border border-border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
             {switchPrompt}{" "}
-            <Link className="font-medium text-foreground underline underline-offset-4" to={switchTo}>
+            <Link className="font-medium text-foreground underline underline-offset-4" to={switchTo} state={switchState}>
               {switchLabel}
             </Link>
           </div>
