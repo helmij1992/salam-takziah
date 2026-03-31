@@ -8,7 +8,6 @@ import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { PosterData } from "@/types/poster";
-import { resolvePlanMetadataValue } from "@/lib/auth";
 
 const exampleAccentMap = {
   classic: "from-stone-100 via-zinc-100 to-amber-50",
@@ -141,14 +140,6 @@ const HomePage = () => {
         state: getPlanActionState(planId),
       });
       return;
-    }
-
-    if (planId === "pro") {
-      await supabase.auth.updateUser({
-        data: {
-          plan: resolvePlanMetadataValue(planId),
-        },
-      });
     }
 
     navigate(getPlanRedirectTarget(planId));

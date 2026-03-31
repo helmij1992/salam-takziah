@@ -34,6 +34,16 @@ type PremiumTrialQuotaStatus = {
   downloadLimit: number;
 };
 
+type AccessStatus = {
+  effectivePlan: SubscriptionPlan | null;
+  planSource: string | null;
+  requestStatus: string | null;
+  requestId: string | null;
+  requestedPlan: string | null;
+  reviewedAt: string | null;
+  reviewerNote: string | null;
+};
+
 const getCurrentMonthKey = () => {
   const now = new Date();
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
@@ -193,6 +203,16 @@ const getDefaultPremiumTrialQuota = (): PremiumTrialQuotaStatus => ({
   downloadLimit: PREMIUM_TRIAL_DOWNLOAD_LIMIT,
 });
 
+const getDefaultAccessStatus = (): AccessStatus => ({
+  effectivePlan: null,
+  planSource: null,
+  requestStatus: null,
+  requestId: null,
+  requestedPlan: null,
+  reviewedAt: null,
+  reviewerNote: null,
+});
+
 export const useSubscription = () => {
   const { authUser, identity, isAuthResolved } = useAuthSession();
   const [quotaStatus, setQuotaStatus] = useState<QuotaStatus>({
@@ -203,6 +223,7 @@ export const useSubscription = () => {
   });
   const [quotaSource, setQuotaSource] = useState<"local" | "remote">("local");
   const [premiumTrialQuota, setPremiumTrialQuota] = useState<PremiumTrialQuotaStatus>(getDefaultPremiumTrialQuota());
+  const [accessStatus, setAccessStatus] = useState<AccessStatus>(getDefaultAccessStatus());
 
   const subscriptionPlan = useMemo(() => resolvePlanFromAuthUser(authUser), [authUser]);
   const appRole = useMemo(() => resolveRoleFromAuthUser(authUser), [authUser]);
@@ -210,19 +231,55 @@ export const useSubscription = () => {
     () => getPremiumTrialStatus(authUser, subscriptionPlan),
     [authUser, subscriptionPlan],
   );
+  const refreshAccessStatus = useCallback(async () => {
+    if (!isAuthResolved || !authUser) {
+      setAccessStatus(getDefaultAccessStatus());
+      return;
+    }
+
+    const { data, error } = await supabase.rpc("get_subscription_access_status");
+    if (error || !data || data.length === 0) {
+      setAccessStatus(getDefaultAccessStatus());
+      return;
+    }
+
+    const nextStatus = data[0];
+    setAccessStatus({
+      effectivePlan: normalizePlan(nextStatus.effective_plan),
+      planSource: nextStatus.plan_source,
+      requestStatus: nextStatus.request_status,
+      requestId: nextStatus.request_id,
+      requestedPlan: nextStatus.requested_plan,
+      reviewedAt: nextStatus.reviewed_at,
+      reviewerNote: nextStatus.reviewer_note,
+    });
+  }, [authUser, isAuthResolved]);
+
+  useEffect(() => {
+    void refreshAccessStatus();
+  }, [refreshAccessStatus]);
+
   const plan = useMemo<SubscriptionPlan>(
     () => {
       if (appRole === "superadmin") {
         return "premium";
       }
 
+      if (accessStatus.planSource === "override" && accessStatus.effectivePlan) {
+        return accessStatus.effectivePlan;
+      }
+
       if (subscriptionPlan === "premium" && premiumTrial.isExpired) {
         return "free";
       }
 
+      if (accessStatus.effectivePlan) {
+        return accessStatus.effectivePlan;
+      }
+
       return subscriptionPlan;
     },
-    [appRole, premiumTrial.isExpired, subscriptionPlan],
+    [accessStatus.effectivePlan, accessStatus.planSource, appRole, premiumTrial.isExpired, subscriptionPlan],
   );
 
   const refreshQuota = useCallback(async () => {
@@ -370,6 +427,8 @@ export const useSubscription = () => {
   return {
     plan,
     subscriptionPlan,
+    accessPlan: accessStatus.effectivePlan,
+    accessPlanSource: accessStatus.planSource,
     appRole,
     isAuthResolved,
     identity,
@@ -392,6 +451,12 @@ export const useSubscription = () => {
     canDownloadPoster,
     isQuotaLoading: false,
     quotaSource,
+    latestPlanRequestStatus: accessStatus.requestStatus,
+    latestPlanRequestId: accessStatus.requestId,
+    latestRequestedPlan: accessStatus.requestedPlan,
+    latestPlanRequestReviewedAt: accessStatus.reviewedAt,
+    latestPlanRequestReviewerNote: accessStatus.reviewerNote,
+    refreshAccessStatus,
     refreshQuota,
     recordPosterDownload,
   };

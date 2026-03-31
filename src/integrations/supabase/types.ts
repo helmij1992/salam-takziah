@@ -44,6 +44,72 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_plan_overrides: {
+        Row: {
+          approved_by: string | null
+          approved_request_id: string | null
+          created_at: string
+          plan: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          approved_by?: string | null
+          approved_request_id?: string | null
+          created_at?: string
+          plan: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          approved_by?: string | null
+          approved_request_id?: string | null
+          created_at?: string
+          plan?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      subscription_plan_requests: {
+        Row: {
+          created_at: string
+          id: string
+          requested_plan: string
+          requester_note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          reviewer_note: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          requested_plan: string
+          requester_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          reviewer_note?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          requested_plan?: string
+          requester_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          reviewer_note?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       workspace_state: {
         Row: {
           analytics: Json
@@ -88,6 +154,29 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_list_subscription_plan_requests: {
+        Args: never
+        Returns: {
+          created_at: string
+          email: string
+          request_id: string
+          requested_plan: string
+          requester_note: string | null
+          reviewed_at: string | null
+          reviewer_note: string | null
+          status: string
+          user_id: string
+        }[]
+      }
+      admin_resolve_subscription_plan_request: {
+        Args: { approve: boolean; request_id_value: string; reviewer_note_value?: string }
+        Returns: {
+          effective_plan: string
+          request_id: string
+          status: string
+          user_id: string
+        }[]
+      }
       consume_free_poster_quota: {
         Args: never
         Returns: {
@@ -107,9 +196,29 @@ export type Database = {
           remaining_count: number
         }[]
       }
+      get_subscription_access_status: {
+        Args: never
+        Returns: {
+          effective_plan: string
+          plan_source: string
+          request_id: string | null
+          request_status: string | null
+          requested_plan: string | null
+          reviewed_at: string | null
+          reviewer_note: string | null
+        }[]
+      }
       submit_enterprise_request: {
         Args: { request_source?: string }
         Returns: undefined
+      }
+      submit_subscription_plan_request: {
+        Args: { requested_plan_value?: string; requester_note_value?: string }
+        Returns: {
+          request_id: string
+          requested_plan: string
+          status: string
+        }[]
       }
     }
     Enums: {

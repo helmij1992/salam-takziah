@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Copy, Download, FolderOpen, KeyRound, LogOut, RefreshCw, Sparkles, Trash2, Upload, UserPlus, Users, Wand2 } from "lucide-react";
 import { toast } from "sonner";
@@ -16,6 +16,18 @@ import { useSubscription } from "@/hooks/use-subscription";
 import { AUTH_PENDING_IDENTITY, createEmptyPoster, useWorkspace } from "@/hooks/use-workspace";
 import { PosterData } from "@/types/poster";
 import { WorkspaceRole } from "@/types/workspace";
+
+type SubscriptionPlanRequestRow = {
+  request_id: string;
+  user_id: string;
+  email: string;
+  requested_plan: string;
+  status: string;
+  requester_note: string | null;
+  reviewer_note: string | null;
+  reviewed_at: string | null;
+  created_at: string;
+};
 
 const parseCsvRows = (csvText: string) => {
   const lines = csvText
@@ -277,6 +289,24 @@ const Dashboard = () => {
     premiumTrialExpiredDescription: isMs
       ? "Akses Premium anda hanya aktif untuk 14 hari selepas pendaftaran pertama. Akaun ini kini kembali ke ciri Free."
       : "Your Premium access is only active for 14 days after first registration. This account has now returned to Free features.",
+    requestPremiumTitle: isMs ? "Mohon naik taraf ke Premium" : "Request a Premium upgrade",
+    requestPremiumDescription: isMs
+      ? "Jika anda bermula dengan pelan Free, permintaan naik taraf mesti disemak oleh superadmin terlebih dahulu."
+      : "If you started on the Free plan, upgrade requests must be reviewed by a superadmin first.",
+    requestPremiumButton: isMs ? "Hantar Permintaan Premium" : "Send Premium Request",
+    requestPendingTitle: isMs ? "Permintaan sedang disemak" : "Request under review",
+    requestPendingDescription: isMs
+      ? "Permintaan anda sedang menunggu kelulusan superadmin."
+      : "Your request is waiting for superadmin approval.",
+    requestRejectedTitle: isMs ? "Permintaan ditolak" : "Request declined",
+    requestApprovedTitle: isMs ? "Permintaan diluluskan" : "Request approved",
+    requestAdminTitle: isMs ? "Permintaan naik taraf" : "Upgrade requests",
+    requestAdminDescription: isMs
+      ? "Semak dan luluskan permintaan pengguna Free untuk akses Premium."
+      : "Review and approve Free user requests for Premium access.",
+    approve: isMs ? "Luluskan" : "Approve",
+    reject: isMs ? "Tolak" : "Reject",
+    noRequests: isMs ? "Tiada permintaan naik taraf." : "No upgrade requests.",
   };
 
   const {
@@ -295,6 +325,10 @@ const Dashboard = () => {
     premiumTrialDownloadCount,
     premiumTrialDownloadsRemaining,
     premiumTrialDownloadLimit,
+    latestPlanRequestStatus,
+    latestPlanRequestReviewedAt,
+    latestPlanRequestReviewerNote,
+    refreshAccessStatus,
     monthlyPosterCount,
     remainingFreePosters,
     userEmail,
@@ -338,8 +372,33 @@ const Dashboard = () => {
   const [csvText, setCsvText] = useState(
     "fullName,gender,organization,from\nAhmad bin Abdullah,allahyarham,Masjid Al Ikhlas,Keluarga Ahmad",
   );
+  const [planRequests, setPlanRequests] = useState<SubscriptionPlanRequestRow[]>([]);
+  const [isRequestSubmitting, setIsRequestSubmitting] = useState(false);
+  const [isRequestListLoading, setIsRequestListLoading] = useState(false);
 
   const planLabel = isSuperadmin ? "Superadmin" : isPaidTier ? "Premium" : "Free";
+
+  useEffect(() => {
+    if (!isSuperadmin) {
+      setPlanRequests([]);
+      return;
+    }
+
+    const loadPlanRequests = async () => {
+      setIsRequestListLoading(true);
+      const { data, error } = await supabase.rpc("admin_list_subscription_plan_requests");
+      setIsRequestListLoading(false);
+
+      if (error || !data) {
+        toast.error(isMs ? "Gagal memuatkan permintaan naik taraf." : "Failed to load upgrade requests.");
+        return;
+      }
+
+      setPlanRequests(data);
+    };
+
+    void loadPlanRequests();
+  }, [isMs, isSuperadmin]);
 
   const filteredDrafts = useMemo(() => {
     const keyword = draftSearch.trim().toLowerCase();
@@ -470,6 +529,47 @@ const Dashboard = () => {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate("/");
+  };
+
+  const handleSubmitPremiumRequest = async () => {
+    setIsRequestSubmitting(true);
+    const { error } = await supabase.rpc("submit_subscription_plan_request", {
+      requested_plan_value: "premium",
+    });
+    setIsRequestSubmitting(false);
+
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+
+    await refreshAccessStatus();
+    toast.success(isMs ? "Permintaan Premium berjaya dihantar." : "Premium request submitted successfully.");
+  };
+
+  const handleResolvePlanRequest = async (requestId: string, approveRequest: boolean) => {
+    const { error } = await supabase.rpc("admin_resolve_subscription_plan_request", {
+      request_id_value: requestId,
+      approve: approveRequest,
+    });
+
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+
+    setPlanRequests((currentRequests) =>
+      currentRequests.map((requestRow) =>
+        requestRow.request_id === requestId
+          ? {
+              ...requestRow,
+              status: approveRequest ? "approved" : "rejected",
+              reviewed_at: new Date().toISOString(),
+            }
+          : requestRow,
+      ),
+    );
+    toast.success(approveRequest ? (isMs ? "Permintaan diluluskan." : "Request approved.") : (isMs ? "Permintaan ditolak." : "Request rejected."));
   };
 
   if (!isAuthResolved) {
@@ -604,6 +704,33 @@ const Dashboard = () => {
                 <CardDescription>{ui.planLimitSummaryDesc}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4 text-sm">
+                <div className="rounded-2xl border bg-background p-4">
+                  <p className="font-medium">
+                    {latestPlanRequestStatus === "pending"
+                      ? ui.requestPendingTitle
+                      : latestPlanRequestStatus === "rejected"
+                        ? ui.requestRejectedTitle
+                        : latestPlanRequestStatus === "approved"
+                          ? ui.requestApprovedTitle
+                          : ui.requestPremiumTitle}
+                  </p>
+                  <p className="mt-1 text-muted-foreground">
+                    {latestPlanRequestStatus === "pending" ? ui.requestPendingDescription : ui.requestPremiumDescription}
+                  </p>
+                  {latestPlanRequestStatus === "rejected" && latestPlanRequestReviewerNote && (
+                    <p className="mt-2 text-xs text-muted-foreground">{latestPlanRequestReviewerNote}</p>
+                  )}
+                  {latestPlanRequestStatus !== "pending" && latestPlanRequestStatus !== "approved" && (
+                    <Button className="mt-4" onClick={() => void handleSubmitPremiumRequest()} disabled={isRequestSubmitting}>
+                      {ui.requestPremiumButton}
+                    </Button>
+                  )}
+                  {latestPlanRequestStatus === "approved" && latestPlanRequestReviewedAt && (
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      {ui.updated}: {formatDate(latestPlanRequestReviewedAt, locale)}
+                    </p>
+                  )}
+                </div>
                 <div className="rounded-2xl border bg-background p-4">
                   <p className="font-medium">{ui.support}</p>
                   <p className="mt-1 text-muted-foreground">{ui.basicFaqSupport}</p>
@@ -1239,6 +1366,59 @@ const Dashboard = () => {
             </CardContent>
           </Card>
         </section>
+
+        {isSuperadmin && (
+          <section>
+            <Card className="border-border/60 bg-card/95 shadow-sm">
+              <CardHeader>
+                <CardTitle>{ui.requestAdminTitle}</CardTitle>
+                <CardDescription>{ui.requestAdminDescription}</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {isRequestListLoading ? (
+                  <p className="text-sm text-muted-foreground">{ui.loading}</p>
+                ) : planRequests.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">{ui.noRequests}</p>
+                ) : (
+                  planRequests.map((requestRow) => (
+                    <div key={requestRow.request_id} className="rounded-xl border border-border p-4">
+                      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                        <div>
+                          <p className="font-medium">{requestRow.email}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {requestRow.requested_plan} • {requestRow.status}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {ui.created}: {formatDate(requestRow.created_at, locale)}
+                          </p>
+                          {requestRow.requester_note && (
+                            <p className="mt-2 text-sm text-muted-foreground">{requestRow.requester_note}</p>
+                          )}
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {requestRow.status === "pending" ? (
+                            <>
+                              <Button size="sm" onClick={() => void handleResolvePlanRequest(requestRow.request_id, true)}>
+                                {ui.approve}
+                              </Button>
+                              <Button size="sm" variant="outline" onClick={() => void handleResolvePlanRequest(requestRow.request_id, false)}>
+                                {ui.reject}
+                              </Button>
+                            </>
+                          ) : (
+                            <Badge variant={requestRow.status === "approved" ? "secondary" : "outline"}>
+                              {requestRow.status}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </CardContent>
+            </Card>
+          </section>
+        )}
       </div>
     </main>
   );
