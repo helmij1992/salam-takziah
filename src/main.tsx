@@ -1,18 +1,36 @@
 import { createRoot } from "react-dom/client";
-import "./index.css";
 
 function StaticIsolationApp() {
   return (
-    <main className="min-h-screen bg-background p-6">
-      <div className="mx-auto max-w-3xl rounded-3xl border bg-card p-10 text-center shadow-sm">
-        <h1 className="text-4xl font-semibold tracking-tight text-foreground">
+    <div
+      style={{
+        minHeight: "100vh",
+        padding: "40px 24px",
+        backgroundColor: "#ffffff",
+        color: "#111111",
+        fontFamily: "Arial, sans-serif",
+      }}
+    >
+      <div
+        style={{
+          maxWidth: "720px",
+          margin: "0 auto",
+          border: "1px solid #d4d4d8",
+          borderRadius: "24px",
+          padding: "40px",
+          textAlign: "center",
+          backgroundColor: "#ffffff",
+        }}
+      >
+        <h1 style={{ margin: 0, fontSize: "40px", fontWeight: 700 }}>
           Static Root Isolation
         </h1>
-        <p className="mt-4 text-lg text-muted-foreground">
-          The React root is still mounted, but the normal app tree is disabled.
+        <p style={{ margin: "16px 0 0", fontSize: "18px", lineHeight: 1.6 }}>
+          The React root is still mounted, but CSS and the normal app tree are
+          disabled.
         </p>
       </div>
-    </main>
+    </div>
   );
 }
 
