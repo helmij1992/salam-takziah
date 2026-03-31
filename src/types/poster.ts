@@ -1,6 +1,6 @@
 export type PosterFormat = "classic" | "instagram-square" | "instagram-landscape" | "instagram-portrait" | "facebook" | "instagram-story";
 export type PosterTheme = "classic" | "retro" | "premium";
-export type PremiumTemplate = "signature" | "official";
+export type PremiumTemplate = "signature" | "official" | "official-light" | "official-night";
 
 export interface PosterData {
   photo: string | null;

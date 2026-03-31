@@ -203,7 +203,9 @@ const PosterPreview = ({ data, isFreeTier, isPaidTier, isDiamondTier, onDownload
     data.theme === "premium"
       ? "bg-[radial-gradient(circle_at_top,_rgba(212,175,55,0.22),_transparent_42%),linear-gradient(180deg,_#18120f_0%,_#090909_100%)]"
       : "bg-poster-bg";
-  const isOfficialPremiumTemplate = isPaidTier && data.theme === "premium" && data.premiumTemplate === "official";
+  const premiumTemplate = data.premiumTemplate === "official" ? "official-light" : data.premiumTemplate;
+  const isOfficialPremiumTemplate = isPaidTier && data.theme === "premium" && premiumTemplate === "official-light";
+  const isOfficialNightPremiumTemplate = isPaidTier && data.theme === "premium" && premiumTemplate === "official-night";
   const isInstagramStory = currentFormat === "instagram-story";
   const showBrandWatermark = isFreeTier || (isDiamondTier && !data.whiteLabel);
 
@@ -281,6 +283,109 @@ const PosterPreview = ({ data, isFreeTier, isPaidTier, isDiamondTier, onDownload
             {showBrandWatermark && (
               <div className="pointer-events-none absolute bottom-4 left-4">
                 <div className="rounded-md border border-black/10 bg-white/70 px-3 py-1 text-[10px] font-medium tracking-[0.18em] text-black/60 shadow-sm backdrop-blur-sm">
+                  ©SalamTakziah
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            {isFreeTier && <p className="text-xs text-muted-foreground">{t.freeTierDownloadNotice}</p>}
+            {isPaidTier && <p className="text-xs text-muted-foreground">{t.premiumTierExportNotice}</p>}
+            <div className={`grid gap-2 ${isPaidTier ? "sm:grid-cols-2" : "grid-cols-1"}`}>
+              <Button onClick={() => handleDownload("jpeg")} disabled={isDownloading} className="w-full" size="lg">
+                <Download className="mr-2 h-4 w-4" />
+                {isDownloading ? t.downloadingButton : t.downloadButton}
+              </Button>
+              {isPaidTier && (
+                <Button onClick={() => handleDownload("png")} disabled={isDownloading} className="w-full" size="lg" variant="secondary">
+                  <Download className="mr-2 h-4 w-4" />
+                  {isDownloading ? t.downloadingButton : t.downloadPngButton}
+                </Button>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (isOfficialNightPremiumTemplate) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>{t.previewTitle}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div
+            ref={posterRef}
+            className="relative overflow-hidden rounded-lg shadow-lg"
+            style={{
+              aspectRatio: config.aspectRatio,
+              minHeight: config.minHeight,
+              maxHeight: config.maxHeight,
+              background:
+                "radial-gradient(circle at 75% 20%, rgba(54,191,207,0.30), transparent 22%), radial-gradient(circle at 82% 32%, rgba(92,212,226,0.16), transparent 24%), linear-gradient(180deg, #071019 0%, #0b1925 48%, #04070b 100%)",
+            }}
+          >
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06),transparent_26%),radial-gradient(circle_at_bottom,rgba(255,255,255,0.04),transparent_20%)]" />
+
+            <div className="relative flex h-full flex-col items-center px-6 py-8 text-center text-white md:px-10">
+              {data.companyLogo && (
+                <div className="mb-4 flex justify-center">
+                  <img src={data.companyLogo} alt="Company logo" className="max-h-16 w-auto object-contain md:max-h-20" />
+                </div>
+              )}
+
+              <p
+                className="mb-2 text-2xl leading-relaxed text-white md:text-4xl"
+                style={{ fontFamily: "Scheherazade New, serif", fontWeight: 700, direction: "rtl" }}
+              >
+                إِنَّا لِلّٰهِ وَإِنَّا إِلَيْهِ رَاجِعُونَ
+              </p>
+
+              <h1
+                className="mt-3 text-4xl italic leading-none text-white md:text-6xl"
+                style={{ fontFamily: "Cormorant Garamond, serif", fontWeight: 600 }}
+              >
+                Salam Takziah
+              </h1>
+
+              <div className="mt-6 flex flex-1 flex-col items-center justify-center">
+                {grayscalePhoto && (
+                  <div className="mb-6">
+                    <img
+                      src={grayscalePhoto}
+                      alt={data.fullName}
+                      className="h-40 w-40 rounded-full border-4 border-white/80 object-cover shadow-2xl md:h-56 md:w-56"
+                    />
+                  </div>
+                )}
+
+                <h2 className="text-2xl font-bold uppercase tracking-tight text-white md:text-4xl">
+                  {data.fullName}
+                </h2>
+                {data.organization && (
+                  <p className="mt-1 text-base text-white/80 md:text-xl">
+                    {data.organization}
+                  </p>
+                )}
+                <p className="mt-5 max-w-2xl text-sm leading-relaxed text-white/90 md:text-lg">
+                  {data.message || defaultPrayerLineTwo}
+                </p>
+              </div>
+
+              {data.from && (
+                <div className="mt-6 w-full max-w-2xl text-center text-white">
+                  <p className="text-xs uppercase tracking-[0.24em] text-white/60 md:text-sm">{fromLabel}</p>
+                  <p className="mt-3 text-sm font-semibold uppercase leading-relaxed md:text-lg">{data.from}</p>
+                </div>
+              )}
+            </div>
+
+            {showBrandWatermark && (
+              <div className="pointer-events-none absolute bottom-4 left-4">
+                <div className="rounded-md border border-white/10 bg-black/25 px-3 py-1 text-[10px] font-medium tracking-[0.18em] text-white/70 shadow-sm backdrop-blur-sm">
                   ©SalamTakziah
                 </div>
               </div>

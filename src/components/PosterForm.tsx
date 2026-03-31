@@ -358,13 +358,19 @@ const PosterForm = ({
                         {t.premiumTemplateSignature}
                       </Label>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="official" id="premium-template-official" />
-                      <Label htmlFor="premium-template-official" className="font-normal cursor-pointer">
-                        {t.premiumTemplateOfficial}
-                      </Label>
-                    </div>
-                  </RadioGroup>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="official-light" id="premium-template-official-light" />
+                    <Label htmlFor="premium-template-official-light" className="font-normal cursor-pointer">
+                      {t.premiumTemplateOfficialLight}
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="official-night" id="premium-template-official-night" />
+                    <Label htmlFor="premium-template-official-night" className="font-normal cursor-pointer">
+                      {t.premiumTemplateOfficialNight}
+                    </Label>
+                  </div>
+                </RadioGroup>
                   <p className="text-xs text-muted-foreground">{t.premiumTemplateHint}</p>
                 </div>
               )}
