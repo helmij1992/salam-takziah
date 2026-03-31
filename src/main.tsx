@@ -1,37 +1,16 @@
-import { createRoot } from "react-dom/client";
+const root = document.getElementById("root");
 
-function StaticIsolationApp() {
-  return (
-    <div
-      style={{
-        minHeight: "100vh",
-        padding: "40px 24px",
-        backgroundColor: "#ffffff",
-        color: "#111111",
-        fontFamily: "Arial, sans-serif",
-      }}
-    >
-      <div
-        style={{
-          maxWidth: "720px",
-          margin: "0 auto",
-          border: "1px solid #d4d4d8",
-          borderRadius: "24px",
-          padding: "40px",
-          textAlign: "center",
-          backgroundColor: "#ffffff",
-        }}
-      >
-        <h1 style={{ margin: 0, fontSize: "40px", fontWeight: 700 }}>
-          Static Root Isolation
-        </h1>
-        <p style={{ margin: "16px 0 0", fontSize: "18px", lineHeight: 1.6 }}>
-          The React root is still mounted, but CSS and the normal app tree are
-          disabled.
-        </p>
-      </div>
-    </div>
-  );
+if (!root) {
+  throw new Error("Root element not found");
 }
 
-createRoot(document.getElementById("root")!).render(<StaticIsolationApp />);
+root.innerHTML = `
+  <div style="min-height:100vh;padding:40px 24px;background:#ffffff;color:#111111;font-family:Arial,sans-serif;">
+    <div style="max-width:720px;margin:0 auto;border:1px solid #d4d4d8;border-radius:24px;padding:40px;text-align:center;background:#ffffff;">
+      <h1 style="margin:0;font-size:40px;font-weight:700;">Plain DOM Isolation</h1>
+      <p style="margin:16px 0 0;font-size:18px;line-height:1.6;">
+        The root is mounted with plain DOM only. React and the normal app tree are disabled.
+      </p>
+    </div>
+  </div>
+`;
