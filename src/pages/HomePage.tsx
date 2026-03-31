@@ -410,7 +410,7 @@ const HomePage = () => {
                       variant={plan.buttonVariant}
                       size="lg"
                     >
-                      <Link to={getPlanActionTarget(plan.id)}>
+                      <Link to={getPlanActionTarget(plan.id)} state={getPlanActionState(plan.id)}>
                         {plan.buttonText}
                       </Link>
                     </Button>
