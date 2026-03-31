@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Copy, Download, FolderOpen, KeyRound, LogOut, RefreshCw, Trash2, Upload, UserPlus, Users } from "lucide-react";
+import { Copy, Download, FolderOpen, KeyRound, LogOut, RefreshCw, Sparkles, Trash2, Upload, UserPlus, Users, Wand2 } from "lucide-react";
 import { toast } from "sonner";
 
 import LanguageSwitcher from "@/components/LanguageSwitcher";
@@ -222,6 +222,53 @@ const Dashboard = () => {
           "Standard Islamic prayer",
           "Watermarked downloads",
         ],
+    premiumMemorial: isMs ? "Premium Memorial" : "Premium Memorial",
+    premiumPrice: isMs ? "RM 39.90 / sebulan" : "RM 39.90 / month",
+    premiumIntro: isMs
+      ? "Direka untuk keluarga, organisasi kecil, dan pasukan yang perlukan kawalan lebih lengkap, akses pantas, dan hasil yang lebih kemas."
+      : "Built for families, small organizations, and teams that need fuller control, faster access, and a more polished output.",
+    premiumHeroNote: isMs
+      ? "Semua ciri premium anda dikumpulkan di satu ruang kerja yang lebih teratur."
+      : "All your premium capabilities are gathered into one more organized workspace.",
+    premiumFeaturesTitle: isMs ? "Kelebihan Premium" : "Premium advantages",
+    premiumFeatures: isMs
+      ? [
+          "Poster tanpa had",
+          "Semua format media sosial",
+          "Tema premium & corak",
+          "Resolusi tinggi (4K)",
+          "Muat turun tanpa tanda air",
+          "Simpanan awan, batch & kolaborasi",
+        ]
+      : [
+          "Unlimited posters",
+          "All social media formats",
+          "Premium themes and patterns",
+          "High-resolution 4K output",
+          "Downloads without watermarks",
+          "Cloud drafts, batching, and collaboration",
+        ],
+    premiumQuickActions: isMs ? "Tindakan Pantas" : "Quick actions",
+    premiumWorkspaceFlow: isMs ? "Aliran kerja Premium" : "Premium workflow",
+    premiumDraftsFocus: isMs
+      ? "Buka semula, pilih, dan susun draf dengan lebih cepat sebelum dijadikan batch atau dihantar semula kepada pasukan."
+      : "Reopen, select, and organize drafts faster before turning them into batches or sharing them with your team.",
+    premiumBatchesFocus: isMs
+      ? "Gabungkan poster daripada draf atau CSV untuk kempen memorial yang lebih besar."
+      : "Combine posters from drafts or CSV into larger memorial campaigns.",
+    premiumTeamFocus: isMs
+      ? "Urus kolaborator, jemputan, dan peranan dalam satu panel yang jelas."
+      : "Manage collaborators, invites, and roles in one clear panel.",
+    premiumApiFocus: isMs
+      ? "Sediakan integrasi dengan kunci API yang mudah dijana dan diputar semula."
+      : "Set up integrations with API keys that are easy to generate and rotate.",
+    premiumImportFocus: isMs
+      ? "Percepat penciptaan memorial berskala dengan import CSV dan sejarah proses."
+      : "Speed up larger memorial creation with CSV import and processing history.",
+    premiumResumeDraft: isMs ? "Sambung Draf Pilihan" : "Resume Selected Draft",
+    premiumManageTeam: isMs ? "Urus Pasukan" : "Manage Team",
+    premiumGenerateApi: isMs ? "Jana Integrasi" : "Generate Integration",
+    premiumSummaryHint: isMs ? "Ringkasan prestasi ruang kerja" : "Workspace performance snapshot",
   };
 
   const {
@@ -717,38 +764,99 @@ const Dashboard = () => {
   }
 
   return (
-    <main className="min-h-screen bg-background p-4 md:p-6">
+    <main className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.08),_transparent_28%),radial-gradient(circle_at_100%_0%,_rgba(196,149,89,0.18),_transparent_30%),linear-gradient(to_bottom,_hsl(var(--background)),_hsl(var(--muted)/0.35))] p-4 md:p-6">
       <div className="mx-auto max-w-7xl space-y-6">
-        <Card>
-          <CardContent className="flex flex-col gap-4 p-6 lg:flex-row lg:items-center lg:justify-between">
-            <div className="space-y-2">
-              <div className="flex flex-wrap items-center gap-3">
-                <h1 className="text-3xl font-bold tracking-tight">{ui.title}</h1>
-                <Badge variant="secondary">{planLabel}</Badge>
+        <Card className="overflow-hidden border-border/60 bg-card/95 shadow-xl">
+          <CardContent className="p-0">
+            <div className="grid gap-0 xl:grid-cols-[1.2fr_0.8fr]">
+              <div className="space-y-6 p-6 md:p-8">
+                <div className="flex flex-wrap items-center gap-3">
+                  <Badge className="bg-primary text-primary-foreground">
+                    <Sparkles className="mr-2 h-3.5 w-3.5" />
+                    {ui.premiumMemorial}
+                  </Badge>
+                  <Badge variant="outline">{planLabel}</Badge>
+                  <Badge variant="outline">{ui.premiumPrice}</Badge>
+                </div>
+                <div className="space-y-3">
+                  <h1 className="text-3xl font-bold tracking-tight md:text-4xl">{ui.title}</h1>
+                  <p className="max-w-3xl text-muted-foreground">{ui.premiumIntro}</p>
+                  <p className="text-sm text-primary">{ui.premiumHeroNote}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {isMs ? "Log masuk sebagai" : "Signed in as"} {userEmail ?? "-"}
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  <Button asChild size="lg">
+                    <Link to="/create">
+                      <Wand2 className="mr-2 h-4 w-4" />
+                      {ui.openBuilder}
+                    </Link>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    onClick={() => {
+                      const firstDraft = drafts[0];
+                      if (firstDraft) {
+                        handleOpenDraft(firstDraft.id);
+                        return;
+                      }
+                      navigate("/create");
+                    }}
+                  >
+                    <FolderOpen className="mr-2 h-4 w-4" />
+                    {ui.premiumResumeDraft}
+                  </Button>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                  {ui.premiumFeatures.map((feature) => (
+                    <div key={feature} className="rounded-2xl border border-border/60 bg-background/80 px-4 py-3 text-sm shadow-sm">
+                      {feature}
+                    </div>
+                  ))}
+                </div>
               </div>
-              <p className="text-muted-foreground">{ui.subtitle}</p>
-              <p className="text-sm text-muted-foreground">
-                {isMs ? "Log masuk sebagai" : "Signed in as"} {userEmail ?? "-"}
-              </p>
-            </div>
-            <div className="flex flex-wrap items-center gap-3">
-              <LanguageSwitcher />
-              <Button asChild variant="outline">
-                <Link to="/create">
-                  <FolderOpen className="mr-2 h-4 w-4" />
-                  {ui.openBuilder}
-                </Link>
-              </Button>
-              <Button variant="destructive" onClick={() => void handleLogout()}>
-                <LogOut className="mr-2 h-4 w-4" />
-                {ui.signOut}
-              </Button>
+
+              <div className="border-t bg-muted/40 p-6 md:p-8 xl:border-l xl:border-t-0">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-medium">{ui.premiumQuickActions}</p>
+                    <p className="text-sm text-muted-foreground">{ui.premiumSummaryHint}</p>
+                  </div>
+                  <LanguageSwitcher />
+                </div>
+                <div className="mt-5 grid gap-3">
+                  <Button asChild variant="secondary" className="justify-start">
+                    <Link to="/create">
+                      <FolderOpen className="mr-2 h-4 w-4" />
+                      {ui.openBuilder}
+                    </Link>
+                  </Button>
+                  <Button variant="outline" className="justify-start" onClick={handleCreateBatch}>
+                    <Download className="mr-2 h-4 w-4" />
+                    {ui.createBatch}
+                  </Button>
+                  <Button variant="outline" className="justify-start" onClick={handleAddMember}>
+                    <Users className="mr-2 h-4 w-4" />
+                    {ui.premiumManageTeam}
+                  </Button>
+                  <Button variant="outline" className="justify-start" onClick={handleCreateApiKey}>
+                    <KeyRound className="mr-2 h-4 w-4" />
+                    {ui.premiumGenerateApi}
+                  </Button>
+                  <Button variant="destructive" className="justify-start" onClick={() => void handleLogout()}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    {ui.signOut}
+                  </Button>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
 
         {(remoteError || !isRemoteReady || isSyncing) && (
-          <Card>
+          <Card className="border-amber-200/60 bg-amber-50/50 dark:border-amber-900/60 dark:bg-amber-950/20">
             <CardContent className="flex flex-col gap-3 p-4 text-sm md:flex-row md:items-center md:justify-between">
               <div>
                 <p className="font-medium">
@@ -768,29 +876,26 @@ const Dashboard = () => {
 
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {[
-            { label: ui.draftCount, value: summary.draftCount },
-            { label: ui.batchCount, value: summary.batchCount },
-            { label: ui.teamCount, value: summary.teamCount },
-            { label: ui.generatedCount, value: summary.totalGenerated },
+            { label: ui.draftCount, value: summary.draftCount, hint: ui.premiumDraftsFocus },
+            { label: ui.batchCount, value: summary.batchCount, hint: ui.premiumBatchesFocus },
+            { label: ui.teamCount, value: summary.teamCount, hint: ui.premiumTeamFocus },
+            { label: ui.generatedCount, value: summary.totalGenerated, hint: ui.premiumApiFocus },
           ].map((item) => (
-            <Card key={item.label}>
+            <Card key={item.label} className="border-border/60 bg-card/95 shadow-sm">
               <CardContent className="p-6">
                 <p className="text-sm text-muted-foreground">{item.label}</p>
                 <p className="mt-2 text-3xl font-semibold">{item.value}</p>
+                <p className="mt-2 text-sm text-muted-foreground">{item.hint}</p>
               </CardContent>
             </Card>
           ))}
         </section>
 
         <section className="grid gap-6 xl:grid-cols-[1.3fr_0.7fr]">
-          <Card>
+          <Card className="border-border/60 bg-card/95 shadow-sm">
             <CardHeader>
               <CardTitle>{ui.drafts}</CardTitle>
-              <CardDescription>
-                {isMs
-                  ? "Buka semula, namakan semula, pilih, dan susun draf untuk batch."
-                  : "Reopen, rename, select, and organize drafts into batches."}
-              </CardDescription>
+              <CardDescription>{ui.premiumDraftsFocus}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <Input
@@ -851,14 +956,10 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-border/60 bg-card/95 shadow-sm">
             <CardHeader>
               <CardTitle>{ui.batches}</CardTitle>
-              <CardDescription>
-                {isMs
-                  ? "Lihat kumpulan poster yang dihasilkan daripada draf atau CSV."
-                  : "Review poster collections created from drafts or CSV imports."}
-              </CardDescription>
+              <CardDescription>{ui.premiumBatchesFocus}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               {batches.length === 0 ? (
@@ -896,14 +997,10 @@ const Dashboard = () => {
         </section>
 
         <section className="grid gap-6 lg:grid-cols-2">
-          <Card>
+          <Card className="border-border/60 bg-card/95 shadow-sm">
             <CardHeader>
               <CardTitle>{ui.team}</CardTitle>
-              <CardDescription>
-                {isMs
-                  ? "Tambah kolaborator, semak status jemputan, dan urus peranan."
-                  : "Add collaborators, review invite status, and manage roles."}
-              </CardDescription>
+              <CardDescription>{ui.premiumTeamFocus}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-3 md:grid-cols-2">
@@ -980,14 +1077,10 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-border/60 bg-card/95 shadow-sm">
             <CardHeader>
               <CardTitle>{ui.apiKeys}</CardTitle>
-              <CardDescription>
-                {isMs
-                  ? "Jana, putar semula, dan nyahaktif kunci integrasi."
-                  : "Generate, rotate, and revoke integration keys."}
-              </CardDescription>
+              <CardDescription>{ui.premiumApiFocus}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex flex-wrap items-end gap-3">
@@ -1049,14 +1142,10 @@ const Dashboard = () => {
         </section>
 
         <section className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-          <Card>
+          <Card className="border-border/60 bg-card/95 shadow-sm">
             <CardHeader>
               <CardTitle>{ui.imports}</CardTitle>
-              <CardDescription>
-                {isMs
-                  ? "Tampal CSV untuk jana batch poster dengan pantas."
-                  : "Paste CSV rows to generate a poster batch quickly."}
-              </CardDescription>
+              <CardDescription>{ui.premiumImportFocus}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -1078,7 +1167,7 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-border/60 bg-card/95 shadow-sm">
             <CardHeader>
               <CardTitle>{isMs ? "Sejarah Import" : "Import History"}</CardTitle>
               <CardDescription>
