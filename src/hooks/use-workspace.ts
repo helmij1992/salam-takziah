@@ -208,6 +208,52 @@ type WorkspaceSessionContext = {
   plan: SubscriptionPlan;
 };
 
+const readWorkspaceStateFromStorage = (storageKey: string, userEmail: string | null) => {
+  if (typeof window === "undefined") {
+    return createEmptyState(userEmail);
+  }
+
+  return parseWorkspaceState(window.localStorage.getItem(storageKey), userEmail);
+};
+
+const writeWorkspaceStateToStorage = (storageKey: string, nextState: WorkspaceState) => {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.localStorage.setItem(storageKey, JSON.stringify(nextState));
+};
+
+const fetchRemoteWorkspaceState = async (identity: string, userEmail: string | null) => {
+  const { data, error } = await supabase
+    .from("workspace_state")
+    .select("drafts, batches, analytics, team, api_credentials, import_jobs, recycle_bin")
+    .eq("user_id", identity)
+    .maybeSingle();
+
+  if (error || !data) {
+    return null;
+  }
+
+  return toWorkspaceState(data, userEmail);
+};
+
+const persistRemoteWorkspaceState = async (identity: string, nextState: WorkspaceState) => {
+  const { error } = await supabase.from("workspace_state").upsert(
+    {
+      user_id: identity,
+      ...createRemoteWorkspacePayload(nextState),
+    },
+    {
+      onConflict: "user_id",
+    },
+  );
+
+  if (error) {
+    throw error;
+  }
+};
+
 export const useWorkspace = ({ identity, userEmail, plan }: WorkspaceSessionContext) => {
   const [state, setState] = useState<WorkspaceState>(() => createEmptyState(userEmail));
   const [isRemoteReady, setIsRemoteReady] = useState(false);
@@ -1048,6 +1094,99 @@ export const useWorkspace = ({ identity, userEmail, plan }: WorkspaceSessionCont
     clearDeletedItem,
     clearDeletedItems,
     createImportJob,
+    trackEvent,
+  };
+};
+
+export const useWorkspaceActions = ({ identity, userEmail, plan }: WorkspaceSessionContext) => {
+  const storageKey = useMemo(() => `${STORAGE_PREFIX}:${identity}`, [identity]);
+
+  const getCurrentWorkspaceState = useCallback(async () => {
+    const localState = readWorkspaceStateFromStorage(storageKey, userEmail);
+
+    if (identity === "guest") {
+      return localState;
+    }
+
+    const remoteState = await fetchRemoteWorkspaceState(identity, userEmail);
+    return remoteState ? mergeWorkspaceState(localState, remoteState) : localState;
+  }, [identity, storageKey, userEmail]);
+
+  const persistWorkspaceState = useCallback(async (nextState: WorkspaceState) => {
+    writeWorkspaceStateToStorage(storageKey, nextState);
+
+    if (identity === "guest") {
+      return;
+    }
+
+    await persistRemoteWorkspaceState(identity, nextState);
+  }, [identity, storageKey]);
+
+  const trackEvent = useCallback(async (event: Omit<AnalyticsEvent, "id" | "createdAt">) => {
+    const currentState = await getCurrentWorkspaceState();
+    const nextState = {
+      ...currentState,
+      analytics: [
+        {
+          id: createId(),
+          createdAt: nowIso(),
+          meta: {
+            plan,
+            ...event.meta,
+          },
+          type: event.type,
+        },
+        ...currentState.analytics,
+      ].slice(0, 100),
+    };
+
+    await persistWorkspaceState(nextState);
+  }, [getCurrentWorkspaceState, persistWorkspaceState, plan]);
+
+  const saveDraft = useCallback(async (title: string, poster: PosterData, draftId?: string) => {
+    const currentState = await getCurrentWorkspaceState();
+    const timestamp = nowIso();
+    const nextDraft: PosterDraft = {
+      id: draftId ?? createId(),
+      title: title.trim() || poster.fullName || "Untitled draft",
+      poster,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    };
+
+    const existingDraft = currentState.drafts.find((draft) => draft.id === nextDraft.id);
+    const drafts = existingDraft
+      ? currentState.drafts.map((draft) =>
+          draft.id === nextDraft.id
+            ? { ...nextDraft, createdAt: draft.createdAt, updatedAt: timestamp }
+            : draft,
+        )
+      : [nextDraft, ...currentState.drafts].slice(0, 50);
+
+    const nextState = {
+      ...currentState,
+      drafts,
+      analytics: [
+        {
+          id: createId(),
+          createdAt: timestamp,
+          meta: {
+            plan,
+            title: nextDraft.title,
+          },
+          type: "draft_saved" as const,
+        },
+        ...currentState.analytics,
+      ].slice(0, 100),
+    };
+
+    await persistWorkspaceState(nextState);
+
+    return nextDraft;
+  }, [getCurrentWorkspaceState, persistWorkspaceState, plan]);
+
+  return {
+    saveDraft,
     trackEvent,
   };
 };

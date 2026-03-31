@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { PosterData } from "@/types/poster";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useSubscription } from "@/hooks/use-subscription";
-import { useWorkspace } from "@/hooks/use-workspace";
+import { useWorkspaceActions } from "@/hooks/use-workspace";
 
 const Index = () => {
   const location = useLocation();
@@ -20,7 +20,7 @@ const Index = () => {
   const [isDraftSaving, setIsDraftSaving] = useState(false);
   const { t } = useLanguage();
   const { identity, plan, userEmail, isFreeTier, isPaidTier, isDiamondTier, remainingFreePosters, canGeneratePoster, canDownloadPoster, recordPosterDownload } = useSubscription();
-  const { saveDraft, trackEvent } = useWorkspace({ identity, userEmail, plan });
+  const { saveDraft, trackEvent } = useWorkspaceActions({ identity, userEmail, plan });
 
   const locationPoster = useMemo(() => {
     const state = location.state as { draftPoster?: PosterData; sourceLabel?: string; draftId?: string; draftTitle?: string } | null;
@@ -55,7 +55,7 @@ const Index = () => {
     setCurrentDraftId(locationDraftId);
     setCurrentDraftTitle(locationDraftTitle ?? sourceLabel ?? "Loaded draft");
     setLastSavedSnapshot(JSON.stringify(locationPoster));
-    trackEvent({
+    void trackEvent({
       type: "draft_loaded",
       meta: {
         source: sourceLabel ?? "workspace",
@@ -69,12 +69,16 @@ const Index = () => {
     }
 
     const timeoutId = window.setTimeout(() => {
-      setIsDraftSaving(true);
-      const savedDraft = saveDraft(currentDraftTitle ?? "Poster draft", formDraftData, currentDraftId);
-      setCurrentDraftId(savedDraft.id);
-      setCurrentDraftTitle(savedDraft.title);
-      setLastSavedSnapshot(JSON.stringify(savedDraft.poster));
-      setIsDraftSaving(false);
+      const persistDraft = async () => {
+        setIsDraftSaving(true);
+        const savedDraft = await saveDraft(currentDraftTitle ?? "Poster draft", formDraftData, currentDraftId);
+        setCurrentDraftId(savedDraft.id);
+        setCurrentDraftTitle(savedDraft.title);
+        setLastSavedSnapshot(JSON.stringify(savedDraft.poster));
+        setIsDraftSaving(false);
+      };
+
+      void persistDraft();
     }, 1500);
 
     return () => {
@@ -115,7 +119,7 @@ const Index = () => {
       : data;
 
     setPosterData(sanitizedData);
-    trackEvent({
+    void trackEvent({
       type: "poster_generated",
       meta: {
         fullName: sanitizedData.fullName || "Untitled memorial",
@@ -136,7 +140,7 @@ const Index = () => {
       return false;
     }
 
-    trackEvent({
+    void trackEvent({
       type: "poster_downloaded",
       meta: {
         fullName: data.fullName || "Untitled memorial",
@@ -148,10 +152,10 @@ const Index = () => {
     return true;
   };
 
-  const handleSaveDraft = (title: string, data: PosterData, mode: "update" | "copy" = "update") => {
+  const handleSaveDraft = async (title: string, data: PosterData, mode: "update" | "copy" = "update") => {
     setIsDraftSaving(true);
     const shouldUpdateExisting = mode === "update" && Boolean(currentDraftId);
-    const savedDraft = saveDraft(title, data, shouldUpdateExisting ? currentDraftId ?? undefined : undefined);
+    const savedDraft = await saveDraft(title, data, shouldUpdateExisting ? currentDraftId ?? undefined : undefined);
     setCurrentDraftId(savedDraft.id);
     setCurrentDraftTitle(savedDraft.title);
     setLastSavedSnapshot(JSON.stringify(savedDraft.poster));
