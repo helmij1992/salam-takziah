@@ -144,6 +144,84 @@ const Dashboard = () => {
     remoteError: isMs ? "Ralat segerak awan" : "Cloud sync error",
     syncReady: isMs ? "Disimpan ke awan" : "Saved to cloud",
     syncPending: isMs ? "Menyegerak..." : "Syncing...",
+    loading: isMs ? "Memuatkan..." : "Loading...",
+    basicMemorial: isMs ? "Basic Memorial" : "Basic Memorial",
+    foreverFreePrice: isMs ? "RM 0 / selamanya" : "RM 0 / forever",
+    freeTierIntro: isMs
+      ? "Sesuai untuk pengguna kasual dan pencipta kali pertama. Semua yang penting disusun supaya anda boleh cipta poster, simpan draf, dan sambung kerja dengan cepat."
+      : "Ideal for casual users and first-time creators. Everything important is arranged so you can create posters, save drafts, and continue your work quickly.",
+    resumeLatestDraft: isMs ? "Sambung Draf Terakhir" : "Resume Latest Draft",
+    freeTierRemainingMonth: isMs ? "baki bulan ini" : "left this month",
+    readyToReopen: isMs ? "Sedia untuk dibuka semula" : "Ready to reopen",
+    downloadsThisMonth: isMs ? "Muat turun bulan ini" : "Downloads this month",
+    quotaUsed: isMs ? "Kuota yang sudah digunakan" : "Quota already used",
+    remainingDownloads: isMs ? "Baki muat turun" : "Remaining downloads",
+    stillAvailableToDownload: isMs ? "Masih boleh dimuat turun" : "Still available to download",
+    selectedDraftsForBatch: isMs ? "draf dipilih untuk batch" : "drafts selected for batching",
+    selectDraftsForBatch: isMs
+      ? "Pilih beberapa draf untuk gabungkan menjadi satu batch"
+      : "Select a few drafts to combine into one batch",
+    bestFlowTip: isMs
+      ? "Aliran terbaik: cipta poster, simpan draf, kemudian pilih draf yang mahu digabungkan."
+      : "Best flow: create posters, save drafts, then select the ones you want to group together.",
+    includedInFree: isMs ? "Apa yang termasuk dalam Free" : "What is included in Free",
+    includedInFreeDesc: isMs
+      ? "Pakej ini mengikuti akses asas untuk pencipta memorial yang mahu bermula dengan mudah."
+      : "This plan follows the core access for memorial creators who want a simple starting point.",
+    planLimitSummary: isMs ? "Ringkasan had pelan" : "Plan limit summary",
+    planLimitSummaryDesc: isMs
+      ? "Perkara utama yang perlu diketahui sebelum anda mula mencipta."
+      : "The key things to know before you start creating.",
+    support: isMs ? "Sokongan" : "Support",
+    basicFaqSupport: isMs ? "Sokongan asas melalui FAQ" : "Basic support through FAQ",
+    availableFormats: isMs ? "Format tersedia" : "Available formats",
+    importantNote: isMs ? "Catatan penting" : "Important note",
+    freePlanNote: isMs
+      ? "Pelan Free direka untuk penggunaan ringan. Untuk kawalan lebih luas, pengguna boleh naik taraf kemudian."
+      : "The Free plan is designed for light usage. Users can upgrade later for broader control.",
+    draftsShown: isMs ? "draf dipaparkan" : "drafts shown",
+    freeDraftsFocus: isMs
+      ? "Fokus pada draf yang sedang anda siapkan. Buka semula, namakan semula, padam, atau pilih untuk batch."
+      : "Focus on the drafts you are actively working on. Reopen, rename, delete, or select them for a batch.",
+    freeDraftsEmpty: isMs
+      ? "Mula dengan satu poster baru. Draf yang anda simpan akan muncul di sini."
+      : "Start with a new poster. Drafts you save will appear here.",
+    freeBatchesEmpty: isMs
+      ? "Pilih beberapa draf dan cipta batch bila anda mahu urus poster secara berkumpulan."
+      : "Select a few drafts and create a batch when you want to manage posters together.",
+    easiestWayTitle: isMs ? "Cara paling mudah guna" : "The easiest way to use it",
+    easiestWaySteps: isMs
+      ? [
+          "Klik Buka Pembina Poster",
+          "Jana poster dan simpan sebagai draf",
+          "Kembali ke sini untuk buka semula atau batch-kan draf",
+        ]
+      : [
+          "Click Open Poster Builder",
+          "Generate a poster and save it as a draft",
+          "Come back here to reopen or batch your drafts",
+        ],
+    freeFeatures: isMs
+      ? [
+          "5 poster sebulan",
+          "Classic (4:3) & Instagram Story (9:16)",
+          "Tema asas: Classic & Retro",
+          "Resolusi standard 1080p",
+          "Muat naik foto & grayscale",
+          "Medan borang asas",
+          "Doa Islamik standard",
+          "Muat turun dengan watermark",
+        ]
+      : [
+          "5 posters per month",
+          "Classic (4:3) & Instagram Story (9:16)",
+          "Basic themes: Classic & Retro",
+          "Standard resolution 1080p",
+          "Photo upload & grayscale",
+          "Basic form fields",
+          "Standard Islamic prayer",
+          "Watermarked downloads",
+        ],
   };
 
   const {
@@ -339,7 +417,7 @@ const Dashboard = () => {
   };
 
   if (!isAuthResolved) {
-    return <main className="flex min-h-screen items-center justify-center bg-background">Loading...</main>;
+    return <main className="flex min-h-screen items-center justify-center bg-background">{ui.loading}</main>;
   }
 
   if (isFreeTier) {
@@ -351,21 +429,17 @@ const Dashboard = () => {
               <div className="grid gap-0 lg:grid-cols-[1.25fr_0.75fr]">
                 <div className="space-y-5 p-6 md:p-8">
                   <div className="flex flex-wrap items-center gap-3">
-                    <Badge variant="secondary">{isMs ? "Basic Memorial" : "Basic Memorial"}</Badge>
-                    <Badge variant="outline">{isMs ? "Free" : "Free"}</Badge>
+                    <Badge variant="secondary">{ui.basicMemorial}</Badge>
+                    <Badge variant="outline">{planLabel}</Badge>
                     <Badge variant="outline">
                       <Download className="mr-2 h-3.5 w-3.5" />
-                      {isMs ? `${remainingFreePosters} baki bulan ini` : `${remainingFreePosters} left this month`}
+                      {`${remainingFreePosters} ${ui.freeTierRemainingMonth}`}
                     </Badge>
                   </div>
                   <div className="space-y-3">
                     <h1 className="text-3xl font-bold tracking-tight md:text-4xl">{ui.title}</h1>
-                    <p className="text-sm font-medium text-primary">{isMs ? "RM 0 / selamanya" : "RM 0 / forever"}</p>
-                    <p className="max-w-2xl text-muted-foreground">
-                      {isMs
-                        ? "Sesuai untuk pengguna kasual dan pencipta kali pertama. Semua yang penting disusun supaya anda boleh cipta poster, simpan draf, dan sambung kerja dengan cepat."
-                        : "Ideal for casual users and first-time creators. Everything important is arranged so you can create posters, save drafts, and continue your work quickly."}
-                    </p>
+                    <p className="text-sm font-medium text-primary">{ui.foreverFreePrice}</p>
+                    <p className="max-w-2xl text-muted-foreground">{ui.freeTierIntro}</p>
                   </div>
                   <div className="flex flex-wrap gap-3">
                     <Button asChild size="lg">
@@ -386,7 +460,7 @@ const Dashboard = () => {
                         navigate("/create");
                       }}
                     >
-                      {isMs ? "Sambung Draf Terakhir" : "Resume Latest Draft"}
+                      {ui.resumeLatestDraft}
                     </Button>
                   </div>
                   <p className="text-sm text-muted-foreground">
@@ -399,17 +473,17 @@ const Dashboard = () => {
                     {
                       label: ui.draftCount,
                       value: summary.draftCount,
-                      hint: isMs ? "Sedia untuk dibuka semula" : "Ready to reopen",
+                      hint: ui.readyToReopen,
                     },
                     {
-                      label: isMs ? "Muat turun bulan ini" : "Downloads this month",
+                      label: ui.downloadsThisMonth,
                       value: monthlyPosterCount,
-                      hint: isMs ? "Kuota yang sudah digunakan" : "Quota already used",
+                      hint: ui.quotaUsed,
                     },
                     {
-                      label: isMs ? "Baki muat turun" : "Remaining downloads",
+                      label: ui.remainingDownloads,
                       value: remainingFreePosters,
-                      hint: isMs ? "Masih boleh dimuat turun" : "Still available to download",
+                      hint: ui.stillAvailableToDownload,
                     },
                   ].map((item) => (
                     <div key={item.label} className="rounded-2xl border bg-background p-4">
@@ -428,17 +502,13 @@ const Dashboard = () => {
               <p className="text-sm font-medium">
                 {selectedDraftIds.length > 0
                   ? isMs
-                    ? `${selectedDraftIds.length} draf dipilih untuk batch`
-                    : `${selectedDraftIds.length} drafts selected for batching`
+                    ? `${selectedDraftIds.length} ${ui.selectedDraftsForBatch}`
+                    : `${selectedDraftIds.length} ${ui.selectedDraftsForBatch}`
                   : isMs
-                    ? "Pilih beberapa draf untuk gabungkan menjadi satu batch"
-                    : "Select a few drafts to combine into one batch"}
+                    ? ui.selectDraftsForBatch
+                    : ui.selectDraftsForBatch}
               </p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {isMs
-                  ? "Aliran terbaik: cipta poster, simpan draf, kemudian pilih draf yang mahu digabungkan."
-                  : "Best flow: create posters, save drafts, then select the ones you want to group together."}
-              </p>
+              <p className="mt-1 text-sm text-muted-foreground">{ui.bestFlowTip}</p>
             </div>
             <div className="flex flex-wrap items-center gap-3">
               <LanguageSwitcher />
@@ -452,24 +522,11 @@ const Dashboard = () => {
           <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
             <Card className="shadow-sm">
               <CardHeader>
-                <CardTitle>{isMs ? "Apa yang termasuk dalam Free" : "What is included in Free"}</CardTitle>
-                <CardDescription>
-                  {isMs
-                    ? "Pakej ini mengikuti akses asas untuk pencipta memorial yang mahu bermula dengan mudah."
-                    : "This plan follows the core access for memorial creators who want a simple starting point."}
-                </CardDescription>
+                <CardTitle>{ui.includedInFree}</CardTitle>
+                <CardDescription>{ui.includedInFreeDesc}</CardDescription>
               </CardHeader>
               <CardContent className="grid gap-3 sm:grid-cols-2">
-                {[
-                  isMs ? "5 poster sebulan" : "5 posters per month",
-                  isMs ? "Classic (4:3) & Instagram Story (9:16)" : "Classic (4:3) & Instagram Story (9:16)",
-                  isMs ? "Tema asas: Classic & Retro" : "Basic themes: Classic & Retro",
-                  isMs ? "Resolusi standard 1080p" : "Standard resolution 1080p",
-                  isMs ? "Muat naik foto & grayscale" : "Photo upload & grayscale",
-                  isMs ? "Medan borang asas" : "Basic form fields",
-                  isMs ? "Doa Islamik standard" : "Standard Islamic prayer",
-                  isMs ? "Muat turun dengan watermark" : "Watermarked downloads",
-                ].map((feature) => (
+                {ui.freeFeatures.map((feature) => (
                   <div key={feature} className="rounded-xl border bg-muted/20 px-4 py-3 text-sm">
                     {feature}
                   </div>
@@ -479,31 +536,23 @@ const Dashboard = () => {
 
             <Card className="shadow-sm">
               <CardHeader>
-                <CardTitle>{isMs ? "Ringkasan had pelan" : "Plan limit summary"}</CardTitle>
-                <CardDescription>
-                  {isMs
-                    ? "Perkara utama yang perlu diketahui sebelum anda mula mencipta."
-                    : "The key things to know before you start creating."}
-                </CardDescription>
+                <CardTitle>{ui.planLimitSummary}</CardTitle>
+                <CardDescription>{ui.planLimitSummaryDesc}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4 text-sm">
                 <div className="rounded-2xl border bg-background p-4">
-                  <p className="font-medium">{isMs ? "Sokongan" : "Support"}</p>
-                  <p className="mt-1 text-muted-foreground">{isMs ? "Sokongan asas melalui FAQ" : "Basic support through FAQ"}</p>
+                  <p className="font-medium">{ui.support}</p>
+                  <p className="mt-1 text-muted-foreground">{ui.basicFaqSupport}</p>
                 </div>
                 <div className="rounded-2xl border bg-background p-4">
-                  <p className="font-medium">{isMs ? "Format tersedia" : "Available formats"}</p>
+                  <p className="font-medium">{ui.availableFormats}</p>
                   <p className="mt-1 text-muted-foreground">
                     {isMs ? "Classic (4:3) dan Instagram Story (9:16)" : "Classic (4:3) and Instagram Story (9:16)"}
                   </p>
                 </div>
                 <div className="rounded-2xl border bg-background p-4">
-                  <p className="font-medium">{isMs ? "Catatan penting" : "Important note"}</p>
-                  <p className="mt-1 text-muted-foreground">
-                    {isMs
-                      ? "Pelan Free direka untuk penggunaan ringan. Untuk kawalan lebih luas, pengguna boleh naik taraf kemudian."
-                      : "The Free plan is designed for light usage. Users can upgrade later for broader control."}
-                  </p>
+                  <p className="font-medium">{ui.importantNote}</p>
+                  <p className="mt-1 text-muted-foreground">{ui.freePlanNote}</p>
                 </div>
               </CardContent>
             </Card>
@@ -534,14 +583,10 @@ const Dashboard = () => {
                 <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                   <div>
                     <CardTitle>{ui.drafts}</CardTitle>
-                    <CardDescription>
-                      {isMs
-                        ? "Fokus pada draf yang sedang anda siapkan. Buka semula, namakan semula, padam, atau pilih untuk batch."
-                        : "Focus on the drafts you are actively working on. Reopen, rename, delete, or select them for a batch."}
-                    </CardDescription>
+                    <CardDescription>{ui.freeDraftsFocus}</CardDescription>
                   </div>
                   <div className="rounded-xl border bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
-                    {isMs ? `${filteredDrafts.length} draf dipaparkan` : `${filteredDrafts.length} drafts shown`}
+                    {`${filteredDrafts.length} ${ui.draftsShown}`}
                   </div>
                 </div>
               </CardHeader>
@@ -555,11 +600,7 @@ const Dashboard = () => {
                   {filteredDrafts.length === 0 ? (
                     <div className="rounded-2xl border border-dashed p-8 text-center">
                       <p className="font-medium">{ui.noDrafts}</p>
-                      <p className="mt-2 text-sm text-muted-foreground">
-                        {isMs
-                          ? "Mula dengan satu poster baru. Draf yang anda simpan akan muncul di sini."
-                          : "Start with a new poster. Drafts you save will appear here."}
-                      </p>
+                      <p className="mt-2 text-sm text-muted-foreground">{ui.freeDraftsEmpty}</p>
                       <Button asChild className="mt-4">
                         <Link to="/create">{ui.openBuilder}</Link>
                       </Button>
@@ -630,11 +671,7 @@ const Dashboard = () => {
                   {batches.length === 0 ? (
                     <div className="rounded-2xl border border-dashed p-6 text-center">
                       <p className="font-medium">{ui.noBatches}</p>
-                      <p className="mt-2 text-sm text-muted-foreground">
-                        {isMs
-                          ? "Pilih beberapa draf dan cipta batch bila anda mahu urus poster secara berkumpulan."
-                          : "Select a few drafts and create a batch when you want to manage posters together."}
-                      </p>
+                      <p className="mt-2 text-sm text-muted-foreground">{ui.freeBatchesEmpty}</p>
                     </div>
                   ) : (
                     batches.slice(0, 5).map((batch) => (
@@ -659,14 +696,10 @@ const Dashboard = () => {
 
               <Card className="shadow-sm">
                 <CardHeader>
-                  <CardTitle>{isMs ? "Cara paling mudah guna" : "The easiest way to use it"}</CardTitle>
+                  <CardTitle>{ui.easiestWayTitle}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 text-sm">
-                  {[
-                    isMs ? "Klik Buka Pembina Poster" : "Click Open Poster Builder",
-                    isMs ? "Jana poster dan simpan sebagai draf" : "Generate a poster and save it as a draft",
-                    isMs ? "Kembali ke sini untuk buka semula atau batch-kan draf" : "Come back here to reopen or batch your drafts",
-                  ].map((step, index) => (
+                  {ui.easiestWaySteps.map((step, index) => (
                     <div key={step} className="flex items-start gap-3">
                       <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
                         {index + 1}
