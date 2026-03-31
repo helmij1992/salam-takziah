@@ -1,108 +1,93 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import PosterForm from "@/components/PosterForm";
 import PosterPreview from "@/components/PosterPreview";
 import InfoSections from "@/components/InfoSections";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
-import { Card, CardContent } from "@/components/ui/card";
-import { PosterData } from "@/types/poster";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useSubscription } from "@/hooks/use-subscription";
 import { AUTH_PENDING_IDENTITY, useWorkspaceActions } from "@/hooks/use-workspace";
+import { PosterData } from "@/types/poster";
+
+type DraftLocationState = {
+  draftPoster?: PosterData;
+  sourceLabel?: string;
+  draftId?: string;
+  draftTitle?: string;
+} | null;
 
 const Index = () => {
   const location = useLocation();
-  const [posterData, setPosterData] = useState<PosterData | null>(null);
-  const [formDraftData, setFormDraftData] = useState<PosterData | null>(null);
-  const [currentDraftId, setCurrentDraftId] = useState<string | null>(null);
-  const [currentDraftTitle, setCurrentDraftTitle] = useState<string | null>(null);
-  const [lastSavedSnapshot, setLastSavedSnapshot] = useState<string | null>(null);
-  const [isDraftSaving, setIsDraftSaving] = useState(false);
-  const { t } = useLanguage();
-  const { identity, plan, userEmail, isAuthResolved, isFreeTier, isPaidTier, isDiamondTier, remainingFreePosters, canGeneratePoster, canDownloadPoster, recordPosterDownload } = useSubscription();
+  const { language, t } = useLanguage();
+  const isMs = language === "ms";
+  const {
+    identity,
+    plan,
+    userEmail,
+    isAuthResolved,
+    isFreeTier,
+    isPaidTier,
+    isDiamondTier,
+    remainingFreePosters,
+    canGeneratePoster,
+    canDownloadPoster,
+    recordPosterDownload,
+  } = useSubscription();
   const workspaceIdentity = isAuthResolved ? identity : AUTH_PENDING_IDENTITY;
   const workspaceEmail = isAuthResolved ? userEmail : null;
-  const { saveDraft, trackEvent } = useWorkspaceActions({ identity: workspaceIdentity, userEmail: workspaceEmail, plan });
+  const { saveDraft, trackEvent } = useWorkspaceActions({
+    identity: workspaceIdentity,
+    userEmail: workspaceEmail,
+    plan,
+  });
 
-  const locationPoster = useMemo(() => {
-    const state = location.state as { draftPoster?: PosterData; sourceLabel?: string; draftId?: string; draftTitle?: string } | null;
-    return state?.draftPoster ?? null;
-  }, [location.state]);
+  const draftState = (location.state as DraftLocationState) ?? null;
+  const loadedDraft = useMemo(
+    () => ({
+      poster: draftState?.draftPoster ?? null,
+      sourceLabel: draftState?.sourceLabel ?? null,
+      draftId: draftState?.draftId ?? null,
+      draftTitle: draftState?.draftTitle ?? null,
+    }),
+    [draftState],
+  );
 
-  const sourceLabel = useMemo(() => {
-    const state = location.state as { draftPoster?: PosterData; sourceLabel?: string; draftId?: string; draftTitle?: string } | null;
-    return state?.sourceLabel ?? null;
-  }, [location.state]);
+  const [posterData, setPosterData] = useState<PosterData | null>(loadedDraft.poster);
+  const [formDraftData, setFormDraftData] = useState<PosterData | null>(loadedDraft.poster);
+  const [currentDraftId, setCurrentDraftId] = useState<string | null>(loadedDraft.draftId);
+  const [currentDraftTitle, setCurrentDraftTitle] = useState<string | null>(loadedDraft.draftTitle);
+  const [lastSavedSnapshot, setLastSavedSnapshot] = useState<string | null>(
+    loadedDraft.poster ? JSON.stringify(loadedDraft.poster) : null,
+  );
+  const [isDraftSaving, setIsDraftSaving] = useState(false);
 
-  const locationDraftId = useMemo(() => {
-    const state = location.state as { draftPoster?: PosterData; sourceLabel?: string; draftId?: string; draftTitle?: string } | null;
-    return state?.draftId ?? null;
-  }, [location.state]);
+  const hasUnsavedChanges = useMemo(() => {
+    if (!isPaidTier || !formDraftData || !lastSavedSnapshot) {
+      return false;
+    }
 
-  const locationDraftTitle = useMemo(() => {
-    const state = location.state as { draftPoster?: PosterData; sourceLabel?: string; draftId?: string; draftTitle?: string } | null;
-    return state?.draftTitle ?? null;
-  }, [location.state]);
-
-  const currentSnapshot = useMemo(() => JSON.stringify(formDraftData), [formDraftData]);
-  const hasUnsavedChanges = Boolean(isPaidTier && formDraftData && lastSavedSnapshot && currentSnapshot !== lastSavedSnapshot);
+    return JSON.stringify(formDraftData) !== lastSavedSnapshot;
+  }, [formDraftData, isPaidTier, lastSavedSnapshot]);
 
   useEffect(() => {
-    if (!locationPoster) {
+    if (!loadedDraft.poster) {
       return;
     }
 
-    setPosterData(locationPoster);
-    setFormDraftData(locationPoster);
-    setCurrentDraftId(locationDraftId);
-    setCurrentDraftTitle(locationDraftTitle ?? sourceLabel ?? "Loaded draft");
-    setLastSavedSnapshot(JSON.stringify(locationPoster));
+    setPosterData(loadedDraft.poster);
+    setFormDraftData(loadedDraft.poster);
+    setCurrentDraftId(loadedDraft.draftId);
+    setCurrentDraftTitle(loadedDraft.draftTitle ?? loadedDraft.sourceLabel ?? "Loaded draft");
+    setLastSavedSnapshot(JSON.stringify(loadedDraft.poster));
     void trackEvent({
       type: "draft_loaded",
       meta: {
-        source: sourceLabel ?? "workspace",
+        source: loadedDraft.sourceLabel ?? "workspace",
       },
     });
-  }, [locationPoster, locationDraftId, locationDraftTitle, sourceLabel, trackEvent]);
-
-  useEffect(() => {
-    if (!isPaidTier || !currentDraftId || !formDraftData || !hasUnsavedChanges) {
-      return;
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      const persistDraft = async () => {
-        setIsDraftSaving(true);
-        const savedDraft = await saveDraft(currentDraftTitle ?? "Poster draft", formDraftData, currentDraftId);
-        setCurrentDraftId(savedDraft.id);
-        setCurrentDraftTitle(savedDraft.title);
-        setLastSavedSnapshot(JSON.stringify(savedDraft.poster));
-        setIsDraftSaving(false);
-      };
-
-      void persistDraft();
-    }, 1500);
-
-    return () => {
-      window.clearTimeout(timeoutId);
-    };
-  }, [currentDraftId, currentDraftTitle, formDraftData, hasUnsavedChanges, isPaidTier, saveDraft]);
-
-  useEffect(() => {
-    if (!hasUnsavedChanges) {
-      return;
-    }
-
-    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-      event.preventDefault();
-      event.returnValue = "";
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, [hasUnsavedChanges]);
+  }, [loadedDraft, trackEvent]);
 
   const handleGenerate = async (data: PosterData) => {
     if (!canGeneratePoster) {
@@ -154,10 +139,18 @@ const Index = () => {
     return true;
   };
 
-  const handleSaveDraft = async (title: string, data: PosterData, mode: "update" | "copy" = "update") => {
+  const handleSaveDraft = async (
+    title: string,
+    data: PosterData,
+    mode: "update" | "copy" = "update",
+  ) => {
     setIsDraftSaving(true);
     const shouldUpdateExisting = mode === "update" && Boolean(currentDraftId);
-    const savedDraft = await saveDraft(title, data, shouldUpdateExisting ? currentDraftId ?? undefined : undefined);
+    const savedDraft = await saveDraft(
+      title,
+      data,
+      shouldUpdateExisting ? currentDraftId ?? undefined : undefined,
+    );
     setCurrentDraftId(savedDraft.id);
     setCurrentDraftTitle(savedDraft.title);
     setLastSavedSnapshot(JSON.stringify(savedDraft.poster));
@@ -165,13 +158,18 @@ const Index = () => {
     setIsDraftSaving(false);
   };
 
+  const planLabel = isDiamondTier
+    ? "Diamond"
+    : isPaidTier
+      ? "Premium"
+      : "Free";
+
   if (!isAuthResolved) {
-    return <main className="min-h-screen bg-background flex items-center justify-center">Loading...</main>;
+    return <main className="flex min-h-screen items-center justify-center bg-background">Loading...</main>;
   }
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <header className="border-b border-border bg-card">
         <div className="container mx-auto px-4 py-6">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
@@ -181,28 +179,58 @@ const Index = () => {
             >
               {t.backToDashboard}
             </Link>
-            <LanguageSwitcher />
+            <div className="flex items-center gap-3">
+              <Badge variant="secondary">{planLabel}</Badge>
+              <LanguageSwitcher />
+            </div>
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-center text-foreground">
+          <h1 className="text-center text-3xl font-bold text-foreground md:text-4xl">
             {t.mainTitle}
           </h1>
-          <p className="text-center text-muted-foreground mt-2">
-            {t.mainSubtitle}
-          </p>
+          <p className="mt-2 text-center text-muted-foreground">{t.mainSubtitle}</p>
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
-        {sourceLabel && (
-          <Card className="max-w-7xl mx-auto mb-6">
-            <CardContent className="py-4 text-sm text-muted-foreground">
-              Editing from {sourceLabel}
+        <div className="mx-auto mb-6 flex max-w-7xl flex-wrap gap-3">
+          {loadedDraft.sourceLabel && (
+            <Card className="flex-1 min-w-[260px]">
+              <CardContent className="py-4 text-sm text-muted-foreground">
+                {isMs ? "Sedang menyunting draf daripada" : "Editing draft from"}{" "}
+                <span className="font-medium text-foreground">{loadedDraft.sourceLabel}</span>
+              </CardContent>
+            </Card>
+          )}
+          <Card className="flex-1 min-w-[260px]">
+            <CardContent className="flex items-center justify-between gap-4 py-4 text-sm">
+              <div>
+                <p className="font-medium text-foreground">
+                  {currentDraftTitle ?? (isMs ? "Draf baharu" : "New draft")}
+                </p>
+                <p className="text-muted-foreground">
+                  {isDraftSaving
+                    ? isMs
+                      ? "Menyimpan draf..."
+                      : "Saving draft..."
+                    : hasUnsavedChanges
+                      ? isMs
+                        ? "Ada perubahan belum disimpan"
+                        : "There are unsaved changes"
+                      : isMs
+                        ? "Tiada perubahan tertunggak"
+                        : "No pending changes"}
+                </p>
+              </div>
+              {isPaidTier && (
+                <Badge variant={hasUnsavedChanges ? "default" : "secondary"}>
+                  {hasUnsavedChanges ? (isMs ? "Belum simpan" : "Unsaved") : (isMs ? "Stabil" : "Stable")}
+                </Badge>
+              )}
             </CardContent>
           </Card>
-        )}
-        <div className="grid lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
-          {/* Form Section */}
+        </div>
+
+        <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-2">
           <div>
             <PosterForm
               isFreeTier={isFreeTier}
@@ -210,17 +238,16 @@ const Index = () => {
               isDiamondTier={isDiamondTier}
               remainingFreePosters={remainingFreePosters}
               canGeneratePoster={canGeneratePoster}
-              initialData={locationPoster}
+              initialData={loadedDraft.poster}
               draftTitle={currentDraftTitle}
               isDraftSaving={isDraftSaving}
               hasUnsavedChanges={hasUnsavedChanges}
               onGenerate={handleGenerate}
               onSaveDraft={isPaidTier ? handleSaveDraft : undefined}
-              onDataChange={isPaidTier ? setFormDraftData : undefined}
+              onDataChange={setFormDraftData}
             />
           </div>
 
-          {/* Preview Section */}
           <div className="lg:sticky lg:top-8 h-fit">
             <PosterPreview
               data={posterData}
@@ -232,14 +259,12 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Info Sections */}
         <div className="mt-16">
           <InfoSections />
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-border mt-16 py-8">
+      <footer className="mt-16 border-t border-border py-8">
         <div className="container mx-auto px-4 text-center text-muted-foreground">
           <p>{t.footerText}</p>
         </div>
