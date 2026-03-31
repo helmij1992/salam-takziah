@@ -387,7 +387,7 @@ const translations: Record<Language, Translations> = {
       },
       {
         id: "pro",
-        name: "Professional Memorial",
+        name: "Premium Memorial",
         tier: "Premium",
         price: "RM 39.90",
         period: "sebulan",
@@ -662,7 +662,7 @@ const translations: Record<Language, Translations> = {
       },
       {
         id: "pro",
-        name: "Professional Memorial",
+        name: "Premium Memorial",
         tier: "Premium",
         price: "RM 39.90",
         period: "month",
