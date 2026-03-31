@@ -10,7 +10,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useSubscription } from "@/hooks/use-subscription";
 import { AUTH_PENDING_IDENTITY, useWorkspaceActions } from "@/hooks/use-workspace";
 
-const ISOLATE_CREATE_PAGE_RENDER = true;
+const ISOLATE_CREATE_PAGE_RENDER = false;
 
 const Index = () => {
   const location = useLocation();
