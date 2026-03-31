@@ -259,10 +259,10 @@ const persistRemoteWorkspaceState = async (identity: string, nextState: Workspac
 export const useWorkspace = ({ identity, userEmail, plan }: WorkspaceSessionContext) => {
   const [state, setState] = useState<WorkspaceState>(() => createEmptyState(userEmail));
   const [isRemoteReady, setIsRemoteReady] = useState(false);
-  const [remoteError, setRemoteError] = useState<string | null>(null);
-  const [isSyncing, setIsSyncing] = useState(false);
-  const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
   const [syncAttempt, setSyncAttempt] = useState(0);
+  const remoteErrorRef = useRef<string | null>(null);
+  const isSyncingRef = useRef(false);
+  const lastSyncedAtRef = useRef<string | null>(null);
   const skipNextRemoteSyncRef = useRef(false);
   const lastRemoteSnapshotRef = useRef<string | null>(null);
   const lastRemoteUpdatedAtRef = useRef<string | null>(null);
@@ -311,8 +311,9 @@ export const useWorkspace = ({ identity, userEmail, plan }: WorkspaceSessionCont
     const hydrateRemoteState = async () => {
       if (isWorkspaceIdentityDeferred(identity)) {
         setIsRemoteReady(false);
-        setRemoteError(null);
-        setIsSyncing(false);
+        remoteErrorRef.current = null;
+        isSyncingRef.current = false;
+        lastSyncedAtRef.current = null;
         lastRemoteSnapshotRef.current = null;
         lastRemoteUpdatedAtRef.current = null;
         return;
@@ -320,14 +321,15 @@ export const useWorkspace = ({ identity, userEmail, plan }: WorkspaceSessionCont
 
       if (identity === "guest") {
         setIsRemoteReady(false);
-        setRemoteError(null);
-        setIsSyncing(false);
+        remoteErrorRef.current = null;
+        isSyncingRef.current = false;
+        lastSyncedAtRef.current = null;
         lastRemoteSnapshotRef.current = null;
         lastRemoteUpdatedAtRef.current = null;
         return;
       }
 
-      setIsSyncing(true);
+      isSyncingRef.current = true;
       const { data, error } = await supabase
         .from("workspace_state")
         .select("drafts, batches, analytics, team, api_credentials, import_jobs, recycle_bin, updated_at")
@@ -339,18 +341,19 @@ export const useWorkspace = ({ identity, userEmail, plan }: WorkspaceSessionCont
       }
 
       if (error) {
-        setRemoteError(error.message);
+        remoteErrorRef.current = error.message;
         setIsRemoteReady(false);
-        setIsSyncing(false);
+        isSyncingRef.current = false;
         return;
       }
 
       if (!data) {
-        setRemoteError(null);
+        remoteErrorRef.current = null;
         setIsRemoteReady(true);
-        setIsSyncing(false);
+        isSyncingRef.current = false;
         lastRemoteSnapshotRef.current = null;
         lastRemoteUpdatedAtRef.current = null;
+        lastSyncedAtRef.current = null;
         return;
       }
 
@@ -369,13 +372,13 @@ export const useWorkspace = ({ identity, userEmail, plan }: WorkspaceSessionCont
 
         return mergedState;
       });
-      setRemoteError(null);
+      remoteErrorRef.current = null;
       setIsRemoteReady(true);
       if (lastRemoteUpdatedAtRef.current !== data.updated_at) {
         lastRemoteUpdatedAtRef.current = data.updated_at;
-        setLastSyncedAt(data.updated_at);
+        lastSyncedAtRef.current = data.updated_at;
       }
-      setIsSyncing(false);
+      isSyncingRef.current = false;
     };
 
     hydrateRemoteState();
@@ -414,7 +417,7 @@ export const useWorkspace = ({ identity, userEmail, plan }: WorkspaceSessionCont
     }
 
     const timeoutId = window.setTimeout(async () => {
-      setIsSyncing(true);
+      isSyncingRef.current = true;
       const { data, error } = await supabase
         .from("workspace_state")
         .upsert(
@@ -430,16 +433,16 @@ export const useWorkspace = ({ identity, userEmail, plan }: WorkspaceSessionCont
         .single();
 
       if (error) {
-        setRemoteError(error.message);
+        remoteErrorRef.current = error.message;
       } else {
         lastRemoteSnapshotRef.current = stateSnapshot;
-        setRemoteError(null);
+        remoteErrorRef.current = null;
         if (lastRemoteUpdatedAtRef.current !== data.updated_at) {
           lastRemoteUpdatedAtRef.current = data.updated_at;
-          setLastSyncedAt(data.updated_at);
+          lastSyncedAtRef.current = data.updated_at;
         }
       }
-      setIsSyncing(false);
+      isSyncingRef.current = false;
     }, REMOTE_SYNC_DEBOUNCE_MS);
 
     return () => {
@@ -1075,7 +1078,7 @@ export const useWorkspace = ({ identity, userEmail, plan }: WorkspaceSessionCont
   };
 
   const retryRemoteSync = () => {
-    setRemoteError(null);
+    remoteErrorRef.current = null;
     setSyncAttempt((current) => current + 1);
   };
 
@@ -1083,9 +1086,9 @@ export const useWorkspace = ({ identity, userEmail, plan }: WorkspaceSessionCont
     ...state,
     summary,
     isRemoteReady,
-    isSyncing,
-    lastSyncedAt,
-    remoteError,
+    isSyncing: isSyncingRef.current,
+    lastSyncedAt: lastSyncedAtRef.current,
+    remoteError: remoteErrorRef.current,
     retryRemoteSync,
     saveDraft,
     deleteDraft,

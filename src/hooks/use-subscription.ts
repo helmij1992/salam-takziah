@@ -187,7 +187,6 @@ export const useSubscription = () => {
     monthlyLimit: FREE_POSTER_LIMIT_PER_MONTH,
     periodKey: null,
   });
-  const [isQuotaLoading, setIsQuotaLoading] = useState(false);
   const [quotaSource, setQuotaSource] = useState<"local" | "remote">("local");
 
   const subscriptionPlan = useMemo(() => resolvePlanFromAuthUser(authUser), [authUser]);
@@ -206,7 +205,6 @@ export const useSubscription = () => {
     if (!authUser) {
       setQuotaStatus(getLocalQuotaStatus(identity));
       setQuotaSource("local");
-      setIsQuotaLoading(false);
       return;
     }
 
@@ -218,17 +216,13 @@ export const useSubscription = () => {
         periodKey: getCurrentMonthKey(),
       });
       setQuotaSource("remote");
-      setIsQuotaLoading(false);
       return;
     }
-
-    setIsQuotaLoading(true);
     const { data, error } = await supabase.rpc("get_free_poster_quota_status");
 
     if (error || !data || data.length === 0) {
       setQuotaStatus(getLocalQuotaStatus(identity));
       setQuotaSource("local");
-      setIsQuotaLoading(false);
       return;
     }
 
@@ -240,7 +234,6 @@ export const useSubscription = () => {
       periodKey: nextStatus.period_key,
     });
     setQuotaSource("remote");
-    setIsQuotaLoading(false);
   }, [authUser, identity, isAuthResolved, plan]);
 
   useEffect(() => {
@@ -335,7 +328,7 @@ export const useSubscription = () => {
     remainingFreePosters,
     canGeneratePoster,
     canDownloadPoster,
-    isQuotaLoading,
+    isQuotaLoading: false,
     quotaSource,
     refreshQuota,
     recordPosterDownload,
