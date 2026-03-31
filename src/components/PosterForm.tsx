@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PosterData, PosterFormat, PosterTheme } from "@/types/poster";
+import { PosterData, PosterFormat, PosterTheme, PremiumTemplate } from "@/types/poster";
 import { toast } from "sonner";
 import { Upload } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -45,6 +45,7 @@ const PosterForm = ({
 }: PosterFormProps) => {
   const { t } = useLanguage();
   const [photo, setPhoto] = useState<string | null>(null);
+  const [companyLogo, setCompanyLogo] = useState<string | null>(null);
   const [fullName, setFullName] = useState("");
   const [gender, setGender] = useState<"allahyarham" | "almarhumah">("allahyarham");
   const [birthDate, setBirthDate] = useState("");
@@ -53,6 +54,7 @@ const PosterForm = ({
   const [message, setMessage] = useState("");
   const [from, setFrom] = useState("");
   const [theme, setTheme] = useState<PosterTheme>("classic");
+  const [premiumTemplate, setPremiumTemplate] = useState<PremiumTemplate>("signature");
   const [format, setFormat] = useState<PosterFormat>("classic");
   const [whiteLabel, setWhiteLabel] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -70,6 +72,7 @@ const PosterForm = ({
 
     appliedInitialDataRef.current = initialDataSignature;
     setPhoto(initialData.photo);
+    setCompanyLogo(initialData.companyLogo ?? null);
     setFullName(initialData.fullName);
     setGender(initialData.gender);
     setBirthDate(initialData.birthDate);
@@ -78,12 +81,14 @@ const PosterForm = ({
     setMessage(initialData.message ?? "");
     setFrom(initialData.from);
     setTheme(initialData.theme);
+    setPremiumTemplate(initialData.premiumTemplate ?? "signature");
     setFormat(initialData.format);
     setWhiteLabel(initialData.whiteLabel);
   }, [initialData, initialDataSignature]);
 
   const buildPosterData = useCallback((): PosterData => ({
     photo,
+    companyLogo: isPaidTier ? companyLogo : null,
     fullName: fullName.trim(),
     gender,
     birthDate,
@@ -92,10 +97,12 @@ const PosterForm = ({
     message: isFreeTier ? "" : message.trim(),
     from: isFreeTier ? "" : from.trim(),
     theme,
+    premiumTemplate: isPaidTier && theme === "premium" ? premiumTemplate : "signature",
     format: isFreeTier ? getFreeTierFormat(format) : format,
     whiteLabel: isDiamondTier ? whiteLabel : false,
   }), [
     photo,
+    companyLogo,
     fullName,
     gender,
     birthDate,
@@ -104,8 +111,10 @@ const PosterForm = ({
     message,
     from,
     theme,
+    premiumTemplate,
     format,
     isFreeTier,
+    isPaidTier,
     isDiamondTier,
     whiteLabel,
   ]);
@@ -131,6 +140,24 @@ const PosterForm = ({
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleCompanyLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    if (file.size > 3 * 1024 * 1024) {
+      toast.error(t.toastSizeError);
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setCompanyLogo(reader.result as string);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -281,6 +308,63 @@ const PosterForm = ({
               {t.autoGrayscale}
             </p>
           </div>
+
+          {isPaidTier && theme === "premium" && (
+            <div className="space-y-4 rounded-lg border border-border bg-muted/20 p-4">
+              <div className="space-y-2">
+                <Label>{t.premiumTemplateLabel}</Label>
+                <RadioGroup value={premiumTemplate} onValueChange={(value) => setPremiumTemplate(value as PremiumTemplate)}>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="signature" id="premium-template-signature" />
+                    <Label htmlFor="premium-template-signature" className="font-normal cursor-pointer">
+                      {t.premiumTemplateSignature}
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="official" id="premium-template-official" />
+                    <Label htmlFor="premium-template-official" className="font-normal cursor-pointer">
+                      {t.premiumTemplateOfficial}
+                    </Label>
+                  </div>
+                </RadioGroup>
+                <p className="text-xs text-muted-foreground">{t.premiumTemplateHint}</p>
+              </div>
+
+              {premiumTemplate === "official" && (
+                <div className="space-y-2">
+                  <Label htmlFor="companyLogo">{t.companyLogoLabel}</Label>
+                  <div className="flex items-center justify-center w-full">
+                    <label
+                      htmlFor="companyLogo"
+                      className="flex h-32 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-border transition-colors hover:bg-muted/50"
+                    >
+                      {companyLogo ? (
+                        <img src={companyLogo} alt="Company logo preview" className="max-h-24 max-w-full object-contain" />
+                      ) : (
+                        <div className="flex flex-col items-center justify-center py-4">
+                          <Upload className="mb-2 h-8 w-8 text-muted-foreground" />
+                          <p className="text-sm text-muted-foreground">{t.companyLogoLabel}</p>
+                          <p className="mt-1 text-xs text-muted-foreground">{t.companyLogoHint}</p>
+                        </div>
+                      )}
+                      <Input
+                        id="companyLogo"
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                        className="hidden"
+                        onChange={handleCompanyLogoUpload}
+                      />
+                    </label>
+                  </div>
+                  {companyLogo && (
+                    <Button type="button" variant="outline" size="sm" onClick={() => setCompanyLogo(null)}>
+                      Remove Logo
+                    </Button>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Full Name */}
           <div className="space-y-2">

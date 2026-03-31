@@ -1,8 +1,10 @@
 export type PosterFormat = "classic" | "instagram-square" | "instagram-landscape" | "instagram-portrait" | "facebook" | "instagram-story";
 export type PosterTheme = "classic" | "retro" | "premium";
+export type PremiumTemplate = "signature" | "official";
 
 export interface PosterData {
   photo: string | null;
+  companyLogo?: string | null;
   fullName: string;
   gender: "allahyarham" | "almarhumah";
   birthDate: string;
@@ -11,6 +13,7 @@ export interface PosterData {
   message?: string;
   from: string;
   theme: PosterTheme;
+  premiumTemplate?: PremiumTemplate;
   format: PosterFormat;
   whiteLabel: boolean;
 }

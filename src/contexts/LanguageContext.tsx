@@ -56,6 +56,12 @@ interface Translations {
   themeClassic: string;
   themeRetro: string;
   themePremium: string;
+  premiumTemplateLabel: string;
+  premiumTemplateSignature: string;
+  premiumTemplateOfficial: string;
+  premiumTemplateHint: string;
+  companyLogoLabel: string;
+  companyLogoHint: string;
   formatLabel: string;
   formatClassic: string;
   formatInstagramSquare: string;
@@ -260,6 +266,12 @@ const translations: Record<Language, Translations> = {
     themeClassic: "Klasik",
     themeRetro: "Retro",
     themePremium: "Premium",
+    premiumTemplateLabel: "🏛️ Templat Premium",
+    premiumTemplateSignature: "Premium Signature",
+    premiumTemplateOfficial: "Premium Rasmi Dengan Logo",
+    premiumTemplateHint: "Pilih gaya premium standard atau templat rasmi dengan logo organisasi di bahagian atas.",
+    companyLogoLabel: "🏢 Logo Organisasi",
+    companyLogoHint: "Logo ini akan dipaparkan di bahagian atas untuk templat rasmi Premium.",
     formatLabel: "📱 Format Poster",
     formatClassic: "Klasik (4:3)",
     formatInstagramSquare: "Instagram - Kuasa (1:1)",
@@ -535,6 +547,12 @@ const translations: Record<Language, Translations> = {
     themeClassic: "Classic",
     themeRetro: "Retro",
     themePremium: "Premium",
+    premiumTemplateLabel: "🏛️ Premium Template",
+    premiumTemplateSignature: "Premium Signature",
+    premiumTemplateOfficial: "Official Premium With Logo",
+    premiumTemplateHint: "Choose the standard premium style or an official template with your organization logo at the top.",
+    companyLogoLabel: "🏢 Organization Logo",
+    companyLogoHint: "This logo appears at the top when using the Premium official template.",
     formatLabel: "📱 Poster Format",
     formatClassic: "Classic (4:3)",
     formatInstagramSquare: "Instagram - Square (1:1)",

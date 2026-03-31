@@ -68,6 +68,7 @@ const createEmptyState = (email: string | null): WorkspaceState => ({
 
 export const createEmptyPoster = (): PosterData => ({
   photo: null,
+  companyLogo: null,
   fullName: "",
   gender: "allahyarham",
   birthDate: "",
@@ -76,6 +77,7 @@ export const createEmptyPoster = (): PosterData => ({
   message: "",
   from: "",
   theme: "classic",
+  premiumTemplate: "signature",
   format: "classic",
   whiteLabel: false,
 });

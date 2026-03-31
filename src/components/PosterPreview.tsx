@@ -203,9 +203,110 @@ const PosterPreview = ({ data, isFreeTier, isPaidTier, isDiamondTier, onDownload
     data.theme === "premium"
       ? "bg-[radial-gradient(circle_at_top,_rgba(212,175,55,0.22),_transparent_42%),linear-gradient(180deg,_#18120f_0%,_#090909_100%)]"
       : "bg-poster-bg";
-  const showEnterpriseTemplate = isDiamondTier && Boolean(data.organization);
+  const isOfficialPremiumTemplate = isPaidTier && data.theme === "premium" && data.premiumTemplate === "official";
   const isInstagramStory = currentFormat === "instagram-story";
   const showBrandWatermark = isFreeTier || (isDiamondTier && !data.whiteLabel);
+
+  if (isOfficialPremiumTemplate) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>{t.previewTitle}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div
+            ref={posterRef}
+            className="relative overflow-hidden rounded-lg shadow-lg"
+            style={{
+              aspectRatio: config.aspectRatio,
+              minHeight: config.minHeight,
+              maxHeight: config.maxHeight,
+              background:
+                "radial-gradient(circle at top, rgba(255,255,255,0.96), rgba(244,247,247,0.98) 40%, rgba(236,240,240,1) 100%)",
+            }}
+          >
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(160,170,176,0.16),transparent_22%),radial-gradient(circle_at_bottom_right,rgba(120,132,140,0.12),transparent_22%)]" />
+
+            <div className="relative flex h-full flex-col items-center px-6 py-8 text-center md:px-10">
+              {data.companyLogo && (
+                <div className="mb-3 flex justify-center">
+                  <img src={data.companyLogo} alt="Company logo" className="max-h-16 w-auto object-contain md:max-h-20" />
+                </div>
+              )}
+
+              <p
+                className="mb-2 text-2xl leading-relaxed text-black md:text-4xl"
+                style={{ fontFamily: "Scheherazade New, serif", fontWeight: 700, direction: "rtl" }}
+              >
+                إِنَّا لِلّٰهِ وَإِنَّا إِلَيْهِ رَاجِعُونَ
+              </p>
+
+              <div className="mt-4 flex flex-1 flex-col items-center justify-center">
+                {grayscalePhoto && (
+                  <div className="mb-5">
+                    <img
+                      src={grayscalePhoto}
+                      alt={data.fullName}
+                      className="h-44 w-36 rounded-[1.5rem] object-cover shadow-xl md:h-60 md:w-48"
+                    />
+                  </div>
+                )}
+
+                <h2 className="text-2xl font-bold uppercase tracking-tight text-black md:text-4xl">
+                  {data.fullName}
+                </h2>
+                {data.organization && (
+                  <p className="mt-2 text-base font-medium uppercase tracking-wide text-black/75 md:text-xl">
+                    {data.organization}
+                  </p>
+                )}
+                {(data.birthDate || data.deathDate) && (
+                  <p className="mt-2 text-lg font-semibold text-black/80 md:text-2xl">
+                    {[data.birthDate ? new Date(data.birthDate).getFullYear() : null, data.deathDate ? new Date(data.deathDate).getFullYear() : null].filter(Boolean).join(" - ")}
+                  </p>
+                )}
+                <p className="mt-6 max-w-2xl text-sm italic leading-relaxed text-black/75 md:text-lg">
+                  {data.message || defaultPrayerLineTwo}
+                </p>
+              </div>
+
+              {data.from && (
+                <div className="mt-6 w-full max-w-2xl rounded-[2rem] bg-black px-6 py-4 text-white shadow-lg">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] md:text-sm">{fromLabel}</p>
+                  <p className="mt-2 text-sm font-semibold uppercase leading-relaxed md:text-lg">{data.from}</p>
+                </div>
+              )}
+            </div>
+
+            {showBrandWatermark && (
+              <div className="pointer-events-none absolute bottom-4 left-4">
+                <div className="rounded-md border border-black/10 bg-white/70 px-3 py-1 text-[10px] font-medium tracking-[0.18em] text-black/60 shadow-sm backdrop-blur-sm">
+                  ©SalamTakziah
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            {isFreeTier && <p className="text-xs text-muted-foreground">{t.freeTierDownloadNotice}</p>}
+            {isPaidTier && <p className="text-xs text-muted-foreground">{t.premiumTierExportNotice}</p>}
+            <div className={`grid gap-2 ${isPaidTier ? "sm:grid-cols-2" : "grid-cols-1"}`}>
+              <Button onClick={() => handleDownload("jpeg")} disabled={isDownloading} className="w-full" size="lg">
+                <Download className="mr-2 h-4 w-4" />
+                {isDownloading ? t.downloadingButton : t.downloadButton}
+              </Button>
+              {isPaidTier && (
+                <Button onClick={() => handleDownload("png")} disabled={isDownloading} className="w-full" size="lg" variant="secondary">
+                  <Download className="mr-2 h-4 w-4" />
+                  {isDownloading ? t.downloadingButton : t.downloadPngButton}
+                </Button>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
@@ -226,13 +327,6 @@ const PosterPreview = ({ data, isFreeTier, isPaidTier, isDiamondTier, onDownload
         >
           {/* Header Section with Arabic Text */}
           <div className={`flex-shrink-0 px-4 ${isInstagramStory ? "pt-12 pb-6 md:pt-14 md:pb-7" : "pt-6 pb-3"}`}>
-            {showEnterpriseTemplate && (
-              <div className="mb-4 flex justify-center">
-                <div className="rounded-full border border-poster-gold/40 bg-black/20 px-4 py-1 text-[11px] uppercase tracking-[0.24em] text-poster-white/85">
-                  {data.organization}
-                </div>
-              </div>
-            )}
             <p
               className={`${isInstagramStory ? "text-3xl md:text-5xl" : "text-lg md:text-xl"} ${accentColor} font-arabic mb-1 leading-relaxed`}
               style={{
@@ -269,7 +363,7 @@ const PosterPreview = ({ data, isFreeTier, isPaidTier, isDiamondTier, onDownload
               <h2 className={`${isInstagramStory ? "text-2xl md:text-4xl leading-tight" : "text-lg md:text-xl"} font-bold text-poster-white mb-1.5`}>
                 {data.fullName}
               </h2>
-              {data.organization && !showEnterpriseTemplate && (
+              {data.organization && (
                 <p className={`${isInstagramStory ? "text-sm md:text-lg" : "text-xs md:text-sm"} italic text-poster-white/70`}>
                   {data.organization}
                 </p>
