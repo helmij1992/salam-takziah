@@ -12,6 +12,7 @@ import { PosterData } from "@/types/poster";
 import { toast } from "@/components/ui/use-toast";
 
 const ENTERPRISE_REQUEST_STORAGE_KEY = "salam-takziah-enterprise-request";
+const DISABLE_AUTH_RUNTIME_LISTENERS = true;
 
 const exampleAccentMap = {
   classic: "from-stone-100 via-zinc-100 to-amber-50",
@@ -33,6 +34,10 @@ const HomePage = () => {
     };
 
     fetchSession();
+
+    if (DISABLE_AUTH_RUNTIME_LISTENERS) {
+      return;
+    }
 
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       setUserEmail(session?.user?.email ?? null);

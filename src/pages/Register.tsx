@@ -14,6 +14,7 @@ import { toast } from "@/components/ui/use-toast";
 
 const AUTH_WINDOW_MS = 10 * 60 * 1000;
 const AUTH_MAX_ATTEMPTS = 5;
+const DISABLE_AUTH_RUNTIME_LISTENERS = true;
 
 const Register = () => {
   const navigate = useNavigate();
@@ -45,6 +46,12 @@ const Register = () => {
     };
 
     void handleAuthenticatedSession();
+
+    if (DISABLE_AUTH_RUNTIME_LISTENERS) {
+      return () => {
+        isActive = false;
+      };
+    }
 
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!isActive || !session) {

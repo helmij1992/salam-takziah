@@ -19,6 +19,7 @@ import TemplateFormat from "./pages/TemplateFormat";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
+const DISABLE_AUTH_RUNTIME_LISTENERS = true;
 
 const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   const location = useLocation();
@@ -54,6 +55,15 @@ const ProtectedRoute = ({ children }: { children: ReactNode }) => {
     loadingTimeoutId = window.setTimeout(() => {
       finishLoading(false);
     }, 1500);
+
+    if (DISABLE_AUTH_RUNTIME_LISTENERS) {
+      return () => {
+        isMounted = false;
+        if (loadingTimeoutId) {
+          window.clearTimeout(loadingTimeoutId);
+        }
+      };
+    }
 
     const { data: authListener } = supabase.auth.onAuthStateChange((_, session) => {
       finishLoading(Boolean(session));
