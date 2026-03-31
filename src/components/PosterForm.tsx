@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
@@ -56,12 +56,19 @@ const PosterForm = ({
   const [format, setFormat] = useState<PosterFormat>("classic");
   const [whiteLabel, setWhiteLabel] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const appliedInitialDataRef = useRef<string | null>(null);
+
+  const initialDataSignature = useMemo(
+    () => (initialData ? JSON.stringify(initialData) : null),
+    [initialData],
+  );
 
   useEffect(() => {
-    if (!initialData) {
+    if (!initialData || !initialDataSignature || appliedInitialDataRef.current === initialDataSignature) {
       return;
     }
 
+    appliedInitialDataRef.current = initialDataSignature;
     setPhoto(initialData.photo);
     setFullName(initialData.fullName);
     setGender(initialData.gender);
@@ -73,7 +80,7 @@ const PosterForm = ({
     setTheme(initialData.theme);
     setFormat(initialData.format);
     setWhiteLabel(initialData.whiteLabel);
-  }, [initialData]);
+  }, [initialData, initialDataSignature]);
 
   const buildPosterData = useCallback((): PosterData => ({
     photo,
