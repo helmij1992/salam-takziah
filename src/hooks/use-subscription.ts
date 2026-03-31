@@ -199,6 +199,10 @@ export const useSubscription = () => {
   const identity = useMemo(() => getIdentityFromAuthUser(authUser), [authUser]);
 
   const refreshQuota = useCallback(async () => {
+    if (!isAuthResolved) {
+      return;
+    }
+
     if (!authUser) {
       setQuotaStatus(getLocalQuotaStatus(identity));
       setQuotaSource("local");
@@ -237,7 +241,7 @@ export const useSubscription = () => {
     });
     setQuotaSource("remote");
     setIsQuotaLoading(false);
-  }, [authUser, identity, plan]);
+  }, [authUser, identity, isAuthResolved, plan]);
 
   useEffect(() => {
     const syncSession = async () => {
@@ -264,8 +268,12 @@ export const useSubscription = () => {
   }, []);
 
   useEffect(() => {
+    if (!isAuthResolved) {
+      return;
+    }
+
     void refreshQuota();
-  }, [identity, plan, refreshQuota]);
+  }, [identity, isAuthResolved, plan, refreshQuota]);
 
   const recordPosterDownload = useCallback(async () => {
     if (plan !== "free" || !authUser) {

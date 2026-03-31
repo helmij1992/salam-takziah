@@ -150,11 +150,6 @@ const Dashboard = () => {
     importJobs,
     recycleBin,
     summary,
-    isRemoteReady,
-    isSyncing,
-    lastSyncedAt,
-    remoteError,
-    retryRemoteSync,
     saveDraft,
     deleteDraft,
     renameDraft,
@@ -498,19 +493,7 @@ const Dashboard = () => {
       return isMs ? "Belum disegerakkan" : "Not synced yet";
     }
 
-    if (remoteError) {
-      return isMs ? "Isu penyegerakan" : "Sync issue";
-    }
-
-    if (isSyncing) {
-      return isMs ? "Menyimpan..." : "Saving...";
-    }
-
-    if (lastSyncedAt && updatedAt <= lastSyncedAt) {
-      return isMs ? "Disimpan ke awan" : "Saved to cloud";
-    }
-
-    return isMs ? "Menunggu penyegerakan" : "Pending sync";
+    return isMs ? "Disimpan dalam ruang kerja" : "Saved in workspace";
   };
 
   useEffect(() => {
