@@ -269,6 +269,14 @@ const Dashboard = () => {
     premiumManageTeam: isMs ? "Urus Pasukan" : "Manage Team",
     premiumGenerateApi: isMs ? "Jana Integrasi" : "Generate Integration",
     premiumSummaryHint: isMs ? "Ringkasan prestasi ruang kerja" : "Workspace performance snapshot",
+    premiumTrialBadge: isMs ? "Percubaan Premium" : "Premium Trial",
+    premiumTrialRemaining: isMs ? "hari lagi" : "days left",
+    premiumTrialEndsOn: isMs ? "Percubaan tamat pada" : "Trial ends on",
+    premiumTrialDownloads: isMs ? "Muat turun trial Premium" : "Premium trial downloads",
+    premiumTrialExpiredTitle: isMs ? "Percubaan Premium tamat" : "Premium trial ended",
+    premiumTrialExpiredDescription: isMs
+      ? "Akses Premium anda hanya aktif untuk 14 hari selepas pendaftaran pertama. Akaun ini kini kembali ke ciri Free."
+      : "Your Premium access is only active for 14 days after first registration. This account has now returned to Free features.",
   };
 
   const {
@@ -280,6 +288,13 @@ const Dashboard = () => {
     isSuperadmin,
     isDiamondTier,
     isPaidTier,
+    isPremiumTrialActive,
+    hasPremiumTrialExpired,
+    premiumTrialEndsAt,
+    premiumTrialDaysRemaining,
+    premiumTrialDownloadCount,
+    premiumTrialDownloadsRemaining,
+    premiumTrialDownloadLimit,
     monthlyPosterCount,
     remainingFreePosters,
     userEmail,
@@ -324,13 +339,7 @@ const Dashboard = () => {
     "fullName,gender,organization,from\nAhmad bin Abdullah,allahyarham,Masjid Al Ikhlas,Keluarga Ahmad",
   );
 
-  const planLabel = isSuperadmin
-    ? "Superadmin"
-    : subscriptionPlan === "diamond"
-      ? "Premium"
-      : subscriptionPlan === "premium"
-        ? "Premium"
-        : "Free";
+  const planLabel = isSuperadmin ? "Superadmin" : isPaidTier ? "Premium" : "Free";
 
   const filteredDrafts = useMemo(() => {
     const keyword = draftSearch.trim().toLowerCase();
@@ -471,6 +480,14 @@ const Dashboard = () => {
     return (
       <main className="min-h-screen bg-gradient-to-b from-background via-background to-muted/30 p-4 md:p-6">
         <div className="mx-auto max-w-5xl space-y-6">
+          {hasPremiumTrialExpired && (
+            <Card className="border-amber-200/70 bg-amber-50/70 shadow-sm dark:border-amber-900/60 dark:bg-amber-950/20">
+              <CardContent className="p-5">
+                <p className="font-semibold">{ui.premiumTrialExpiredTitle}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{ui.premiumTrialExpiredDescription}</p>
+              </CardContent>
+            </Card>
+          )}
           <Card className="overflow-hidden border-border/60 shadow-sm">
             <CardContent className="p-0">
               <div className="grid gap-0 lg:grid-cols-[1.25fr_0.75fr]">
@@ -777,11 +794,26 @@ const Dashboard = () => {
                   </Badge>
                   <Badge variant="outline">{planLabel}</Badge>
                   <Badge variant="outline">{ui.premiumPrice}</Badge>
+                  {isPremiumTrialActive && (
+                    <Badge variant="secondary">
+                      {ui.premiumTrialBadge} • {premiumTrialDaysRemaining ?? 0} {ui.premiumTrialRemaining}
+                    </Badge>
+                  )}
                 </div>
                 <div className="space-y-3">
                   <h1 className="text-3xl font-bold tracking-tight md:text-4xl">{ui.title}</h1>
                   <p className="max-w-3xl text-muted-foreground">{ui.premiumIntro}</p>
                   <p className="text-sm text-primary">{ui.premiumHeroNote}</p>
+                  {isPremiumTrialActive && premiumTrialEndsAt && (
+                    <div className="space-y-1 text-sm text-muted-foreground">
+                      <p>{ui.premiumTrialEndsOn} {formatDate(premiumTrialEndsAt, locale)}</p>
+                      <p>
+                        {ui.premiumTrialDownloads}: {premiumTrialDownloadCount}/{premiumTrialDownloadLimit}
+                        {" • "}
+                        {premiumTrialDownloadsRemaining} {isMs ? "baki" : "remaining"}
+                      </p>
+                    </div>
+                  )}
                   <p className="text-sm text-muted-foreground">
                     {isMs ? "Log masuk sebagai" : "Signed in as"} {userEmail ?? "-"}
                   </p>

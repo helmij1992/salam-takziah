@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 type AuthUserState = {
   id: string;
   email: string | null;
+  createdAt: string | null;
   userMetadata: Record<string, unknown>;
   appMetadata: Record<string, unknown>;
 } | null;
@@ -27,6 +28,7 @@ const getAuthUserState = (session: Session | null): AuthUserState => {
   return {
     id: session.user.id,
     email: session.user.email ?? null,
+    createdAt: session.user.created_at ?? null,
     userMetadata: (session.user.user_metadata ?? {}) as Record<string, unknown>,
     appMetadata: (session.user.app_metadata ?? {}) as Record<string, unknown>,
   };

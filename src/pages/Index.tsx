@@ -30,6 +30,11 @@ const Index = () => {
     isFreeTier,
     isPaidTier,
     isDiamondTier,
+    isPremiumTrialActive,
+    premiumTrialDaysRemaining,
+    premiumTrialDownloadCount,
+    premiumTrialDownloadsRemaining,
+    premiumTrialDownloadLimit,
     remainingFreePosters,
     canGeneratePoster,
     canDownloadPoster,
@@ -196,6 +201,13 @@ const Index = () => {
             </Link>
             <div className="flex items-center gap-3">
               <Badge variant="secondary">{planLabel}</Badge>
+              {isPremiumTrialActive && (
+                <Badge variant="outline">
+                  {isMs
+                    ? `Percubaan ${premiumTrialDaysRemaining ?? 0} hari lagi • ${premiumTrialDownloadCount}/${premiumTrialDownloadLimit} muat turun`
+                    : `${premiumTrialDaysRemaining ?? 0} trial days left • ${premiumTrialDownloadCount}/${premiumTrialDownloadLimit} downloads`}
+                </Badge>
+              )}
               <LanguageSwitcher />
             </div>
           </div>
@@ -223,7 +235,11 @@ const Index = () => {
                   {currentDraftTitle ?? (isMs ? "Draf baharu" : "New draft")}
                 </p>
                 <p className="text-muted-foreground">
-                  {isDraftSaving
+                  {isPremiumTrialActive
+                    ? isMs
+                      ? `${premiumTrialDownloadsRemaining} muat turun trial Premium masih berbaki`
+                      : `${premiumTrialDownloadsRemaining} Premium trial downloads remaining`
+                    : isDraftSaving
                     ? isMs
                       ? "Menyimpan draf..."
                       : "Saving draft..."
