@@ -14,13 +14,103 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      poster_quota: {
+        Row: {
+          created_at: string
+          download_count: number
+          id: string
+          monthly_limit: number
+          period_key: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          download_count?: number
+          id?: string
+          monthly_limit?: number
+          period_key: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          download_count?: number
+          id?: string
+          monthly_limit?: number
+          period_key?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      workspace_state: {
+        Row: {
+          analytics: Json
+          api_credentials: Json
+          batches: Json
+          created_at: string
+          drafts: Json
+          import_jobs: Json
+          recycle_bin: Json
+          team: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          analytics?: Json
+          api_credentials?: Json
+          batches?: Json
+          created_at?: string
+          drafts?: Json
+          import_jobs?: Json
+          recycle_bin?: Json
+          team?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          analytics?: Json
+          api_credentials?: Json
+          batches?: Json
+          created_at?: string
+          drafts?: Json
+          import_jobs?: Json
+          recycle_bin?: Json
+          team?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      consume_free_poster_quota: {
+        Args: never
+        Returns: {
+          allowed: boolean
+          download_count: number
+          monthly_limit: number
+          period_key: string
+          remaining_count: number
+        }[]
+      }
+      get_free_poster_quota_status: {
+        Args: never
+        Returns: {
+          download_count: number
+          monthly_limit: number
+          period_key: string
+          remaining_count: number
+        }[]
+      }
+      submit_enterprise_request: {
+        Args: { request_source?: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
