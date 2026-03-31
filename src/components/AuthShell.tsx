@@ -25,6 +25,7 @@ const AuthShell = ({
   switchPrompt,
   switchLabel,
   switchTo,
+  switchState,
 }: AuthShellProps) => {
   const { t } = useLanguage();
   const authHighlights = [
